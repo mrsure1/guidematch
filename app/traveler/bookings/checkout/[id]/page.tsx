@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
-import CheckoutClient from "./CheckoutClient";
+import CheckoutClient from "@/app/traveler/bookings/components/CheckoutClient";
 
 export default async function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
