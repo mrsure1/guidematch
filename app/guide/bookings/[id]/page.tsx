@@ -70,7 +70,7 @@ export default async function BookingDetailsPage({ params }: { params: Promise<{
                     </CardHeader>
                     <CardContent className="flex flex-col items-center text-center pt-4">
                         <img
-                            src={booking.traveler.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.traveler.full_name || 'T')}&background=random`}
+                            src={booking.traveler.avatar_url || `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(booking.traveler.full_name || 'T')}`}
                             className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-4 object-cover"
                             alt="Traveler"
                         />

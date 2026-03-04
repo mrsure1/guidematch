@@ -42,9 +42,48 @@ export default async function TravelerSearch() {
         return g;
     });
 
+    const { data: tours, error: toursError } = await supabase
+        .from('tours')
+        .select(`
+            id,
+            guide_id,
+            title,
+            description,
+            region,
+            duration,
+            price,
+            max_guests,
+            photo,
+            is_active,
+            profiles (
+                id,
+                full_name,
+                avatar_url,
+                guides_detail (
+                    rating,
+                    review_count,
+                    languages
+                )
+            )
+        `)
+        .eq('is_active', true);
+
+    if (toursError) {
+        console.error("Error fetching tours:", toursError);
+    }
+
+    // Process tours to match profile structure safely
+    const processedTours = (tours || []).map(t => {
+        const profile = t.profiles as any;
+        if (profile && profile.guides_detail && Array.isArray(profile.guides_detail)) {
+            profile.guides_detail = profile.guides_detail[0] || {};
+        }
+        return t;
+    });
+
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
-            <SearchClient guides={processedGuides} />
+            <SearchClient guides={processedGuides} tours={processedTours} />
         </div>
     );
 }

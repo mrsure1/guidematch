@@ -26,7 +26,7 @@ function SignupForm() {
     const [existingProfile, setExistingProfile] = useState<any>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const handleOAuthSignup = async (provider: 'google' | 'kakao' | 'facebook') => {
+    const handleOAuthSignup = async (provider: 'google' | 'kakao') => {
         const supabase = createClient();
         if (supabase) {
             await supabase.auth.signInWithOAuth({
@@ -277,7 +277,7 @@ function SignupForm() {
                                         </div>
                                     </div>
 
-                                    <div className="mt-6 grid grid-cols-3 gap-3">
+                                    <div className="mt-6 grid grid-cols-2 gap-3">
                                         <Button type="button" variant="outline" fullWidth className="h-12 text-slate-700 bg-white/60 hover:bg-white border-slate-200 transition-all shadow-sm group px-0" onClick={() => handleOAuthSignup('google')}>
                                             <span className="w-5 h-5 mr-1 relative flex items-center justify-center">
                                                 <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
@@ -293,15 +293,9 @@ function SignupForm() {
                                         </Button>
                                         <Button type="button" variant="outline" fullWidth className="h-12 text-[#381E1F] bg-[#FEE500]/60 hover:bg-[#FEE500] border-transparent transition-all shadow-sm px-0" onClick={() => handleOAuthSignup('kakao')}>
                                             <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M12 3C6.47715 3 2 6.47715 2 10.7643C2 13.5133 3.69335 15.932 6.22383 17.2797L5.35821 20.4568C5.23485 20.9088 5.7501 21.2562 6.13601 20.9592L9.89667 18.0673C10.5739 18.239 11.2778 18.3286 12 18.3286C17.5228 18.3286 22 14.8514 22 10.5643C22 6.27715 17.5228 3 12 3Z" />
+                                                <path d="M12 3C6.47715 3 2 6.47715 2 10.7643C2 13.5133 3.69335 15.932 6.22383 17.2797L5.35821 20.4568C5.23485 20.9088 5.7501 21.2562 6.13601 20.9592L9.89667 18.0673C10.5739 18.3286 11.2778 18.3286 12 18.3286C17.5228 18.3286 22 14.8514 22 10.5643C22 6.27715 17.5228 3 12 3Z" />
                                             </svg>
                                             Kakao
-                                        </Button>
-                                        <Button type="button" variant="outline" fullWidth className="h-12 text-white bg-[#1877F2]/90 hover:bg-[#1877F2] border-transparent transition-all shadow-sm px-0" onClick={() => handleOAuthSignup('facebook')}>
-                                            <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                            </svg>
-                                            Facebook
                                         </Button>
                                     </div>
                                 </div>

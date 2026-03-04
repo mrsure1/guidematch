@@ -13,7 +13,7 @@ function LoginForm() {
     const searchParams = useSearchParams();
     const message = searchParams.get('message');
 
-    const handleOAuthLogin = async (provider: 'google' | 'kakao' | 'facebook') => {
+    const handleOAuthLogin = async (provider: 'google' | 'kakao') => {
         const supabase = createClient();
         if (supabase) {
             // 현재 URL 파라미터(role 등)를 콜백 URL에 명시적으로 전달

@@ -134,7 +134,7 @@ export default async function GuideDashboard() {
                                     <li key={booking.id} className="p-5 hover:bg-slate-50/80 transition-colors group">
                                         <div className="flex items-start gap-4">
                                             <img
-                                                src={booking.traveler.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.traveler.full_name || 'T')}&background=random`}
+                                                src={booking.traveler.avatar_url || `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(booking.traveler.full_name || 'T')}`}
                                                 className="w-12 h-12 rounded-full border border-slate-200 shadow-sm shrink-0 object-cover"
                                                 alt="Traveler"
                                             />

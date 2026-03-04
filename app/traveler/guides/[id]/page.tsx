@@ -54,7 +54,7 @@ export default async function GuideDetail({ params }: { params: Promise<{ id: st
                     <section className="flex flex-col sm:flex-row gap-6 items-start">
                         <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-slate-200 shrink-0 overflow-hidden relative shadow-md">
                             <img
-                                src={guide.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(guide.full_name || 'G')}&background=random`}
+                                src={guide.avatar_url || `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(guide.full_name || 'G')}`}
                                 alt="Guide Profile"
                                 className="w-full h-full object-cover"
                             />

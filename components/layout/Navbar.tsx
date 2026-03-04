@@ -99,7 +99,7 @@ export function Navbar({ profile }: NavbarProps) {
                     <Link href={isGuide ? "/guide/profile" : "/traveler/profile"} className="shrink-0">
                         <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden border-2 border-white shadow-md hover:ring-2 ring-accent transition-all cursor-pointer">
                             <img
-                                src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.full_name || 'User')}&background=random`}
+                                src={profile?.avatar_url || `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(profile?.full_name || 'User')}`}
                                 alt="Profile"
                                 className="w-full h-full object-cover"
                             />

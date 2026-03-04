@@ -28,7 +28,7 @@ export default async function TravelerProfile() {
 
                 <div className="relative z-10 w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden ring-4 ring-white shadow-xl">
                     <img
-                        src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.full_name || 'User')}&background=random`}
+                        src={profile?.avatar_url || `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(profile?.full_name || 'User')}`}
                         alt="Profile"
                         className="w-full h-full object-cover"
                     />
@@ -44,9 +44,11 @@ export default async function TravelerProfile() {
                 </div>
 
                 <div className="relative z-10 flex gap-2 w-full md:w-auto mt-4 md:mt-0">
-                    <Button variant="outline" size="sm" className="flex-1 md:flex-none h-11 border-slate-200 font-bold">
-                        프로필 수정
-                    </Button>
+                    <Link href="/traveler/profile/edit" className="flex-1 md:flex-none">
+                        <Button variant="outline" size="sm" className="w-full h-11 border-slate-200 font-bold">
+                            프로필 수정
+                        </Button>
+                    </Link>
                 </div>
             </div>
 
