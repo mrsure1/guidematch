@@ -88,7 +88,9 @@ export default function GuideCarouselClient({ guides }: { guides: GuideProfile[]
                                         </div>
                                     </div>
                                     <p className="text-sm text-slate-600 line-clamp-2 mb-4 font-light leading-relaxed">
-                                        "{guide.guides_detail.bio || '안녕하세요, 인증된 투어 가이드입니다.'}"
+                                        <span>&quot;</span>
+                                        {guide.guides_detail.bio || '안녕하세요, 인증된 투어 가이드입니다.'}
+                                        <span>&quot;</span>
                                     </p>
                                     <div className="mt-auto flex flex-wrap gap-1.5">
                                         {(guide.guides_detail.languages || ['한국어']).slice(0, 2).map((lang: string) => (

@@ -12,18 +12,11 @@ export default function HomeSearchClient({ initialKeyword = "" }: { initialKeywo
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
 
-        // 성능 최적화: 타이핑 마다 push하는 대신 엔터나 버튼 클릭 시에만 URL 업데이트
         const params = new URLSearchParams(window.location.search);
         if (keyword.trim()) {
             params.set('q', keyword);
         } else {
             params.delete('q');
-        }
-
-        // 검색 결과 영역으로 부드럽게 스크롤
-        const searchResults = document.getElementById('search-results');
-        if (searchResults) {
-            searchResults.scrollIntoView({ behavior: 'smooth' });
         }
 
         router.push(`/traveler/home?${params.toString()}`, { scroll: false });

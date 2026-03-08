@@ -12,7 +12,28 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local debug and temporary artifacts:
+    "*.bak",
+    "tmp/**",
+    "tmp_debug/**",
+    "debug_*.js",
+    "check_*.js",
+    "fix_*.js",
+    "test_*.js",
+    "tmp_*.ts",
   ]),
+  {
+    rules: {
+      // Existing codebase has broad `any` usage; keep signal as warning during incremental cleanup.
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
+  {
+    files: ["scripts/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

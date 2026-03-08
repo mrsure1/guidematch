@@ -24,7 +24,8 @@ export async function fetchToursAction({
                 avatar_url,
                 guides_detail (
                     rating,
-                    review_count
+                    review_count,
+                    languages
                 )
             )
         `)

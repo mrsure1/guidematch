@@ -15,12 +15,8 @@ function SignupForm() {
     const message = searchParams.get('message');
     const success = searchParams.get('success');
     const registeredEmail = searchParams.get('email');
-
-    // URL 파라미터에서 직접 초기값 설정 (지연 방지)
-    const initialRole = searchParams.get("role");
-    const [role, setRole] = useState<string>(
-        (initialRole === "guide" || initialRole === "traveler") ? initialRole : "traveler"
-    );
+    const roleParam = searchParams.get("role");
+    const role = (roleParam === "guide" || roleParam === "traveler") ? roleParam : "traveler";
 
     const [isExistingUser, setIsExistingUser] = useState(false);
     const [existingProfile, setExistingProfile] = useState<any>(null);
@@ -44,49 +40,44 @@ function SignupForm() {
 
 
     useEffect(() => {
-        const roleParam = searchParams.get("role");
-        if (roleParam === "guide" || roleParam === "traveler") {
-            setRole(roleParam);
+        // 이미 로그인된 사용자가 역할 카드를 클릭한 경우 대응
+        const checkSession = async () => {
+            const supabase = createClient();
+            const { data: { session } } = await supabase.auth.getSession();
 
-            // 이미 로그인된 사용자가 역할 카드를 클릭한 경우 대응
-            const checkSession = async () => {
-                const supabase = createClient();
-                const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                // 현재 프로필 정보 가져오기
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
 
-                if (session) {
-                    // 현재 프로필 정보 가져오기
-                    const { data } = await supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', session.user.id)
-                        .maybeSingle();
+                if (data) {
+                    setExistingProfile(data);
 
-                    if (data) {
-                        setExistingProfile(data);
-
-                        // 이미 해당 역할이라면 즉시 이동 (루프 방지)
-                        if (data.role === roleParam) {
-                            window.location.href = roleParam === 'guide' ? '/guide/dashboard' : '/traveler/home';
-                            return;
-                        }
-
-                        // 역할이 가이드이거나 어드민인 경우, 모든 역할 접근 허용
-                        if ((data.role === 'guide' || data.role === 'admin') && (roleParam === 'traveler' || roleParam === 'guide')) {
-                            window.location.href = roleParam === 'guide' ? '/guide/dashboard' : '/traveler/home';
-                            return;
-                        }
-
-                        // 역할이 여행자인데 가이드로 가입하려고 하는 경우만 전환 의사(새 계정 안내) 묻기
-                        setIsExistingUser(true);
-                    } else {
-                        // 세션은 있으나 프로필이 없는 특이 케이스
-                        setIsExistingUser(false);
+                    // 이미 해당 역할이라면 즉시 이동 (루프 방지)
+                    if (data.role === role) {
+                        window.location.href = role === 'guide' ? '/guide/dashboard' : '/traveler/home';
+                        return;
                     }
+
+                    // 역할이 가이드이거나 어드민인 경우, 모든 역할 접근 허용
+                    if ((data.role === 'guide' || data.role === 'admin') && (role === 'traveler' || role === 'guide')) {
+                        window.location.href = role === 'guide' ? '/guide/dashboard' : '/traveler/home';
+                        return;
+                    }
+
+                    // 역할이 여행자인데 가이드로 가입하려고 하는 경우만 전환 의사(새 계정 안내) 묻기
+                    setIsExistingUser(true);
+                } else {
+                    // 세션은 있으나 프로필이 없는 특이 케이스
+                    setIsExistingUser(false);
                 }
-            };
-            checkSession();
-        }
-    }, [searchParams]);
+            }
+        };
+        checkSession();
+    }, [role]);
 
     if (success === 'true') {
         return (

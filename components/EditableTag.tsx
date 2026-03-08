@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
 
@@ -45,9 +45,17 @@ export default function EditableTag({
 
     const toggle = () => {
         if (isControlled) {
-            setOpenId?.(isOpen ? null : id!);
+            const willOpen = !isOpen;
+            setOpenId?.(willOpen ? id! : null);
+            if (willOpen) {
+                requestAnimationFrame(updatePosition);
+            }
         } else {
-            setIsOpenLocal(!isOpen);
+            const willOpen = !isOpen;
+            setIsOpenLocal(willOpen);
+            if (willOpen) {
+                requestAnimationFrame(updatePosition);
+            }
         }
     };
 
@@ -60,10 +68,6 @@ export default function EditableTag({
             width: rect.width,
         });
     };
-
-    useLayoutEffect(() => {
-        if (isOpen) updatePosition();
-    }, [isOpen]);
 
     useEffect(() => {
         if (!isOpen) return;

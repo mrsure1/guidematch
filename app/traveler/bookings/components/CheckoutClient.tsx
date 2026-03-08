@@ -9,8 +9,9 @@ import Link from "next/link";
 import { ChevronLeft, CreditCard, User, FileText, Calendar, Clock, Users, Globe, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-// Toss Payments Client Key
-const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq";
+// Toss Payments Client Key (위젯 전용 테스트 클라이언트 키 사용 필수)
+// 일반 결제창 키(test_ck_...)가 아닌 결제위젯 키(test_gck_...)를 사용해야 합니다.
+const clientKey = process.env.NEXT_PUBLIC_TOSS_WIDGET_CLIENT_KEY || "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
 
 interface CheckoutClientProps {
     booking: any;
@@ -19,6 +20,9 @@ interface CheckoutClientProps {
 export default function CheckoutClient({ booking }: CheckoutClientProps) {
     const router = useRouter();
     const [paymentMethod, setPaymentMethod] = useState<'toss' | 'paypal' | 'kakao'>('toss');
+    const [travelerName, setTravelerName] = useState(booking.traveler?.full_name || '');
+    const [travelerEmail, setTravelerEmail] = useState(booking.traveler?.email || '');
+    const [travelerMessage, setTravelerMessage] = useState('');
 
     // Toss Payments Widget
     const [paymentWidget, setPaymentWidget] = useState<any>(null);
@@ -28,30 +32,27 @@ export default function CheckoutClient({ booking }: CheckoutClientProps) {
     useEffect(() => {
         let isMounted = true;
         (async () => {
-            // Both 'toss' and 'kakao' use Toss Payments SDK
-            if (paymentMethod === 'toss' || paymentMethod === 'kakao') {
-                try {
-                    setIsWidgetLoading(true);
-                    console.log(`Toss/Kakao: Starting initialization for ${paymentMethod}...`);
-                    const tossPayments = await loadTossPayments(clientKey);
+            try {
+                setIsWidgetLoading(true);
+                console.log(`Toss: Starting initialization...`);
+                const tossPayments = await loadTossPayments(clientKey);
 
-                    if (!isMounted) return;
+                if (!isMounted) return;
 
-                    const widget = tossPayments.widgets({
-                        customerKey: booking.traveler_id
-                    });
+                const widget = tossPayments.widgets({
+                    customerKey: booking.traveler_id
+                });
 
-                    console.log("Toss/Kakao: Widget initialized successfully");
-                    setPaymentWidget(widget);
-                } catch (error) {
-                    console.error("Toss/Kakao: Initialization error:", error);
-                } finally {
-                    if (isMounted) setIsWidgetLoading(false);
-                }
+                console.log("Toss: Widget initialized successfully");
+                setPaymentWidget(widget);
+            } catch (error) {
+                console.error("Toss: Initialization error:", error);
+            } finally {
+                if (isMounted) setIsWidgetLoading(false);
             }
         })();
         return () => { isMounted = false; };
-    }, [paymentMethod, booking.traveler_id]);
+    }, [booking.traveler_id]);
 
     useEffect(() => {
         if (paymentWidget && (paymentMethod === 'toss' || paymentMethod === 'kakao')) {
@@ -65,21 +66,20 @@ export default function CheckoutClient({ booking }: CheckoutClientProps) {
                         return;
                     }
 
-                    console.log("Toss/Kakao: Rendering payment methods...");
-                    const amount = {
-                        currency: "KRW",
-                        value: booking.total_price,
-                    };
+                    // v2 핵심: 위젯 렌더링 전이나 직후에 paymentWidget 인스턴스에 setAmount 호출 필수
+                    const amount = { currency: "KRW", value: booking.total_price };
+                    
+                    // 결제 금액 설정
+                    await paymentWidget.setAmount(amount);
 
                     const methodsWidget = await paymentWidget.renderPaymentMethods({
                         selector: "#payment-method",
-                        amount,
-                        options: { variantKey: "DEFAULT" }
+                        variantKey: "DEFAULT"
                     });
 
                     await paymentWidget.renderAgreement({
                         selector: "#agreement",
-                        options: { variantKey: "AGREEMENT" }
+                        variantKey: "AGREEMENT"
                     });
 
                     paymentMethodsWidgetRef.current = methodsWidget;
@@ -110,12 +110,12 @@ export default function CheckoutClient({ booking }: CheckoutClientProps) {
                 // but usually the widget handles the selection.
                 // For a dedicated KakaoPay experience via Toss:
                 const paymentOptions: any = {
-                    orderId: booking.id,
+                orderId: booking.id,
                     orderName: booking.tour?.title || `${booking.guide?.full_name} 가이드 투어`,
                     successUrl: `${window.location.origin}/api/payments/toss/success`,
                     failUrl: `${window.location.origin}/api/payments/toss/fail`,
-                    customerEmail: booking.traveler?.email || "customer@email.com",
-                    customerName: booking.traveler?.full_name || "고객",
+                    customerEmail: travelerEmail || "customer@email.com",
+                    customerName: travelerName || "고객",
                 };
 
                 console.log("Toss: Requesting payment with options:", paymentOptions);
@@ -124,7 +124,12 @@ export default function CheckoutClient({ booking }: CheckoutClientProps) {
                 // We'll proceed with the widget's current selection.
                 await paymentWidget.requestPayment(paymentOptions);
                 console.log("Toss: requestPayment call finished");
-            } catch (error) {
+            } catch (error: any) {
+                // 사용자가 결제창을 그냥 닫은 경우(취소) 발생하는 에러는 정상적인 동작이므로 무시합니다.
+                if (error?.message === "취소되었습니다." || error?.code === "USER_CANCEL") {
+                    console.log("Toss: Payment cancelled by user");
+                    return;
+                }
                 console.error("Toss: Payment request error:", error);
                 alert("결제 요청 중 오류가 발생했습니다.");
             }
@@ -193,11 +198,23 @@ export default function CheckoutClient({ booking }: CheckoutClientProps) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">이름</label>
-                                    <p className="text-sm font-semibold text-slate-900 bg-slate-50 px-4 py-3 rounded-lg border border-slate-200/60">{booking.traveler?.full_name}</p>
+                                    <input 
+                                        type="text"
+                                        value={travelerName}
+                                        onChange={(e) => setTravelerName(e.target.value)}
+                                        className="w-full text-sm font-semibold text-slate-900 bg-white px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+                                        placeholder="이름을 입력하세요"
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">이메일</label>
-                                    <p className="text-sm font-semibold text-slate-900 bg-slate-50 px-4 py-3 rounded-lg border border-slate-200/60">{booking.traveler?.email || '-'}</p>
+                                    <input 
+                                        type="email"
+                                        value={travelerEmail}
+                                        onChange={(e) => setTravelerEmail(e.target.value)}
+                                        className="w-full text-sm font-semibold text-slate-900 bg-white px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+                                        placeholder="이메일을 입력하세요"
+                                    />
                                 </div>
                             </div>
                             <div className="space-y-2">
@@ -205,6 +222,8 @@ export default function CheckoutClient({ booking }: CheckoutClientProps) {
                                     <FileText className="w-4 h-4" /> 가이드에게 보내는 메시지 (선택)
                                 </label>
                                 <textarea
+                                    value={travelerMessage}
+                                    onChange={(e) => setTravelerMessage(e.target.value)}
                                     className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all min-h-[100px]"
                                     placeholder="만나는 장소 관련 문의나 알러지 정보 등을 남겨주세요."
                                 />
@@ -313,6 +332,7 @@ export default function CheckoutClient({ booking }: CheckoutClientProps) {
                                 )}
                             </div>
                         </CardContent>
+
                     </Card>
                 </div>
 

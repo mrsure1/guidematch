@@ -22,7 +22,7 @@
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
   --color-accent-hover: var(--accent-hover);
-  --font-sans: var(--font-sans), "Pretendard", "Noto Sans KR", sans-serif;
+  --font-sans: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 }
 
 body {
@@ -31,6 +31,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scrollbar-gutter: stable;
 }
 
 /* Base Utility Classes */

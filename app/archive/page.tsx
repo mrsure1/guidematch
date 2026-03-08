@@ -136,7 +136,11 @@ export default function ArchivePage() {
                                                         ))}
                                                         <span className="text-xs font-bold text-slate-700 ml-1">나의 리뷰</span>
                                                     </div>
-                                                    <p className="text-sm text-slate-600 leading-snug line-clamp-2">"{tour.review}"</p>
+                                                    <p className="text-sm text-slate-600 leading-snug line-clamp-2">
+                                                        <span>&quot;</span>
+                                                        {tour.review}
+                                                        <span>&quot;</span>
+                                                    </p>
                                                 </div>
                                             ) : tour.status === '완료' ? (
                                                 <Button variant="outline" size="sm" className="bg-white border-amber-200 text-amber-600 hover:bg-amber-50 hover:text-amber-700 shadow-sm flex items-center gap-1 h-9 font-bold">

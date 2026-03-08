@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
-import { Clock, Star, Loader2 } from "lucide-react";
+import { Clock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { fetchToursAction } from "./actions";
 
@@ -36,12 +36,18 @@ export default function TourInfiniteListClient({
     const [hasMore, setHasMore] = useState(initialTours.length >= 10);
     const observerTarget = useRef<HTMLDivElement>(null);
 
-    // 검색어 변경 시 리스트 초기화
-    useEffect(() => {
-        setTours(initialTours);
-        setPage(1);
-        setHasMore(initialTours.length >= 10);
-    }, [initialTours, keyword]);
+    const loadMoreTours = useCallback(async () => {
+        setLoading(true);
+        const nextTours = await fetchToursAction({ keyword, page, pageSize: 10 });
+
+        if (nextTours.length < 10) {
+            setHasMore(false);
+        }
+
+        setTours(prev => [...prev, ...nextTours]);
+        setPage(prev => prev + 1);
+        setLoading(false);
+    }, [keyword, page]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -58,20 +64,7 @@ export default function TourInfiniteListClient({
         }
 
         return () => observer.disconnect();
-    }, [hasMore, loading, page, keyword]);
-
-    const loadMoreTours = async () => {
-        setLoading(true);
-        const nextTours = await fetchToursAction({ keyword, page, pageSize: 10 });
-
-        if (nextTours.length < 10) {
-            setHasMore(false);
-        }
-
-        setTours(prev => [...prev, ...nextTours]);
-        setPage(prev => prev + 1);
-        setLoading(false);
-    };
+    }, [hasMore, loading, loadMoreTours]);
 
     if (tours.length === 0) {
         return <div className="py-10 text-center text-slate-400 text-sm">현재 등록된 투어 상품이 없습니다.</div>;

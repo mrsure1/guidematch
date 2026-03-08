@@ -164,7 +164,9 @@ export default function GuidesClient({ initialGuides }: { initialGuides: GuideRe
                                 <div className="space-y-2">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">가이드 한줄 소개 / 자기소개</p>
                                     <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-slate-700 leading-relaxed italic">
-                                        "{guide.guides_detail.bio || '등록된 소개글이 없습니다.'}"
+                                        <span>&quot;</span>
+                                        {guide.guides_detail.bio || '등록된 소개글이 없습니다.'}
+                                        <span>&quot;</span>
                                     </div>
                                 </div>
                             </div>

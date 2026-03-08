@@ -1,17 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ReviewModal } from "@/components/review/ReviewModal";
-import { CalendarDays, Clock, Users, Ticket, MapPin, MessageSquare, Download, Repeat, Star, AlertTriangle, CreditCard } from "lucide-react";
+import { CalendarDays, Clock, Users, Ticket, MapPin, MessageSquare, Download, Repeat, Star, AlertTriangle, CreditCard, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export default function BookingsClient({ bookings }: { bookings: any[] }) {
-    const [activeStatus, setActiveStatus] = useState("upcoming"); // upcoming, past, cancelled
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [activeStatus, setActiveStatus] = useState(searchParams.get("tab") || "upcoming"); // upcoming, past, cancelled
     const [isReviewModalOpen, setReviewModalOpen] = useState(false);
     const [selectedTourForReview, setSelectedTourForReview] = useState("");
     const [selectedGuideId, setSelectedGuideId] = useState("");
+
+    // Update URL when tab changes
+    const handleTabChange = (status: string) => {
+        setActiveStatus(status);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("tab", status);
+        router.push(`?${params.toString()}`, { scroll: false });
+    };
+
+    // Ensure state stays in sync with URL (e.g., back button)
+    useEffect(() => {
+        const tab = searchParams.get("tab");
+        if (tab && tab !== activeStatus) {
+            setActiveStatus(tab);
+        }
+    }, [searchParams, activeStatus]);
 
     const now = new Date();
 
@@ -67,6 +86,26 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
         return `${hours}시간 ${minutes}분 남음`;
     };
 
+    const handleHideBooking = async (bookingId: string) => {
+        if (!confirm("이 내역을 목록에서 삭제하시겠습니까?\n(가이드의 기록에는 남으며, 나의 목록에서만 숨겨집니다.)")) return;
+
+        try {
+            const res = await fetch(`/api/bookings/hide?id=${bookingId}`, {
+                method: 'POST'
+            });
+            if (res.ok) {
+                alert("내역이 삭제되었습니다.");
+                router.refresh();
+            } else {
+                const data = await res.json();
+                alert(`삭제 실패: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Error hiding booking:", error);
+            alert("처리 중 오류가 발생했습니다.");
+        }
+    };
+
     const handleCancelBooking = async (bookingId: string) => {
         if (!confirm("정말로 이 예약을 취소하시겠습니까?")) return;
 
@@ -96,7 +135,8 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
             return b.status === "completed" || (b.status === "confirmed" && endDate < now);
         }
         // upcoming
-        return (b.status === "pending" || b.status === "confirmed" || b.status === "paid") && endDate >= now;
+        const comparisonDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return (b.status === "pending" || b.status === "confirmed" || b.status === "paid") && endDate >= comparisonDate;
     });
 
     return (
@@ -131,7 +171,7 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
             {/* Premium Tabs */}
             <div className="flex border-b border-slate-200 mb-8 overflow-x-auto hide-scrollbar gap-8">
                 <button
-                    onClick={() => setActiveStatus('upcoming')}
+                    onClick={() => handleTabChange('upcoming')}
                     className={`pb-4 text-sm font-bold whitespace-nowrap transition-all relative ${activeStatus === 'upcoming' ? 'text-accent' : 'text-slate-500 hover:text-slate-800'
                         }`}
                 >
@@ -141,7 +181,7 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
                     )}
                 </button>
                 <button
-                    onClick={() => setActiveStatus('past')}
+                    onClick={() => handleTabChange('past')}
                     className={`pb-4 text-sm font-bold whitespace-nowrap transition-all relative ${activeStatus === 'past' ? 'text-accent' : 'text-slate-500 hover:text-slate-800'
                         }`}
                 >
@@ -151,7 +191,7 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
                     )}
                 </button>
                 <button
-                    onClick={() => setActiveStatus('cancelled')}
+                    onClick={() => handleTabChange('cancelled')}
                     className={`pb-4 text-sm font-bold whitespace-nowrap transition-all relative ${activeStatus === 'cancelled' ? 'text-accent' : 'text-slate-500 hover:text-slate-800'
                         }`}
                 >
@@ -312,6 +352,14 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
                                     )}
                                     {activeStatus === 'past' && (
                                         <>
+                                            <Button
+                                                variant="outline"
+                                                className="bg-white border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 px-3"
+                                                onClick={() => handleHideBooking(booking.id)}
+                                                title="내역 숨기기"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
                                             <Button variant="outline" className="bg-white border-slate-200 hover:bg-slate-50 hover:text-accent shadow-sm" onClick={() => {
                                                 setSelectedTourForReview(`${guide.full_name} 가이드 투어`);
                                                 setReviewModalOpen(true);
@@ -325,6 +373,15 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
                                                 </Button>
                                             </Link>
                                         </>
+                                    )}
+                                    {activeStatus === 'cancelled' && (
+                                        <Button
+                                            variant="outline"
+                                            className="bg-white border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 flex items-center gap-2"
+                                            onClick={() => handleHideBooking(booking.id)}
+                                        >
+                                            <Trash2 className="w-4 h-4" /> 내역 삭제하기
+                                        </Button>
                                     )}
                                 </div>
                             </div>

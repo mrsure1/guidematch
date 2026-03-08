@@ -1,5 +1,0 @@
-Tag: a
-Script: javascript:go_view(176198);
-Is Blank: True
-Onclick Raw: None
-Href Raw: javascript:go_view(176198);

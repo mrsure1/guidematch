@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
-
-const sans = Noto_Sans_KR({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"],
-  variable: "--font-sans",
-});
 
 export const metadata: Metadata = {
   title: "Korea Guide Match - 프리미엄 한국 여행 가이드 매칭",
@@ -20,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={`${sans.variable} antialiased min-h-screen flex flex-col bg-slate-50`}>
+      <body className="antialiased min-h-screen flex flex-col bg-slate-50">
         {children}
       </body>
     </html>

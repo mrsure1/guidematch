@@ -93,12 +93,11 @@ export default function TourEditForm({ tour }: TourEditFormProps) {
         e.preventDefault();
 
         // 포함 사항 입력창에 텍스트가 남아있으면 자동으로 추가
-        let finalIncludedItems = [...formData.includedItems];
-        if (includedInput.trim()) {
-            if (!finalIncludedItems.includes(includedInput.trim())) {
-                finalIncludedItems.push(includedInput.trim());
-            }
-        }
+        const trimmedIncludedInput = includedInput.trim();
+        const finalIncludedItems =
+            trimmedIncludedInput && !formData.includedItems.includes(trimmedIncludedInput)
+                ? [...formData.includedItems, trimmedIncludedInput]
+                : formData.includedItems;
 
         if (!formData.title || !formData.description || !formData.region || !formData.duration || !formData.price || !formData.img) {
             alert("모든 필수 필드를 입력해주세요.");

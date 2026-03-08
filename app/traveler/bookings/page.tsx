@@ -2,6 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import BookingsClient from "./BookingsClient";
 
+function getTwentyFourHoursAgoIso(): string {
+    return new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+}
+
 export default async function TravelerBookings() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -11,7 +15,7 @@ export default async function TravelerBookings() {
     }
 
     // [Lazy Cleanup] 24시간 내 미결제된 확정(confirmed) 예약 자동 취소 처리
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const twentyFourHoursAgo = getTwentyFourHoursAgoIso();
 
     await supabase
         .from('bookings')
@@ -25,6 +29,7 @@ export default async function TravelerBookings() {
         .from('bookings')
         .select('*')
         .eq('traveler_id', user.id)
+        .eq('is_hidden_by_traveler', false)
         .order('created_at', { ascending: false });
 
     if (bookingsError) {
