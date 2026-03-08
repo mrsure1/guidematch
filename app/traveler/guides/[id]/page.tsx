@@ -44,6 +44,23 @@ export default async function GuideDetail({ params }: { params: Promise<{ id: st
         .select('*')
         .eq('guide_id', guide.id);
 
+    // 가이드에게 달린 최신 리뷰 10개 조회 (작성자 정보 포함)
+    const { data: reviews } = await supabase
+        .from('reviews')
+        .select(`
+            id,
+            rating,
+            content,
+            created_at,
+            traveler: traveler_id (
+                full_name,
+                avatar_url
+            )
+        `)
+        .eq('guide_id', guide.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -89,6 +106,54 @@ export default async function GuideDetail({ params }: { params: Promise<{ id: st
                         <div className="prose prose-slate max-w-none prose-p:leading-relaxed text-slate-600 font-light whitespace-pre-wrap">
                             {gd.bio || '소개글이 아직 없습니다.'}
                         </div>
+                    </section>
+                    
+                    {/* Reviews */}
+                    <section className="pt-8 border-t border-slate-100">
+                        <div className="flex items-center gap-3 mb-6">
+                            <h2 className="text-xl font-bold text-slate-900">여행자 후기</h2>
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 rounded-full">
+                                <span className="text-sm font-bold text-amber-600">★ {gd.rating || 0}</span>
+                                <span className="text-xs text-amber-600/70">({gd.review_count || 0}개)</span>
+                            </div>
+                        </div>
+
+                        {reviews && reviews.length > 0 ? (
+                            <div className="space-y-6">
+                                {reviews.map((review: any) => {
+                                    const traveler = review.traveler || {};
+                                    return (
+                                        <div key={review.id} className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <img
+                                                        src={traveler.avatar_url || `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(traveler.full_name || 'T')}`}
+                                                        alt="User"
+                                                        className="w-10 h-10 rounded-full border border-slate-200 shadow-sm"
+                                                    />
+                                                    <div>
+                                                        <p className="text-sm font-bold text-slate-900">{traveler.full_name || '익명 방문자'}</p>
+                                                        <p className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString()}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-0.5">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <span key={i} className={`text-lg ${i < review.rating ? 'text-amber-400' : 'text-slate-200'}`}>
+                                                            ★
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">{review.content}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
+                                <p className="text-slate-500 text-sm">아직 등록된 후기가 없습니다.<br />이 가이드와 첫 여행을 떠나보세요!</p>
+                            </div>
+                        )}
                     </section>
                 </div>
 
