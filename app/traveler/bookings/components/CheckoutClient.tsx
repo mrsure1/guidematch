@@ -26,6 +26,10 @@ const clientKey =
 type CheckoutClientProps = {
   booking: any;
   popupMode?: boolean;
+  initialPaymentMethod?: "toss" | "paypal" | "kakao";
+  initialTravelerName?: string;
+  initialTravelerEmail?: string;
+  autoStartPayment?: boolean;
 };
 
 type AlertConfig = {
@@ -50,12 +54,23 @@ function getPopupFeatures() {
   return `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
 }
 
-export default function CheckoutClient({ booking, popupMode = false }: CheckoutClientProps) {
+export default function CheckoutClient({
+  booking,
+  popupMode = false,
+  initialPaymentMethod = "toss",
+  initialTravelerName,
+  initialTravelerEmail,
+  autoStartPayment = false,
+}: CheckoutClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [paymentMethod, setPaymentMethod] = useState<"toss" | "paypal" | "kakao">("toss");
-  const [travelerName, setTravelerName] = useState(booking.traveler?.full_name || "");
-  const [travelerEmail, setTravelerEmail] = useState(booking.traveler?.email || "");
+  const [paymentMethod, setPaymentMethod] = useState<"toss" | "paypal" | "kakao">(initialPaymentMethod);
+  const [travelerName, setTravelerName] = useState(
+    initialTravelerName || booking.traveler?.full_name || "",
+  );
+  const [travelerEmail, setTravelerEmail] = useState(
+    initialTravelerEmail || booking.traveler?.email || "",
+  );
   const [travelerMessage, setTravelerMessage] = useState("");
   const [alertConfig, setAlertConfig] = useState<AlertConfig>({
     isOpen: false,
@@ -66,6 +81,7 @@ export default function CheckoutClient({ booking, popupMode = false }: CheckoutC
   const [isWidgetLoading, setIsWidgetLoading] = useState(false);
   const paymentMethodsWidgetRef = useRef<any>(null);
   const mountedErrorRef = useRef<string | null>(null);
+  const autoStartRef = useRef(false);
 
   const guideDetail = Array.isArray(booking.guide?.guides_detail)
     ? booking.guide?.guides_detail[0]
@@ -118,6 +134,17 @@ export default function CheckoutClient({ booking, popupMode = false }: CheckoutC
 
     showAlert("결제 진행 안내", detail);
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!popupMode || !autoStartPayment || autoStartRef.current) return;
+    if (!paymentWidget || isWidgetLoading) return;
+
+    autoStartRef.current = true;
+    const sanitizedUrl = new URL(window.location.href);
+    sanitizedUrl.searchParams.delete("autoStart");
+    window.history.replaceState(null, "", sanitizedUrl.toString());
+    void handlePaymentRequest();
+  }, [autoStartPayment, isWidgetLoading, paymentWidget, popupMode]);
 
   useEffect(() => {
     let isMounted = true;
@@ -184,6 +211,25 @@ export default function CheckoutClient({ booking, popupMode = false }: CheckoutC
 
   const handlePaymentRequest = async () => {
     if (paymentMethod !== "toss" && paymentMethod !== "kakao") return;
+
+    if (!popupMode) {
+      const popup = window.open(
+        `/payment-popup/${booking.id}?method=${paymentMethod}&customerName=${encodeURIComponent(
+          travelerName,
+        )}&customerEmail=${encodeURIComponent(travelerEmail)}&autoStart=1`,
+        `guidematch-payment-${booking.id}`,
+        getPopupFeatures(),
+      );
+
+      if (popup) {
+        popup.focus();
+      } else {
+        window.location.href = `/payment-popup/${booking.id}?method=${paymentMethod}&customerName=${encodeURIComponent(
+          travelerName,
+        )}&customerEmail=${encodeURIComponent(travelerEmail)}&autoStart=1`;
+      }
+      return;
+    }
 
     if (!paymentWidget) {
       showAlert("결제 위젯 안내", "결제 위젯이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
@@ -551,15 +597,4 @@ export default function CheckoutClient({ booking, popupMode = false }: CheckoutC
       />
     </div>
   );
-}
-
-export function openCheckoutPopup(bookingId: string) {
-  const popup = window.open(`/payment-popup/${bookingId}`, `guidematch-payment-${bookingId}`, getPopupFeatures());
-
-  if (!popup) {
-    window.location.href = `/traveler/bookings/checkout/${bookingId}`;
-    return;
-  }
-
-  popup.focus();
 }

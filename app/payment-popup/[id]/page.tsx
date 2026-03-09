@@ -4,10 +4,17 @@ import { getCheckoutBooking } from "@/lib/bookings/getCheckoutBooking";
 
 type PageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{
+    method?: "toss" | "paypal" | "kakao";
+    customerName?: string;
+    customerEmail?: string;
+    autoStart?: string;
+  }>;
 };
 
-export default async function PaymentPopupPage({ params }: PageProps) {
+export default async function PaymentPopupPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const query = await searchParams;
   const { user, booking, fullBooking, bookingError } = await getCheckoutBooking(id);
 
   if (!user) {
@@ -31,5 +38,14 @@ export default async function PaymentPopupPage({ params }: PageProps) {
     redirect("/payment-popup/result?status=error&message=invalid-booking-state");
   }
 
-  return <CheckoutClient booking={fullBooking} popupMode />;
+  return (
+    <CheckoutClient
+      booking={fullBooking}
+      popupMode
+      initialPaymentMethod={query.method === "kakao" || query.method === "paypal" ? query.method : "toss"}
+      initialTravelerName={query.customerName}
+      initialTravelerEmail={query.customerEmail}
+      autoStartPayment={query.autoStart === "1"}
+    />
+  );
 }

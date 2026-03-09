@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ReviewModal } from "@/components/review/ReviewModal";
-import { openCheckoutPopup } from "@/app/traveler/bookings/components/CheckoutClient";
 import { CalendarDays, Clock, Users, Ticket, MapPin, MessageSquare, Download, Repeat, Star, AlertTriangle, CreditCard, Trash2 } from "lucide-react";
 import Link from "next/link";
 
@@ -356,18 +355,15 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
                                                 </Button>
                                             </Link>
                                             {booking.status === 'confirmed' && (
-                                                <Button
-                                                    type="button"
-                                                    className={`${getTimeRemaining(booking.updated_at) === "기한 만료" ? "bg-slate-300 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"} text-white shadow-md flex items-center gap-2`}
-                                                    disabled={getTimeRemaining(booking.updated_at) === "기한 만료"}
-                                                    onClick={() => {
-                                                        if (getTimeRemaining(booking.updated_at) === "기한 만료") return;
-                                                        openCheckoutPopup(booking.id);
-                                                    }}
-                                                >
-                                                    <CreditCard className="w-4 h-4" />
-                                                    {getTimeRemaining(booking.updated_at) === "기한 만료" ? "기한 만료" : "결제하기"}
-                                                </Button>
+                                                <Link href={getTimeRemaining(booking.updated_at) === "기한 만료" ? "#" : `/traveler/bookings/checkout/${booking.id}`}>
+                                                    <Button
+                                                        className={`${getTimeRemaining(booking.updated_at) === "기한 만료" ? "bg-slate-300 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"} text-white shadow-md flex items-center gap-2`}
+                                                        disabled={getTimeRemaining(booking.updated_at) === "기한 만료"}
+                                                    >
+                                                        <CreditCard className="w-4 h-4" />
+                                                        {getTimeRemaining(booking.updated_at) === "기한 만료" ? "기한 만료" : "결제하기"}
+                                                    </Button>
+                                                </Link>
                                             )}
                                             {booking.status === 'paid' && (
                                                 <Button className="bg-slate-900 text-white hover:bg-slate-800 shadow-md flex items-center gap-2">
