@@ -1,10 +1,9 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { Star, MapPin, Clock, Users, Heart, Share2, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { Calendar } from "@/components/ui/Calendar";
+import { Star, MapPin, Clock, Users, Heart, Share2, ChevronLeft, CheckCircle2, Calendar as CalendarIcon, Minus, Plus } from "lucide-react";
 
 interface TourDetailClientProps {
     tour: any;
@@ -28,6 +27,8 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
 
     const [isPending, setIsPending] = useState(false);
     const [guests, setGuests] = useState(defaultGuests || 2);
+    const [selectedDate, setSelectedDate] = useState(startDateParam);
+    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
     const handleBooking = async () => {
         setIsPending(true);
@@ -35,9 +36,9 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
             const formData = new FormData();
             formData.append('guide_id', tour.guide_id);
             formData.append('tour_id', tour.id);
-            formData.append('start_date', startDateParam);
-            formData.append('end_date', startDateParam);
-            formData.append('total_price', (tour.price * guests * 1.05).toString()); // N인 기준 + 5% 수수료
+            formData.append('start_date', selectedDate);
+            formData.append('end_date', selectedDate);
+            formData.append('total_price', Math.round(tour.price * guests * 1.05).toString()); // N인 기준 + 5% 수수료
             formData.append('guests', guests.toString());
 
             const res = await fetch('/api/bookings/create', {
@@ -170,19 +171,53 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                                     </div>
 
                                     <div className="space-y-4 mb-8">
-                                        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
-                                            <div className="text-xs font-bold text-slate-500 mb-1">날짜 선택</div>
-                                            <div className="text-sm font-semibold text-slate-900">{startDateParam}</div>
+                                        <div className="relative">
+                                            <div
+                                                className="p-4 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-blue-300 transition-colors"
+                                                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                                            >
+                                                <div className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                                    <CalendarIcon className="w-3 h-3" /> 날짜 선택
+                                                </div>
+                                                <div className="text-sm font-semibold text-slate-900">{selectedDate}</div>
+                                            </div>
+
+                                            {isDatePickerOpen && (
+                                                <div className="absolute top-full left-0 right-0 z-[100] mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={selectedDate}
+                                                        onSelect={(date) => {
+                                                            setSelectedDate(date);
+                                                            setIsDatePickerOpen(false);
+                                                        }}
+                                                        defaultMonth={new Date(selectedDate)}
+                                                        minDate={new Date().toISOString().split('T')[0]}
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+
+                                        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center text-slate-900">
                                             <div>
                                                 <div className="text-xs font-bold text-slate-500 mb-1">인원</div>
-                                                <div className="text-sm font-semibold text-slate-900">총 {guests}명</div>
+                                                <div className="text-sm font-semibold">총 {guests}명</div>
                                             </div>
-                                            <div className="text-sm font-bold text-blue-600 cursor-pointer" onClick={() => {
-                                                const currentUrl = new URL(window.location.href);
-                                                alert("인원수나 날짜를 변경하시려면 뒤로 가기하여 조건 검색창을 이용해 주세요.");
-                                            }}>수정</div>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => setGuests(Math.max(1, guests - 1))}
+                                                    className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 transition-colors"
+                                                >
+                                                    <Minus className="w-3.5 h-3.5" />
+                                                </button>
+                                                <span className="text-sm font-bold min-w-4 text-center">{guests}</span>
+                                                <button
+                                                    onClick={() => setGuests(guests + 1)}
+                                                    className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-50 transition-colors"
+                                                >
+                                                    <Plus className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -197,7 +232,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                                         </div>
                                         <div className="flex justify-between text-lg font-black text-slate-900 pt-3 border-t border-slate-100">
                                             <span>총 합계</span>
-                                            <span>₩ {(tour.price * guests * 1.05)?.toLocaleString()}</span>
+                                            <span>₩ {Math.round(tour.price * guests * 1.05).toLocaleString()}</span>
                                         </div>
                                     </div>
 
