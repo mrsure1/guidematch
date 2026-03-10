@@ -73,18 +73,40 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
         }
     };
 
+    const photos = tour.photo ? tour.photo.split(',') : [];
+
     return (
         <div className="bg-white min-h-[calc(100vh-64px)] animate-fade-in pb-20">
             {/* Header image & Quick Nav */}
-            <div className="relative h-[40vh] md:h-[50vh] w-full bg-slate-900">
-                {tour.photo ? (
-                    <img src={tour.photo} alt={tour.title} className="w-full h-full object-cover opacity-80" />
+            <div className="relative h-[40vh] md:h-[50vh] w-full bg-slate-900 overflow-hidden">
+                {photos.length > 0 ? (
+                    <div className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth">
+                        {photos.map((photo: string, index: number) => (
+                            <div key={index} className="relative h-full w-full shrink-0 snap-start">
+                                <img
+                                    src={photo}
+                                    alt={`${tour.title} - ${index + 1}`}
+                                    className="w-full h-full object-cover opacity-80"
+                                />
+                            </div>
+                        ))}
+                    </div>
                 ) : (
                     <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500">
                         <MapPin className="w-16 h-16" />
                     </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+
+                {/* Carousel Indicators */}
+                {photos.length > 1 && (
+                    <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 gap-2 z-10">
+                        {photos.map((_: any, i: number) => (
+                            <div key={i} className="h-2 w-2 rounded-full bg-white/60 shadow-sm" />
+                        ))}
+                    </div>
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none" />
 
                 <div className="absolute top-6 left-4 md:left-8 right-4 md:right-8 flex justify-between items-center z-10">
                     <button onClick={() => router.back()} className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/50 transition-colors">

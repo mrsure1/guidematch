@@ -199,24 +199,44 @@ function GuideCard({ guide, queryString }: { guide: LandingGuide, queryString?: 
 }
 
 function TourCard({ tour, queryString }: { tour: LandingTour, queryString?: string }) {
+  const photos = tour.photo ? tour.photo.split(',') : ['https://images.unsplash.com/photo-1544750040-4ea9b8a27d38?q=80&w=800'];
+
   return (
-    <Link
-      href={`/traveler/tours/${tour.id}${queryString || ''}`}
-      className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#e9e4db] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(15,23,42,0.08)]"
-    >
+    <div className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#e9e4db] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(15,23,42,0.08)]">
       <div className="relative aspect-[4/3] overflow-hidden bg-[#f5f1ea]">
-        <Image
-          src={tour.photo}
-          alt={tour.title}
-          fill
-          sizes="(min-width: 1280px) 24rem, (min-width: 768px) 33vw, 100vw"
-          className="object-cover transition duration-500 group-hover:scale-105"
-        />
-        <div className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1 text-xs font-semibold text-slate-900 backdrop-blur">
+        {/* Image Carousel */}
+        <div className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth">
+          {photos.map((photo, index) => (
+            <div key={index} className="relative h-full w-full shrink-0 snap-start">
+              <Image
+                src={photo}
+                alt={`${tour.title} - ${index + 1}`}
+                fill
+                sizes="(min-width: 1280px) 24rem, (min-width: 768px) 33vw, 100vw"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Carousel Indicators (Dots) */}
+        {photos.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 z-10">
+            {photos.map((_, i) => (
+              <div key={i} className="h-1.5 w-1.5 rounded-full bg-white/60 shadow-sm" />
+            ))}
+          </div>
+        )}
+
+        <div className="absolute left-4 top-4 z-10 rounded-full bg-white/92 px-3 py-1 text-xs font-semibold text-slate-900 backdrop-blur">
           {tour.region}
         </div>
       </div>
-      <div className="flex flex-1 flex-col gap-4 p-5">
+
+      <Link
+        href={`/traveler/tours/${tour.id}${queryString || ''}`}
+        className="flex flex-1 flex-col gap-4 p-5"
+      >
         <div>
           <h3 className="line-clamp-2 text-lg font-semibold text-slate-900">{tour.title}</h3>
           <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{tour.description}</p>
@@ -238,8 +258,8 @@ function TourCard({ tour, queryString }: { tour: LandingTour, queryString?: stri
           </div>
           <p className="text-xs font-medium text-slate-600">자세히 보기</p>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 

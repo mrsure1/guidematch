@@ -180,12 +180,12 @@ export default function SearchClient({
       setActiveTab(type);
       hasChanged = true;
     }
-    
+
     // 페이지네이션 리셋 제어
     if (hasChanged) {
       setGuidePage(1);
       setTourPage(1);
-      
+
       // 검색 결과가 있는 경우 부드럽게 스크롤
       if (q.trim()) {
         const timeoutId = setTimeout(() => {
@@ -211,7 +211,7 @@ export default function SearchClient({
       setGuidePage(1);
       setTourPage(1);
       setSortBy("추천순");
-      
+
       const params = new URLSearchParams(searchParams.toString());
       params.set("type", tab);
       router.replace(`?${params.toString()}`, { scroll: false });
@@ -429,19 +429,39 @@ export default function SearchClient({
 
   const TourCard = ({ tour }: { tour: Tour }) => {
     const guideDetail = getTourGuideDetail(tour);
+    const photos = tour.photo ? tour.photo.split(',') : ["https://images.unsplash.com/photo-1544750040-4ea9b8a27d38?q=80&w=800"];
+
     return (
-      <Link href={`/traveler/tours/${tour.id}`}>
-        <Card className="premium-card group flex h-full cursor-pointer flex-col gap-0 overflow-hidden border-slate-200/60 bg-white transition-all hover:border-blue-300 hover:shadow-xl hover:shadow-blue-900/10">
-          <div className="relative h-48 overflow-hidden bg-slate-100">
-            <img
-              src={tour.photo || "https://images.unsplash.com/photo-1544750040-4ea9b8a27d38?q=80&w=800"}
-              alt="Tour"
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute left-3 top-3 rounded-lg bg-white/90 px-2 py-1 text-[10px] font-bold text-slate-900 shadow-sm backdrop-blur-md">
-              {tour.region}
-            </div>
+      <Card className="premium-card group flex h-full cursor-pointer flex-col gap-0 overflow-hidden border-slate-200/60 bg-white transition-all hover:border-blue-300 hover:shadow-xl hover:shadow-blue-900/10">
+        <div className="relative h-48 overflow-hidden bg-slate-100">
+          {/* Image Carousel */}
+          <div className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth">
+            {photos.map((photo, index) => (
+              <div key={index} className="relative h-full w-full shrink-0 snap-start">
+                <img
+                  src={photo}
+                  alt={`${tour.title} - ${index + 1}`}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+            ))}
           </div>
+
+          {/* Carousel Indicators */}
+          {photos.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 z-10">
+              {photos.map((_, i) => (
+                <div key={i} className="h-1.5 w-1.5 rounded-full bg-white/60 shadow-sm" />
+              ))}
+            </div>
+          )}
+
+          <div className="absolute left-3 top-3 z-10 rounded-lg bg-white/90 px-2 py-1 text-[10px] font-bold text-slate-900 shadow-sm backdrop-blur-md">
+            {tour.region}
+          </div>
+        </div>
+
+        <Link href={`/traveler/tours/${tour.id}`} className="flex flex-1 flex-col justify-between">
           <CardContent className="flex flex-1 flex-col justify-between p-5">
             <div>
               <h3 className="mb-2 line-clamp-2 text-lg font-bold text-slate-900 transition-colors group-hover:text-blue-700">
@@ -463,8 +483,8 @@ export default function SearchClient({
               </div>
             </div>
           </CardContent>
-        </Card>
-      </Link>
+        </Link>
+      </Card>
     );
   };
 
@@ -479,9 +499,9 @@ export default function SearchClient({
           </div>
         </div>
         <div className="p-4 space-y-3">
-          <Button 
-            variant="outline" 
-            fullWidth 
+          <Button
+            variant="outline"
+            fullWidth
             className="justify-between h-12 border-slate-200 bg-white/50 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 font-bold rounded-xl transition-all group"
             onClick={() => {
               setSearchKeyword('');
@@ -500,9 +520,9 @@ export default function SearchClient({
             </div>
             <ChevronRight className="w-4 h-4 opacity-30 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
           </Button>
-          <Button 
-            variant="outline" 
-            fullWidth 
+          <Button
+            variant="outline"
+            fullWidth
             className="justify-between h-12 border-slate-200 bg-white/50 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 font-bold rounded-xl transition-all group"
             onClick={() => {
               setSearchKeyword('');
@@ -547,7 +567,7 @@ export default function SearchClient({
             여행 꿀팁
           </h3>
           <p className="text-xs text-blue-100 font-medium leading-relaxed mb-4">
-            가이드와 미리 연락하여 <br/>코스를 조정하면 더 만족스럽답니다!
+            가이드와 미리 연락하여 <br />코스를 조정하면 더 만족스럽답니다!
           </p>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-[10px] font-bold bg-white/10 p-2 rounded-lg border border-white/10">
@@ -593,12 +613,12 @@ export default function SearchClient({
         </h4>
         <div className="flex flex-wrap gap-2">
           {["#서울야경", "#현지인맛집", "#사진전문가", "#역사기행", "#DMZ투어", "#동대문쇼핑"].map((tag) => (
-            <button 
+            <button
               key={tag}
               onClick={() => {
                 handleKeywordChange(tag.replace('#', ''))
                 setIsMobileMenuOpen(false);
-              }} 
+              }}
               className="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-[11px] font-bold text-slate-600 hover:border-blue-400 hover:text-blue-600 hover:shadow-sm transition-all shadow-sm"
             >
               {tag}
@@ -622,7 +642,7 @@ export default function SearchClient({
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
           {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           />
@@ -633,7 +653,7 @@ export default function SearchClient({
                 <Menu className="w-5 h-5 text-indigo-600" />
                 탐색 및 알림
               </h2>
-              <button 
+              <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2 -mr-2 rounded-full bg-transparent hover:bg-slate-200 text-slate-500 transition-colors"
                 aria-label="닫기"
@@ -717,22 +737,20 @@ export default function SearchClient({
                 <button
                   type="button"
                   onClick={() => handleActiveTabChange("guide")}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-black transition-all ${
-                    activeTab === "guide"
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-black transition-all ${activeTab === "guide"
                       ? "scale-[1.02] bg-white text-blue-600 shadow-md"
                       : "text-slate-500 hover:text-slate-700"
-                  }`}
+                    }`}
                 >
                   <User className="h-4 w-4" /> 가이드 찾기
                 </button>
                 <button
                   type="button"
                   onClick={() => handleActiveTabChange("tour")}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-black transition-all ${
-                    activeTab === "tour"
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-black transition-all ${activeTab === "tour"
                       ? "scale-[1.02] bg-white text-blue-600 shadow-md"
                       : "text-slate-500 hover:text-slate-700"
-                  }`}
+                    }`}
                 >
                   <Heart className="h-4 w-4" /> 투어 상품 탐색
                 </button>
@@ -741,8 +759,8 @@ export default function SearchClient({
             <div className="flex flex-col justify-between gap-4 border-b border-slate-100 bg-white/40 p-6 sm:flex-row sm:items-center">
               <div>
                 <h2 className="text-xl font-black text-slate-900">
-                  {isSearching 
-                    ? `${activeTab === "guide" ? "가이드" : "투어"} 검색 결과` 
+                  {isSearching
+                    ? `${activeTab === "guide" ? "가이드" : "투어"} 검색 결과`
                     : `전체 ${activeTab === "guide" ? "가이드" : "투어 상품"} 목록`}
                 </h2>
                 <p className="text-sm text-slate-500">
