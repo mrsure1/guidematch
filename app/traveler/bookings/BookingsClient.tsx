@@ -300,7 +300,7 @@ export default function BookingsClient({ bookings }: { bookings: any[] }) {
                                             </div>
                                             <div>
                                                 <p className="text-xs font-semibold text-slate-500 mb-0.5">이용 인원</p>
-                                                <p className="text-sm font-bold text-slate-900">미정</p>
+                                                <p className="text-sm font-bold text-slate-900">{booking.guests ? `${booking.guests}명` : '미정'}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">

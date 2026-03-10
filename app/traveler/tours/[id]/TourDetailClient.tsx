@@ -38,6 +38,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
             formData.append('start_date', startDateParam);
             formData.append('end_date', startDateParam);
             formData.append('total_price', (tour.price * guests * 1.05).toString()); // N인 기준 + 5% 수수료
+            formData.append('guests', guests.toString());
 
             const res = await fetch('/api/bookings/create', {
                 method: 'POST',

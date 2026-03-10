@@ -9,6 +9,7 @@ export async function POST(request: Request) {
         const start_date = formData.get('start_date') as string;
         const end_date = formData.get('end_date') as string;
         const total_price = formData.get('total_price') as string;
+        const guests = formData.get('guests') as string;
 
         console.log('--- Booking Attempt ---');
         console.log('Guide ID:', guide_id);
@@ -88,7 +89,8 @@ export async function POST(request: Request) {
                 start_date: new Date(start_date).toISOString(),
                 end_date: new Date(end_date).toISOString(),
                 status: 'pending',
-                total_price: parseFloat(total_price)
+                total_price: parseFloat(total_price),
+                guests: parseInt(guests || "1", 10)
             }
         ]).select();
 

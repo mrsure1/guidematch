@@ -93,6 +93,7 @@ export default function BookingWidgetClient({
             formData.append('start_date', dateRange.from)
             formData.append('end_date', dateRange.to || dateRange.from)
             formData.append('total_price', totalPrice.toString())
+            formData.append('guests', guests.toString())
 
             const res = await fetch('/api/bookings/create', {
                 method: 'POST',

@@ -401,11 +401,10 @@ export default function CheckoutClient({
               <div className="relative z-10 mx-6 mb-6 flex flex-col gap-3 pt-6 md:mx-0 md:flex-row md:pt-0">
                 <button
                   type="button"
-                  className={`flex-1 rounded-xl border-2 px-3 py-3 font-bold transition-all ${
-                    paymentMethod === "toss"
+                  className={`flex-1 rounded-xl border-2 px-3 py-3 font-bold transition-all ${paymentMethod === "toss"
                       ? "border-blue-600 bg-blue-50 text-blue-700 shadow-sm"
                       : "border-slate-200 text-slate-500 hover:bg-slate-50"
-                  }`}
+                    }`}
                   onClick={() => setPaymentMethod("toss")}
                 >
                   <span className="text-lg font-bold text-blue-600">toss</span>
@@ -413,11 +412,10 @@ export default function CheckoutClient({
                 </button>
                 <button
                   type="button"
-                  className={`flex-1 rounded-xl border-2 px-3 py-3 font-bold transition-all ${
-                    paymentMethod === "kakao"
+                  className={`flex-1 rounded-xl border-2 px-3 py-3 font-bold transition-all ${paymentMethod === "kakao"
                       ? "border-[#ffeb00] bg-[#ffeb00]/10 text-[#3c1e1e] shadow-sm"
                       : "border-slate-200 text-slate-500 hover:bg-slate-50"
-                  }`}
+                    }`}
                   onClick={() => setPaymentMethod("kakao")}
                 >
                   <span className="rounded bg-[#ffeb00] px-1.5 py-0.5 text-[10px] font-black text-[#3c1e1e]">
@@ -427,11 +425,10 @@ export default function CheckoutClient({
                 </button>
                 <button
                   type="button"
-                  className={`flex-1 rounded-xl border-2 px-3 py-3 font-bold transition-all ${
-                    paymentMethod === "paypal"
+                  className={`flex-1 rounded-xl border-2 px-3 py-3 font-bold transition-all ${paymentMethod === "paypal"
                       ? "border-[#003087] bg-blue-50 text-[#003087] shadow-sm"
                       : "border-slate-200 text-slate-500 hover:bg-slate-50"
-                  }`}
+                    }`}
                   onClick={() => setPaymentMethod("paypal")}
                 >
                   <span className="text-lg font-black italic tracking-tight text-[#003087]">PayPal</span>
@@ -490,11 +487,10 @@ export default function CheckoutClient({
                         fullWidth
                         size="lg"
                         disabled={isWidgetLoading || !paymentWidget}
-                        className={`mt-4 h-14 rounded-xl border-0 text-base font-bold shadow-lg transition-all hover:-translate-y-0.5 ${
-                          paymentMethod === "kakao"
+                        className={`mt-4 h-14 rounded-xl border-0 text-base font-bold shadow-lg transition-all hover:-translate-y-0.5 ${paymentMethod === "kakao"
                             ? "bg-[#ffeb00] text-[#3c1e1e] shadow-yellow-500/25 hover:bg-[#f7e100]"
                             : "bg-blue-600 text-white shadow-blue-600/25 hover:bg-blue-700"
-                        }`}
+                          }`}
                         onClick={handlePaymentRequest}
                       >
                         {isWidgetLoading
@@ -562,8 +558,8 @@ export default function CheckoutClient({
 
                 <div className="space-y-3 border-b border-slate-200 py-6">
                   <div className="flex justify-between text-sm">
-                    <span className="font-medium text-slate-500">단품 결제</span>
-                    <span className="font-bold text-slate-900">-</span>
+                    <span className="font-medium text-slate-500">이용 인원</span>
+                    <span className="font-bold text-slate-900">{booking.guests ? `${booking.guests}명` : "미정"}</span>
                   </div>
                 </div>
 
