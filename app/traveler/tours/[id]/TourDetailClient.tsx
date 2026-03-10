@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -12,22 +12,32 @@ interface TourDetailClientProps {
 
 export default function TourDetailClient({ tour }: TourDetailClientProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Set default values from URL parameters
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const defaultDateStr = tomorrow.toISOString().split('T')[0];
+    const startDateParam = searchParams.get('startDate') || defaultDateStr;
+
+    const pAdults = searchParams.get('adults');
+    const pChildren = searchParams.get('children');
+    const defaultAdults = pAdults ? parseInt(pAdults, 10) : 2;
+    const defaultChildren = pChildren ? parseInt(pChildren, 10) : 0;
+    const defaultGuests = (isNaN(defaultAdults) ? 2 : defaultAdults) + (isNaN(defaultChildren) ? 0 : defaultChildren);
+
     const [isPending, setIsPending] = useState(false);
+    const [guests, setGuests] = useState(defaultGuests || 2);
 
     const handleBooking = async () => {
         setIsPending(true);
         try {
-            // 내일 날짜로 기본 설정
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const dateStr = tomorrow.toISOString().split('T')[0];
-
             const formData = new FormData();
             formData.append('guide_id', tour.guide_id);
             formData.append('tour_id', tour.id);
-            formData.append('start_date', dateStr);
-            formData.append('end_date', dateStr);
-            formData.append('total_price', (tour.price * 2 * 1.05).toString()); // 2인 기준 + 5% 수수료
+            formData.append('start_date', startDateParam);
+            formData.append('end_date', startDateParam);
+            formData.append('total_price', (tour.price * guests * 1.05).toString()); // N인 기준 + 5% 수수료
 
             const res = await fetch('/api/bookings/create', {
                 method: 'POST',
@@ -161,29 +171,32 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                                     <div className="space-y-4 mb-8">
                                         <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
                                             <div className="text-xs font-bold text-slate-500 mb-1">날짜 선택</div>
-                                            <div className="text-sm font-semibold text-slate-900">내일 (자동 설정됨)</div>
+                                            <div className="text-sm font-semibold text-slate-900">{startDateParam}</div>
                                         </div>
                                         <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
                                             <div>
                                                 <div className="text-xs font-bold text-slate-500 mb-1">인원</div>
-                                                <div className="text-sm font-semibold text-slate-900">성인 2명</div>
+                                                <div className="text-sm font-semibold text-slate-900">총 {guests}명</div>
                                             </div>
-                                            <div className="text-sm font-bold text-blue-600">수정</div>
+                                            <div className="text-sm font-bold text-blue-600 cursor-pointer" onClick={() => {
+                                                const currentUrl = new URL(window.location.href);
+                                                alert("인원수나 날짜를 변경하시려면 뒤로 가기하여 조건 검색창을 이용해 주세요.");
+                                            }}>수정</div>
                                         </div>
                                     </div>
 
                                     <div className="space-y-3 pt-6 border-t border-slate-100 mb-8">
                                         <div className="flex justify-between text-slate-600 text-sm">
-                                            <span>₩ {tour.price?.toLocaleString()} x 2인</span>
-                                            <span>₩ {(tour.price * 2)?.toLocaleString()}</span>
+                                            <span>₩ {tour.price?.toLocaleString()} x {guests}인</span>
+                                            <span>₩ {(tour.price * guests)?.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between text-slate-600 text-sm">
                                             <span>서비스 수수료</span>
-                                            <span>₩ {(tour.price * 2 * 0.05)?.toLocaleString()}</span>
+                                            <span>₩ {(tour.price * guests * 0.05)?.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between text-lg font-black text-slate-900 pt-3 border-t border-slate-100">
                                             <span>총 합계</span>
-                                            <span>₩ {(tour.price * 2 * 1.05)?.toLocaleString()}</span>
+                                            <span>₩ {(tour.price * guests * 1.05)?.toLocaleString()}</span>
                                         </div>
                                     </div>
 

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useTransition, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Calendar } from "@/components/ui/Calendar"
@@ -21,10 +21,21 @@ export default function BookingWidgetClient({
     unavailableDates: any[]
 }) {
     const router = useRouter()
+    const searchParams = useSearchParams()
+
+    // Set default values from URL parameters
+    const defaultStart = searchParams.get('startDate') || ""
+    const defaultEnd = searchParams.get('endDate') || defaultStart
+    const pAdults = searchParams.get('adults')
+    const pChildren = searchParams.get('children')
+    const defaultAdults = pAdults ? parseInt(pAdults, 10) : 1
+    const defaultChildren = pChildren ? parseInt(pChildren, 10) : 0
+    const defaultGuests = (isNaN(defaultAdults) ? 1 : defaultAdults) + (isNaN(defaultChildren) ? 0 : defaultChildren)
+
     const [isPending, startTransition] = useTransition()
-    const [dateRange, setDateRange] = useState<{ from: string; to: string }>({ from: "", to: "" })
+    const [dateRange, setDateRange] = useState<{ from: string; to: string }>({ from: defaultStart, to: defaultEnd })
     const [durationHours, setDurationHours] = useState(4) // Default 4 hours for hourly booking
-    const [guests, setGuests] = useState(1)
+    const [guests, setGuests] = useState(defaultGuests || 1)
 
     // Calculate total price based on rateType
     const start = dateRange.from ? new Date(dateRange.from) : null

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import BookingWidgetClient from "./BookingWidgetClient";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Suspense } from "react";
 
 export default async function GuideDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -107,7 +108,7 @@ export default async function GuideDetail({ params }: { params: Promise<{ id: st
                             {gd.bio || '소개글이 아직 없습니다.'}
                         </div>
                     </section>
-                    
+
                     {/* Reviews */}
                     <section className="pt-8 border-t border-slate-100">
                         <div className="flex items-center gap-3 mb-6">
@@ -160,13 +161,15 @@ export default async function GuideDetail({ params }: { params: Promise<{ id: st
                 {/* Right Column - Booking Widget & Calendar */}
                 <div className="lg:col-span-1">
                     <div className="sticky top-24">
-                        <BookingWidgetClient
-                            guideId={guide.id}
-                            isProfileComplete={true} // [테스트 모드] 상세 프로필 여부와 상관없이 예약 활성화
-                            rateType={gd?.rate_type || 'daily'}
-                            hourlyRate={Number(gd?.hourly_rate || 150000)} // 요금 정보가 없으면 기본값(15만) 적용
-                            unavailableDates={unavailabilities || []}
-                        />
+                        <Suspense fallback={<div className="p-8 text-center text-slate-500">위젯 로딩 중...</div>}>
+                            <BookingWidgetClient
+                                guideId={guide.id}
+                                isProfileComplete={true} // [테스트 모드] 상세 프로필 여부와 상관없이 예약 활성화
+                                rateType={gd?.rate_type || 'daily'}
+                                hourlyRate={Number(gd?.hourly_rate || 150000)} // 요금 정보가 없으면 기본값(15만) 적용
+                                unavailableDates={unavailabilities || []}
+                            />
+                        </Suspense>
                     </div>
                 </div>
             </div>
