@@ -91,7 +91,7 @@ export function BrandLogo({
           )}
         >
           <span>Guide</span>
-          <span className={tone === "light" ? "text-[#ffd7df]" : "text-[#ff385c]"}>Match</span>
+          <span className={tone === "light" ? "text-blue-400" : "text-blue-600"}>Match</span>
         </p>
         {showTagline ? (
           <p

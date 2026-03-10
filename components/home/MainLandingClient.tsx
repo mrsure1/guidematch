@@ -529,7 +529,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                   type="submit"
                   size="lg"
                   disabled={!canSearch}
-                  className="h-14 w-full rounded-full bg-[#ff385c] px-7 text-sm font-semibold text-white hover:bg-[#e43355] lg:w-auto"
+                  className="h-14 w-full rounded-full bg-blue-600 px-7 text-sm font-semibold text-white hover:bg-blue-700 lg:w-auto"
                 >
                   <Search className="mr-2 h-4 w-4" />
                   검색

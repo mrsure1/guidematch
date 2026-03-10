@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { ForgotPasswordModal } from "@/components/ui/ForgotPasswordModal";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 function LoginForm() {
     const searchParams = useSearchParams();
@@ -152,7 +153,10 @@ export default function Login() {
             <div className="absolute bottom-20 left-10 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-[pulse-slow_9s_ease-in-out_infinite_1s]" />
 
             <div className="sm:mx-auto sm:w-full sm:max-w-md animate-fade-in-up relative z-10">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 tracking-tight">
+                <div className="flex justify-center mb-6">
+                    <BrandLogo href="/" size="lg" tone="dark" variant="signature" showTagline={false} />
+                </div>
+                <h2 className="text-center text-3xl font-extrabold text-slate-900 tracking-tight">
                     계정 로그인
                 </h2>
                 <p className="mt-2 text-center text-sm text-slate-600 font-light">
