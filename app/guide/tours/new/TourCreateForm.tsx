@@ -4,12 +4,14 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { X, Plus, ImagePlus } from "lucide-react";
+import { X, Plus, ImagePlus, Loader2 } from "lucide-react";
 import { createTourAction } from "../actions";
+import { uploadFile } from "@/lib/supabase/storage";
 
 export default function TourCreateForm() {
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
+    const [uploading, setUploading] = useState(false);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -18,40 +20,63 @@ export default function TourCreateForm() {
         duration: "",
         price: "",
         maxGuests: "",
-        img: "",
         includedItems: [] as string[]
     });
+
+    // 업로드할 파일들과 미리보기 URL들 관리
+    const [selectedImages, setSelectedImages] = useState<{ file: File | null, url: string }[]>([]);
 
     const [includedInput, setIncludedInput] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleImageUpload = (file: File) => {
-        if (!file.type.startsWith('image/')) {
-            alert("이미지 파일만 업로드 가능합니다.");
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            setFormData(prev => ({ ...prev, img: e.target?.result as string }));
-        };
-        reader.readAsDataURL(file);
+    const handleImageSelect = (files: FileList | null) => {
+        if (!files) return;
+
+        const newImages = Array.from(files).filter(file => {
+            if (!file.type.startsWith('image/')) {
+                alert(`${file.name}은(는) 이미지 파일이 아닙니다.`);
+                return false;
+            }
+            return true;
+        }).map(file => ({
+            file,
+            url: URL.createObjectURL(file)
+        }));
+
+        setSelectedImages(prev => [...prev, ...newImages]);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            handleImageUpload(e.target.files[0]);
-        }
+        handleImageSelect(e.target.files);
     };
 
     const handlePaste = (e: React.ClipboardEvent) => {
         const items = e.clipboardData.items;
+        const files: File[] = [];
         for (let i = 0; i < items.length; i++) {
             if (items[i].type.indexOf("image") !== -1) {
                 const file = items[i].getAsFile();
-                if (file) handleImageUpload(file);
-                break;
+                if (file) files.push(file);
             }
         }
+        if (files.length > 0) {
+            const newImages = files.map(file => ({
+                file,
+                url: URL.createObjectURL(file)
+            }));
+            setSelectedImages(prev => [...prev, ...newImages]);
+        }
+    };
+
+    const removeImage = (index: number) => {
+        setSelectedImages(prev => {
+            const newImages = [...prev];
+            if (newImages[index].url.startsWith('blob:')) {
+                URL.revokeObjectURL(newImages[index].url);
+            }
+            newImages.splice(index, 1);
+            return newImages;
+        });
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,24 +113,42 @@ export default function TourCreateForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // 포함 사항 입력창에 텍스트가 남아있으면 자동으로 추가
-        const trimmedIncludedInput = includedInput.trim();
-        const finalIncludedItems =
-            trimmedIncludedInput && !formData.includedItems.includes(trimmedIncludedInput)
-                ? [...formData.includedItems, trimmedIncludedInput]
-                : formData.includedItems;
+        if (selectedImages.length === 0) {
+            alert("최소 한 장 이상의 이미지를 업로드해주세요.");
+            return;
+        }
 
         // 필수 필드 체크
-        if (!formData.title || !formData.description || !formData.region || !formData.duration || !formData.price || !formData.maxGuests || !formData.img) {
+        if (!formData.title || !formData.description || !formData.region || !formData.duration || !formData.price || !formData.maxGuests) {
             alert("모든 필수 필드를 입력해주세요.");
             return;
         }
 
         setIsPending(true);
+        setUploading(true);
+
         try {
+            // 1. Supabase Storage에 이미지 업로드
+            const imageUrls: string[] = [];
+            const timestamp = Date.now();
+
+            for (let i = 0; i < selectedImages.length; i++) {
+                const item = selectedImages[i];
+                if (item.file) {
+                    const ext = item.file.name.split('.').pop();
+                    const path = `new/${timestamp}_${i}.${ext}`;
+                    const url = await uploadFile(item.file, path);
+                    imageUrls.push(url);
+                } else {
+                    imageUrls.push(item.url);
+                }
+            }
+
+            // 2. 투어 정보 저장 (이미지 URL들을 콤마로 구분하여 저장)
             await createTourAction({
                 ...formData,
-                includedItems: finalIncludedItems
+                img: imageUrls.join(','),
+                includedItems: formData.includedItems
             });
 
             alert("새로운 투어 상품이 성공적으로 등록되었습니다!");
@@ -116,6 +159,7 @@ export default function TourCreateForm() {
             alert(`투어 등록 중 문제가 발생했습니다: ${error.message}`);
         } finally {
             setIsPending(false);
+            setUploading(false);
         }
     };
 
@@ -245,37 +289,59 @@ export default function TourCreateForm() {
                     )}
                 </div>
 
-                <div className="space-y-3">
-                    <label className="text-sm font-bold text-slate-700">썸네일 이미지</label>
-                    <div className="text-xs text-slate-500 mb-2">PC에서 이미지를 선택하거나, 클립보드에 복사된 이미지를 화면 아무 곳에서나 붙여넣기(Ctrl+V) 하세요.</div>
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <label className="text-sm font-bold text-slate-700">투어 이미지 ({selectedImages.length}장)</label>
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="text-xs font-bold text-accent hover:underline flex items-center gap-1"
+                        >
+                            <Plus className="w-3 h-3" /> 추가하기
+                        </button>
+                    </div>
+                    <div className="text-xs text-slate-500 mb-2">PC에서 이미지를 선택하거나, 클립보드(Ctrl+V)를 사용하세요. (최대 10장 권장)</div>
 
                     <input
                         type="file"
                         accept="image/*"
+                        multiple
                         className="hidden"
                         ref={fileInputRef}
                         onChange={handleFileChange}
                     />
 
-                    {formData.img ? (
-                        <div className="relative mt-4 rounded-xl overflow-hidden border border-slate-200 h-64 w-full group">
-                            <img src={formData.img} alt="미리보기" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                <Button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="bg-white text-slate-900 hover:bg-slate-100 font-bold shadow-lg"
-                                >
-                                    이미지 변경
-                                </Button>
-                                <Button
-                                    type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, img: "" }))}
-                                    className="bg-red-500 hover:bg-red-600 text-white font-bold shadow-lg"
-                                >
-                                    삭제
-                                </Button>
-                            </div>
+                    {selectedImages.length > 0 ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {selectedImages.map((image, index) => (
+                                <div key={index} className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 group bg-slate-100">
+                                    <img src={image.url} alt={`미리보기 ${index + 1}`} className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(index)}
+                                            className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                    {index === 0 && (
+                                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-accent text-white text-[10px] font-bold rounded shadow-sm">
+                                            대표 사진
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="aspect-video border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-accent/50 transition-all flex flex-col items-center justify-center text-slate-400 group"
+                            >
+                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 group-hover:text-accent group-hover:scale-110 transition-all">
+                                    <Plus className="w-5 h-5" />
+                                </div>
+                                <span className="text-xs font-bold">이미지 추가</span>
+                            </button>
                         </div>
                     ) : (
                         <div
@@ -289,19 +355,6 @@ export default function TourCreateForm() {
                             <p className="text-xs text-slate-400 mt-1">또는 화면에 이미지 클립보드 붙여넣기 (Ctrl+V)</p>
                         </div>
                     )}
-
-                    <div className="pt-2">
-                        <Input
-                            name="img"
-                            value={formData.img.startsWith('data:') ? '' : formData.img}
-                            onChange={(e) => {
-                                // 기존 URL 입력 방식도 지원
-                                handleChange(e);
-                            }}
-                            placeholder="또는 이미지 URL을 직접 입력할 수도 있습니다."
-                            className="h-10 text-xs text-slate-500 border-slate-200 focus:border-accent"
-                        />
-                    </div>
                 </div>
             </div>
 
@@ -311,16 +364,25 @@ export default function TourCreateForm() {
                     variant="outline"
                     className="flex-1 h-14 bg-white border-slate-200 text-slate-600 font-bold"
                     onClick={() => router.push('/guide/tours')}
-                    disabled={isPending}
+                    disabled={isPending || uploading}
                 >
                     취소
                 </Button>
                 <Button
                     type="submit"
-                    className="flex-1 h-14 bg-accent hover:bg-blue-600 text-white font-bold shadow-lg shadow-accent/20"
-                    disabled={isPending}
+                    className="flex-1 h-14 bg-accent hover:bg-blue-600 text-white font-bold shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
+                    disabled={isPending || uploading}
                 >
-                    {isPending ? "저장 중..." : "투어 등록하기"}
+                    {uploading ? (
+                        <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            이미지 업로드 중...
+                        </>
+                    ) : isPending ? (
+                        "저장 중..."
+                    ) : (
+                        "투어 등록하기"
+                    )}
                 </Button>
             </div>
         </form>

@@ -17,6 +17,8 @@ import {
   Search,
   Sparkles,
   Star,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export type LandingGuide = {
@@ -152,6 +154,7 @@ function GuideCard({ guide, queryString }: { guide: LandingGuide, queryString?: 
           fill
           sizes="(min-width: 1280px) 24rem, (min-width: 768px) 33vw, 100vw"
           className="object-cover transition duration-500 group-hover:scale-105"
+          unoptimized
         />
         <div className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/92 px-3 py-1 text-xs font-semibold text-slate-900 backdrop-blur">
           <Star className="h-3.5 w-3.5 fill-[#ff385c] text-[#ff385c]" />
@@ -200,12 +203,34 @@ function GuideCard({ guide, queryString }: { guide: LandingGuide, queryString?: 
 
 function TourCard({ tour, queryString }: { tour: LandingTour, queryString?: string }) {
   const photos = tour.photo ? tour.photo.split(',') : ['https://images.unsplash.com/photo-1544750040-4ea9b8a27d38?q=80&w=800'];
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [currentIdx, setCurrentIdx] = useState(0);
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const idx = Math.round(scrollLeft / clientWidth);
+      setCurrentIdx(idx);
+    }
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { clientWidth } = scrollRef.current;
+      const move = direction === 'left' ? -clientWidth : clientWidth;
+      scrollRef.current.scrollBy({ left: move, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#e9e4db] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(15,23,42,0.08)]">
       <div className="relative aspect-[4/3] overflow-hidden bg-[#f5f1ea]">
         {/* Image Carousel */}
-        <div className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth">
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth"
+        >
           {photos.map((photo, index) => (
             <div key={index} className="relative h-full w-full shrink-0 snap-start">
               <Image
@@ -214,16 +239,47 @@ function TourCard({ tour, queryString }: { tour: LandingTour, queryString?: stri
                 fill
                 sizes="(min-width: 1280px) 24rem, (min-width: 768px) 33vw, 100vw"
                 className="object-cover transition duration-500 group-hover:scale-105"
+                unoptimized
               />
             </div>
           ))}
         </div>
 
+        {/* Carousel Navigation Buttons (Arrows) */}
+        {photos.length > 1 && (
+          <>
+            <button
+              onClick={(e) => { e.preventDefault(); scroll('left'); }}
+              className={cn(
+                "absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-white",
+                currentIdx === 0 && "hidden"
+              )}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={(e) => { e.preventDefault(); scroll('right'); }}
+              className={cn(
+                "absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-white",
+                currentIdx === photos.length - 1 && "hidden"
+              )}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </>
+        )}
+
         {/* Carousel Indicators (Dots) */}
         {photos.length > 1 && (
           <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 z-10">
             {photos.map((_, i) => (
-              <div key={i} className="h-1.5 w-1.5 rounded-full bg-white/60 shadow-sm" />
+              <div
+                key={i}
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full transition-all duration-300",
+                  currentIdx === i ? "bg-white w-3" : "bg-white/60"
+                )}
+              />
             ))}
           </div>
         )}
@@ -362,14 +418,9 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
 
   const visibleGuides = filteredGuides.slice(0, 8);
   const visibleTours = filteredTours.slice(0, 8);
-  const visibleCards = activeTab === "guide" ? visibleGuides : visibleTours;
 
   const guestSummary = `성인 ${draft.adults}명${draft.children > 0 ? ` · 어린이 ${draft.children}명` : ""
     }`;
-
-  const resultsLabel = criteria
-    ? `${criteria.destination} · ${formatDateRange(criteria.startDate, criteria.endDate)} · ${guestSummary}`
-    : "인기 추천 카드부터 먼저 보여줍니다.";
 
   return (
     <main className="min-h-screen bg-[#fbf8f3] text-slate-900 [overflow-wrap:normal] [word-break:keep-all]">
@@ -591,41 +642,59 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
       </section>
 
       <section id="explore-results" className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
-        {/* Set up query string for link params based on criteria */}
         {(() => {
-          const params = new URLSearchParams()
-          if (criteria?.startDate) params.set('startDate', criteria.startDate)
-          if (criteria?.endDate) params.set('endDate', criteria.endDate)
-          if (criteria?.adults) params.set('adults', criteria.adults.toString())
-          if (criteria?.children) params.set('children', criteria.children.toString())
-          const searchParamsString = Array.from(params.keys()).length > 0 ? `?${params.toString()}` : ''
+          const params = new URLSearchParams();
+          if (criteria?.startDate) params.set('startDate', criteria.startDate);
+          if (criteria?.endDate) params.set('endDate', criteria.endDate);
+          if (criteria?.adults) params.set('adults', criteria.adults.toString());
+          if (criteria?.children) params.set('children', criteria.children.toString());
+          const searchParamsString = Array.from(params.keys()).length > 0 ? `?${params.toString()}` : '';
 
           return (
-            <div className="flex flex-col gap-5 rounded-[32px] border border-[#eee7dc] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.05)] sm:p-8">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <p className="text-sm font-medium text-[#ff385c]">{tabCopy[activeTab].title}</p>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-slate-950">
-                    {criteria ? `${criteria.destination} 기준으로 추린 결과` : "지금 바로 둘러볼 추천 리스트"}
-                  </h2>
-                  <p className="mt-3 text-sm text-slate-500">{resultsLabel}</p>
+            <div className="space-y-16">
+              {/* 1. 추천 가이드 섹션 (사용자 요청: 가이드 우선 배치) */}
+              <div className="space-y-8">
+                <div className="flex items-end justify-between px-2">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">인기 추천 가이드</h2>
+                    <p className="text-sm font-medium text-slate-500">전문성 넘치는 가이드들과 함께하는 특별한 현지 여행</p>
+                  </div>
                 </div>
+                {visibleGuides.length === 0 ? (
+                  <div className="rounded-[28px] bg-white/50 border border-slate-100 px-6 py-14 text-center backdrop-blur-sm">
+                    <p className="text-lg font-semibold text-slate-900">추천 가이드 정보가 없습니다.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {visibleGuides.map((guide) => (
+                      <GuideCard key={guide.id} guide={guide} queryString={searchParamsString} />
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {visibleCards.length === 0 ? (
-                <div className="rounded-[28px] bg-[#fcfbf8] px-6 py-14 text-center">
-                  <p className="text-lg font-semibold text-slate-900">조건에 맞는 결과가 없습니다.</p>
-                  <p className="mt-2 text-sm text-slate-500">지역 키워드를 조금 더 넓게 입력해서 다시 검색해 보세요.</p>
+              {/* 2. 추천 투어 상품 섹션 */}
+              <div className="space-y-8">
+                <div className="flex items-end justify-between px-2">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">인기 투어 상품</h2>
+                    <p className="text-sm font-medium text-slate-500">지금 가장 핫한 추천 여행 코스</p>
+                  </div>
                 </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-                  {activeTab === "guide"
-                    ? visibleGuides.map((guide) => <GuideCard key={guide.id} guide={guide} queryString={searchParamsString} />)
-                    : visibleTours.map((tour) => <TourCard key={tour.id} tour={tour} queryString={searchParamsString} />)}
-                </div>
-              )}
+                {visibleTours.length === 0 ? (
+                  <div className="rounded-[28px] bg-white/50 border border-slate-100 px-6 py-14 text-center backdrop-blur-sm">
+                    <p className="text-lg font-semibold text-slate-900">추천 투어 상품이 없습니다.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                    {visibleTours.map((tour) => (
+                      <TourCard key={tour.id} tour={tour} queryString={searchParamsString} />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          )
+          );
         })()}
       </section>
     </main>

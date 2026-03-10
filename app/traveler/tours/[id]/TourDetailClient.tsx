@@ -1,12 +1,13 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Calendar } from "@/components/ui/Calendar";
-import { Star, MapPin, Clock, Users, Heart, Share2, ChevronLeft, CheckCircle2, Calendar as CalendarIcon, Minus, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Star, MapPin, Clock, Users, Heart, Share2, ChevronLeft, ChevronRight, CheckCircle2, Calendar as CalendarIcon, Minus, Plus } from "lucide-react";
 
 interface TourDetailClientProps {
     tour: any;
@@ -73,14 +74,37 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
         }
     };
 
+    const [currentIdx, setCurrentIdx] = useState(0);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    const handleScroll = () => {
+        if (scrollRef.current) {
+            const { scrollLeft, clientWidth } = scrollRef.current;
+            const idx = Math.round(scrollLeft / clientWidth);
+            setCurrentIdx(idx);
+        }
+    };
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (scrollRef.current) {
+            const { clientWidth } = scrollRef.current;
+            const move = direction === 'left' ? -clientWidth : clientWidth;
+            scrollRef.current.scrollBy({ left: move, behavior: 'smooth' });
+        }
+    };
+
     const photos = tour.photo ? tour.photo.split(',') : [];
 
     return (
         <div className="bg-white min-h-[calc(100vh-64px)] animate-fade-in pb-20">
             {/* Header image & Quick Nav */}
-            <div className="relative h-[40vh] md:h-[50vh] w-full bg-slate-900 overflow-hidden">
+            <div className="relative h-[40vh] md:h-[50vh] w-full bg-slate-900 overflow-hidden group">
                 {photos.length > 0 ? (
-                    <div className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth">
+                    <div
+                        ref={scrollRef}
+                        onScroll={handleScroll}
+                        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth"
+                    >
                         {photos.map((photo: string, index: number) => (
                             <div key={index} className="relative h-full w-full shrink-0 snap-start">
                                 <img
@@ -97,11 +121,41 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                     </div>
                 )}
 
-                {/* Carousel Indicators */}
+                {/* Carousel Navigation Buttons (Arrows) */}
+                {photos.length > 1 && (
+                    <>
+                        <button
+                            onClick={() => scroll('left')}
+                            className={cn(
+                                "absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition hover:bg-white/40",
+                                currentIdx === 0 && "hidden"
+                            )}
+                        >
+                            <ChevronLeft className="w-6 h-6" />
+                        </button>
+                        <button
+                            onClick={() => scroll('right')}
+                            className={cn(
+                                "absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition hover:bg-white/40",
+                                currentIdx === photos.length - 1 && "hidden"
+                            )}
+                        >
+                            <ChevronRight className="w-6 h-6" />
+                        </button>
+                    </>
+                )}
+
+                {/* Carousel Indicators (Dots) */}
                 {photos.length > 1 && (
                     <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 gap-2 z-10">
                         {photos.map((_: any, i: number) => (
-                            <div key={i} className="h-2 w-2 rounded-full bg-white/60 shadow-sm" />
+                            <div
+                                key={i}
+                                className={cn(
+                                    "h-2 w-2 rounded-full transition-all duration-300",
+                                    currentIdx === i ? "bg-white w-4" : "bg-white/40"
+                                )}
+                            />
                         ))}
                     </div>
                 )}
