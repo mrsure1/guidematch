@@ -139,10 +139,10 @@ function GuestStepper({
   );
 }
 
-function GuideCard({ guide }: { guide: LandingGuide }) {
+function GuideCard({ guide, queryString }: { guide: LandingGuide, queryString?: string }) {
   return (
     <Link
-      href={`/traveler/guides/${guide.id}`}
+      href={`/traveler/guides/${guide.id}${queryString || ''}`}
       className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#e9e4db] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(15,23,42,0.08)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-[#f5f1ea]">
@@ -198,10 +198,10 @@ function GuideCard({ guide }: { guide: LandingGuide }) {
   );
 }
 
-function TourCard({ tour }: { tour: LandingTour }) {
+function TourCard({ tour, queryString }: { tour: LandingTour, queryString?: string }) {
   return (
     <Link
-      href={`/traveler/tours/${tour.id}`}
+      href={`/traveler/tours/${tour.id}${queryString || ''}`}
       className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#e9e4db] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(15,23,42,0.08)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-[#f5f1ea]">
@@ -344,9 +344,8 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
   const visibleTours = filteredTours.slice(0, 8);
   const visibleCards = activeTab === "guide" ? visibleGuides : visibleTours;
 
-  const guestSummary = `성인 ${draft.adults}명${
-    draft.children > 0 ? ` · 어린이 ${draft.children}명` : ""
-  }`;
+  const guestSummary = `성인 ${draft.adults}명${draft.children > 0 ? ` · 어린이 ${draft.children}명` : ""
+    }`;
 
   const resultsLabel = criteria
     ? `${criteria.destination} · ${formatDateRange(criteria.startDate, criteria.endDate)} · ${guestSummary}`
@@ -572,30 +571,42 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
       </section>
 
       <section id="explore-results" className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-5 rounded-[32px] border border-[#eee7dc] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.05)] sm:p-8">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-sm font-medium text-[#ff385c]">{tabCopy[activeTab].title}</p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-slate-950">
-                {criteria ? `${criteria.destination} 기준으로 추린 결과` : "지금 바로 둘러볼 추천 리스트"}
-              </h2>
-              <p className="mt-3 text-sm text-slate-500">{resultsLabel}</p>
-            </div>
-          </div>
+        {/* Set up query string for link params based on criteria */}
+        {(() => {
+          const params = new URLSearchParams()
+          if (criteria?.startDate) params.set('startDate', criteria.startDate)
+          if (criteria?.endDate) params.set('endDate', criteria.endDate)
+          if (criteria?.adults) params.set('adults', criteria.adults.toString())
+          if (criteria?.children) params.set('children', criteria.children.toString())
+          const searchParamsString = Array.from(params.keys()).length > 0 ? `?${params.toString()}` : ''
 
-          {visibleCards.length === 0 ? (
-            <div className="rounded-[28px] bg-[#fcfbf8] px-6 py-14 text-center">
-              <p className="text-lg font-semibold text-slate-900">조건에 맞는 결과가 없습니다.</p>
-              <p className="mt-2 text-sm text-slate-500">지역 키워드를 조금 더 넓게 입력해서 다시 검색해 보세요.</p>
+          return (
+            <div className="flex flex-col gap-5 rounded-[32px] border border-[#eee7dc] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.05)] sm:p-8">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="text-sm font-medium text-[#ff385c]">{tabCopy[activeTab].title}</p>
+                  <h2 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-slate-950">
+                    {criteria ? `${criteria.destination} 기준으로 추린 결과` : "지금 바로 둘러볼 추천 리스트"}
+                  </h2>
+                  <p className="mt-3 text-sm text-slate-500">{resultsLabel}</p>
+                </div>
+              </div>
+
+              {visibleCards.length === 0 ? (
+                <div className="rounded-[28px] bg-[#fcfbf8] px-6 py-14 text-center">
+                  <p className="text-lg font-semibold text-slate-900">조건에 맞는 결과가 없습니다.</p>
+                  <p className="mt-2 text-sm text-slate-500">지역 키워드를 조금 더 넓게 입력해서 다시 검색해 보세요.</p>
+                </div>
+              ) : (
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                  {activeTab === "guide"
+                    ? visibleGuides.map((guide) => <GuideCard key={guide.id} guide={guide} queryString={searchParamsString} />)
+                    : visibleTours.map((tour) => <TourCard key={tour.id} tour={tour} queryString={searchParamsString} />)}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              {activeTab === "guide"
-                ? visibleGuides.map((guide) => <GuideCard key={guide.id} guide={guide} />)
-                : visibleTours.map((tour) => <TourCard key={tour.id} tour={tour} />)}
-            </div>
-          )}
-        </div>
+          )
+        })()}
       </section>
     </main>
   );

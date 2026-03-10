@@ -15,6 +15,7 @@ interface CalendarProps {
     maxDate?: string;
     className?: string;
     renderDay?: (fullDate: string, isCurrentMonth: boolean) => React.ReactNode;
+    defaultMonth?: Date;
 }
 
 export function Calendar({
@@ -25,10 +26,11 @@ export function Calendar({
     minDate,
     maxDate,
     className = "",
-    renderDay
+    renderDay,
+    defaultMonth
 }: CalendarProps) {
     const today = new Date();
-    const [viewDate, setViewDate] = useState(new Date());
+    const [viewDate, setViewDate] = useState(defaultMonth || new Date());
 
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();

@@ -125,6 +125,7 @@ export default function BookingWidgetClient({
                             mode="range"
                             selected={dateRange}
                             onSelect={setDateRange}
+                            defaultMonth={dateRange.from ? new Date(dateRange.from) : undefined}
                             minDate={new Date().toISOString().split('T')[0]}
                             disabledDates={unavailableDates.map(u => u.start_date.split('T')[0])}
                             renderDay={(fullDate, isCurrentMonth) => {
