@@ -19,6 +19,10 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
+  Coffee,
+  Camera,
+  Landmark,
+  Zap,
 } from "lucide-react";
 
 export type LandingGuide = {
@@ -56,6 +60,17 @@ type SearchDraft = {
   adults: number;
   children: number;
 };
+
+const KOREA_POPULAR_DESTINATIONS = [
+  { name: "서울", desc: "대한민국" },
+  { name: "제주", desc: "대한민국" },
+  { name: "부산", desc: "대한민국" },
+  { name: "인천", desc: "대한민국" },
+  { name: "경주", desc: "대한민국" },
+  { name: "강릉", desc: "대한민국" },
+  { name: "여수", desc: "대한민국" },
+  { name: "전주", desc: "대한민국" },
+];
 
 type Props = {
   guideHref: string;
@@ -121,7 +136,7 @@ function GuestStepper({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => onChange(Math.max(min, count - 1))}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange(Math.max(min, count - 1)); }}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
           aria-label={`${label} 감소`}
         >
@@ -130,7 +145,7 @@ function GuestStepper({
         <span className="w-6 text-center text-sm font-semibold text-slate-900">{count}</span>
         <button
           type="button"
-          onClick={() => onChange(count + 1)}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange(count + 1); }}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
           aria-label={`${label} 증가`}
         >
@@ -141,7 +156,7 @@ function GuestStepper({
   );
 }
 
-function GuideCard({ guide, queryString }: { guide: LandingGuide, queryString?: string }) {
+function GuideCard({ guide, queryString, idx }: { guide: LandingGuide, queryString?: string, idx?: number }) {
   return (
     <Link
       href={`/traveler/guides/${guide.id}${queryString || ''}`}
@@ -201,7 +216,7 @@ function GuideCard({ guide, queryString }: { guide: LandingGuide, queryString?: 
   );
 }
 
-function TourCard({ tour, queryString }: { tour: LandingTour, queryString?: string }) {
+function TourCard({ tour, queryString, idx }: { tour: LandingTour, queryString?: string, idx?: number }) {
   const photos = tour.photo ? tour.photo.split(',') : ['https://images.unsplash.com/photo-1544750040-4ea9b8a27d38?q=80&w=800'];
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -346,15 +361,20 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
     return Array.from(new Set(values));
   }, [guides, tours]);
 
-  const quickRegions = useMemo(() => destinationOptions.slice(0, 5), [destinationOptions]);
+  const quickRegions = useMemo(() => KOREA_POPULAR_DESTINATIONS.slice(0, 5).map(d => d.name), []);
 
   const filteredDestinationOptions = useMemo(() => {
     if (!draft.destination.trim()) {
-      return destinationOptions.slice(0, 6);
+      return KOREA_POPULAR_DESTINATIONS.slice(0, 6);
     }
 
-    return destinationOptions
+    const combined = Array.from(new Set([...KOREA_POPULAR_DESTINATIONS.map(d => d.name), ...destinationOptions]));
+    return combined
       .filter((option) => option.toLowerCase().includes(draft.destination.toLowerCase()))
+      .map((name) => {
+        const match = KOREA_POPULAR_DESTINATIONS.find(d => d.name === name);
+        return { name, desc: match ? match.desc : "투어/가이드 제공 지역" };
+      })
       .slice(0, 6);
   }, [destinationOptions, draft.destination]);
 
@@ -446,8 +466,8 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
             </Link>
           </header>
 
-          <div className="mt-8 rounded-[38px] border border-white/15 bg-white/96 p-3 shadow-[0_30px_80px_rgba(2,6,23,0.26)] backdrop-blur-md">
-            <div className="flex flex-wrap items-center gap-2 px-2 pb-3 pt-1">
+          <div className="mt-8 rounded-3xl sm:rounded-[38px] border border-white/15 bg-white/96 p-2 sm:p-3 shadow-[0_30px_80px_rgba(2,6,23,0.26)] backdrop-blur-md">
+            <div className="flex flex-wrap items-center gap-2 px-3 sm:px-2 pb-3 pt-1">
               {(
                 [
                   { key: "tour", label: tabCopy.tour.label, icon: Map },
@@ -481,10 +501,10 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                 if (!canSearch) return;
                 setCriteria({ ...draft, destination: draft.destination.trim() });
               }}
-              className="grid gap-2 lg:grid-cols-[1.4fr_1fr_0.9fr_auto]"
+              className="flex flex-col lg:grid lg:grid-cols-[1.4fr_1fr_0.9fr_auto] rounded-[24px] lg:rounded-none bg-white lg:bg-transparent overflow-hidden outline outline-1 outline-slate-100 lg:outline-none divide-y lg:divide-y-0 lg:divide-x divide-slate-100"
             >
-              <div ref={destinationPanelRef} className="relative">
-                <label className="flex min-h-[84px] flex-col justify-center rounded-[30px] border border-transparent px-5 py-4 transition hover:bg-slate-50 lg:border-r lg:border-r-slate-100 lg:rounded-none lg:rounded-l-[30px]">
+              <div ref={destinationPanelRef} className="relative w-full">
+                <label className="flex min-h-[72px] sm:min-h-[84px] flex-col justify-center px-5 sm:px-6 py-3 sm:py-4 transition hover:bg-slate-50 cursor-text w-full lg:rounded-l-[30px]">
                   <span className="text-xs font-semibold text-slate-900">여행지</span>
                   <input
                     type="text"
@@ -495,32 +515,35 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                       setIsDestinationOpen(true);
                     }}
                     placeholder="어디로 여행할까요?"
-                    className="mt-2 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                    className="mt-1 sm:mt-2 bg-transparent text-sm sm:text-base text-slate-700 outline-none placeholder:text-slate-400 w-full"
                   />
                 </label>
 
                 {isDestinationOpen && filteredDestinationOptions.length > 0 && (
-                  <div className="absolute left-0 top-[calc(100%+10px)] z-50 w-full overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.16)]">
-                    <div className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
-                      Suggested Regions
+                  <div className="absolute left-0 top-full mt-2 z-50 w-[90vw] sm:w-[400px] lg:w-full overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.16)]">
+                    <div className="border-b border-slate-100 px-5 py-3 text-[11px] font-bold tracking-wider text-slate-400">
+                      추천 여행지
                     </div>
                     <div className="py-2">
                       {filteredDestinationOptions.map((destination) => (
                         <button
-                          key={destination}
+                          key={destination.name}
                           type="button"
                           onMouseDown={(event) => event.preventDefault()}
                           onClick={() => {
-                            setDraft((prev) => ({ ...prev, destination }));
+                            setDraft((prev) => ({ ...prev, destination: destination.name }));
                             setIsDestinationOpen(false);
+                            setTimeout(() => setIsDatePickerOpen(true), 150);
                           }}
-                          className="flex w-full items-center justify-between px-4 py-3 text-left text-sm text-slate-700 transition hover:bg-slate-50"
+                          className="flex w-full items-center gap-4 px-5 py-3 text-left transition hover:bg-slate-50"
                         >
-                          <span className="inline-flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-slate-400" />
-                            {destination}
-                          </span>
-                          <span className="text-xs text-slate-400">참조 지역명</span>
+                          <div className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                            <MapPin className="h-5 w-5" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold text-slate-800">{destination.name}</span>
+                            <span className="text-[11px] font-medium text-slate-500">{destination.desc}</span>
+                          </div>
                         </button>
                       ))}
                     </div>
@@ -528,22 +551,22 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                 )}
               </div>
 
-              <div ref={datePanelRef} className="relative">
+              <div ref={datePanelRef} className="relative w-full">
                 <button
                   type="button"
                   onClick={() => setIsDatePickerOpen((prev) => !prev)}
-                  className="flex min-h-[84px] w-full flex-col justify-center rounded-[30px] border border-transparent px-5 py-4 text-left transition hover:bg-slate-50 lg:border-r lg:border-r-slate-100 lg:rounded-none"
+                  className="flex min-h-[72px] sm:min-h-[84px] w-full flex-col justify-center px-5 sm:px-6 py-3 sm:py-4 text-left transition hover:bg-slate-50"
                 >
                   <span className="text-xs font-semibold text-slate-900">날짜</span>
-                  <span className="mt-2 text-sm text-slate-700">
+                  <span className={cn("mt-1 sm:mt-2 text-sm sm:text-base", draft.startDate && draft.endDate ? "text-slate-800 font-medium" : "text-slate-400")}>
                     {draft.startDate && draft.endDate
                       ? formatDateRange(draft.startDate, draft.endDate)
-                      : "여행 날짜 추가"}
+                      : "날짜 추가"}
                   </span>
                 </button>
 
                 {isDatePickerOpen && (
-                  <div className="absolute left-0 top-[calc(100%+10px)] z-50">
+                  <div className="absolute left-0 top-full mt-2 z-50 rounded-[24px] bg-white border border-slate-200 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.16)]">
                     <Calendar
                       mode="range"
                       minDate={today}
@@ -557,33 +580,38 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
 
                         if (range?.from && range?.to) {
                           setIsDatePickerOpen(false);
+                          setTimeout(() => setIsGuestPickerOpen(true), 150);
                         }
                       }}
-                      className="w-[340px] shadow-[0_24px_60px_rgba(15,23,42,0.16)]"
+                      className="w-[300px] sm:w-[340px] border-none"
                     />
                   </div>
                 )}
               </div>
 
-              <div ref={guestPanelRef} className="relative">
+              <div ref={guestPanelRef} className="relative w-full">
                 <button
                   type="button"
                   onClick={() => setIsGuestPickerOpen((prev) => !prev)}
-                  className="flex min-h-[84px] w-full flex-col justify-center rounded-[30px] border border-transparent px-5 py-4 text-left transition hover:bg-slate-50 lg:rounded-none"
+                  className="flex min-h-[72px] sm:min-h-[84px] w-full flex-col justify-center px-5 sm:px-6 py-3 sm:py-4 text-left transition hover:bg-slate-50"
                 >
-                  <span className="text-xs font-semibold text-slate-900">인원</span>
-                  <span className="mt-2 text-sm text-slate-700">{guestSummary}</span>
+                  <span className="text-xs font-semibold text-slate-900">여행자</span>
+                  <span className={cn("mt-1 sm:mt-2 text-sm sm:text-base", draft.adults > 0 ? "text-slate-800 font-medium" : "text-slate-400")}>
+                    {draft.adults > 0 || draft.children > 0 ? guestSummary : "게스트 추가"}
+                  </span>
                 </button>
 
                 {isGuestPickerOpen && (
-                  <div className="absolute left-0 top-[calc(100%+10px)] z-50 w-[320px] rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_24px_60px_rgba(15,23,42,0.16)]">
-                    <div className="space-y-3">
+                  <div className="absolute right-0 top-full mt-2 z-50 w-[90vw] sm:w-[320px] rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_24px_60px_rgba(15,23,42,0.16)] text-left">
+                    <h4 className="text-lg font-bold text-slate-900 mb-4 px-1">인원수를 입력하세요</h4>
+                    <div className="space-y-1">
                       <GuestStepper
                         label="성인"
                         count={draft.adults}
                         min={1}
                         onChange={(next) => setDraft((prev) => ({ ...prev, adults: next }))}
                       />
+                      <hr className="border-slate-100 my-1 mx-2" />
                       <GuestStepper
                         label="어린이"
                         count={draft.children}
@@ -594,14 +622,14 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                 )}
               </div>
 
-              <div className="flex items-center justify-center px-2 py-2">
+              <div className="flex items-center justify-center p-2 sm:px-4 sm:py-3 lg:p-2 bg-white">
                 <Button
                   type="submit"
                   size="lg"
                   disabled={!canSearch}
-                  className="h-14 w-full rounded-full bg-blue-600 px-7 text-sm font-semibold text-white hover:bg-blue-700 lg:w-auto"
+                  className="h-12 sm:h-14 w-full rounded-[14px] lg:rounded-full bg-[#ff385c] px-7 text-base font-bold text-white hover:bg-[#e31c5f] lg:w-auto shadow-md hover:shadow-lg transition-all"
                 >
-                  <Search className="mr-2 h-4 w-4" />
+                  <Search className="mr-2 h-5 w-5" />
                   검색
                 </Button>
               </div>
@@ -652,47 +680,110 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
 
           return (
             <div className="space-y-16">
-              {/* 1. 추천 가이드 섹션 (사용자 요청: 가이드 우선 배치) */}
-              <div className="space-y-8">
-                <div className="flex items-end justify-between px-2">
-                  <div className="space-y-1">
-                    <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">인기 추천 가이드</h2>
-                    <p className="text-sm font-medium text-slate-500">전문성 넘치는 가이드들과 함께하는 특별한 현지 여행</p>
+              {/* Recommended Guides Section */}
+              <section className="container mx-auto px-4 py-20 relative">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-4 animate-fade-in-up">
+                      <Star className="w-3 h-3 fill-current" />
+                      <span>Verified Experts</span>
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                      맞춤형 추천 <span className="text-blue-600">전문 가이드</span>
+                    </h2>
+                    <p className="text-slate-500 mt-4 max-w-2xl text-lg font-medium">
+                      당신의 취향에 딱 맞는 현지 전문가를 만나보세요. 깐깐한 검증을 거친 베스트 가이드들입니다.
+                    </p>
                   </div>
                 </div>
-                {visibleGuides.length === 0 ? (
-                  <div className="rounded-[28px] bg-white/50 border border-slate-100 px-6 py-14 text-center backdrop-blur-sm">
-                    <p className="text-lg font-semibold text-slate-900">추천 가이드 정보가 없습니다.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {visibleGuides.map((guide) => (
-                      <GuideCard key={guide.id} guide={guide} queryString={searchParamsString} />
-                    ))}
-                  </div>
-                )}
-              </div>
 
-              {/* 2. 추천 투어 상품 섹션 */}
-              <div className="space-y-8">
-                <div className="flex items-end justify-between px-2">
-                  <div className="space-y-1">
-                    <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">인기 투어 상품</h2>
-                    <p className="text-sm font-medium text-slate-500">지금 가장 핫한 추천 여행 코스</p>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {guides.slice(0, 4).map((guide, idx) => (
+                    <GuideCard key={guide.id} guide={guide} idx={idx} queryString={searchParamsString} />
+                  ))}
                 </div>
-                {visibleTours.length === 0 ? (
-                  <div className="rounded-[28px] bg-white/50 border border-slate-100 px-6 py-14 text-center backdrop-blur-sm">
-                    <p className="text-lg font-semibold text-slate-900">추천 투어 상품이 없습니다.</p>
+              </section>
+
+              {/* Local Experience Section ([시안 2]) */}
+              <section className="bg-[#fcfaf7] pt-24 pb-32">
+                <div className="container mx-auto px-4">
+                  <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                      특별한 <span className="text-[#ff385c]">로컬 익스피리언스</span>
+                    </h2>
+                    <p className="mt-6 text-slate-500 text-lg md:text-xl font-medium max-w-2xl mx-auto">
+                      뻔한 관광지 말고, 현지인처럼 즐기는 생생한 체험들을 테마별로 만나보세요.
+                    </p>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                    {visibleTours.map((tour) => (
-                      <TourCard key={tour.id} tour={tour} queryString={searchParamsString} />
+
+                  {/* Theme Navigation */}
+                  <div className="flex overflow-x-auto pb-8 mb-12 gap-6 scrollbar-none justify-center">
+                    {[
+                      { name: "미식 탐방", icon: Coffee, color: "bg-orange-100 text-orange-600" },
+                      { name: "인생샷 투어", icon: Camera, color: "bg-purple-100 text-purple-600" },
+                      { name: "역사 여행", icon: Landmark, color: "bg-amber-100 text-amber-600" },
+                      { name: "야경 명소", icon: Zap, color: "bg-blue-100 text-blue-600" },
+                      { name: "현지 명소", icon: Map, color: "bg-emerald-100 text-emerald-600" },
+                    ].map((theme, i) => (
+                      <button key={i} className="flex flex-col items-center gap-3 group shrink-0 transition-transform active:scale-95">
+                        <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg shadow-sm border border-white", theme.color)}>
+                          <theme.icon className="w-8 h-8" />
+                        </div>
+                        <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900">{theme.name}</span>
+                      </button>
                     ))}
                   </div>
-                )}
-              </div>
+
+                  {/* Trending Section */}
+                  <div className="mb-20">
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="p-2 bg-red-100 rounded-lg">
+                        <Zap className="w-5 h-5 text-red-500 fill-current" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-900">이번 주 급상승 투어</h3>
+                      <div className="h-[2px] flex-1 bg-gradient-to-r from-slate-200 to-transparent ml-4" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {tours.slice(0, 3).map((tour, idx) => (
+                        <TourCard key={tour.id} tour={tour} idx={idx} queryString={searchParamsString} />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Half-day Section */}
+                  <div>
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="p-2 bg-emerald-100 rounded-lg">
+                        <Clock className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-900">반나절 현지 체험</h3>
+                      <p className="text-slate-400 text-sm font-medium ml-4 hidden sm:block">짧지만 완벽한 여행</p>
+                      <div className="h-[2px] flex-1 bg-gradient-to-r from-slate-200 to-transparent ml-4" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {tours.slice(3, 6).map((tour, idx) => (
+                        <TourCard key={tour.id} tour={tour} idx={idx + 3} queryString={searchParamsString} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Tour Products Section (All Products) */}
+              <section className="container mx-auto px-4 py-24 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-12">
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900">전체 투어 상품</h2>
+                    <p className="text-slate-500 mt-2 font-medium">검색 결과에 맞는 모든 상품을 확인하세요.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {tours.map((tour, idx) => (
+                    <TourCard key={tour.id} tour={tour} idx={idx} queryString={searchParamsString} />
+                  ))}
+                </div>
+              </section>
             </div>
           );
         })()}
