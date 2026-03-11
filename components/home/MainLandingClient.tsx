@@ -685,7 +685,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
         </div>
       </section>
 
-      <section id="explore-results" className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
+      <section id="explore-results" className="relative z-10 mx-auto max-w-7xl px-4 pb-0 pt-6 sm:px-6 lg:px-8">
         {(() => {
           const params = new URLSearchParams();
           if (criteria?.startDate) params.set('startDate', criteria.startDate);
@@ -750,7 +750,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
               )}
 
               {/* Default Recommended Section (Shown whether searched or not, beneath results) */}
-              <div className="w-full bg-white pb-12 pt-10 border-t border-slate-200 mt-12">
+              <div className="w-full bg-white pb-0 pt-10 border-t border-slate-200 mt-12">
                 <div className="space-y-10 mx-auto max-w-7xl">
                   {/* Recommended Guides Section */}
               <section className="container mx-auto px-4 py-10 relative">
