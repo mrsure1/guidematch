@@ -501,11 +501,11 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                 if (!canSearch) return;
                 setCriteria({ ...draft, destination: draft.destination.trim() });
               }}
-              className="flex flex-col lg:grid lg:grid-cols-[1.4fr_1fr_0.9fr_auto] rounded-[24px] lg:rounded-none bg-white lg:bg-transparent overflow-hidden outline outline-1 outline-slate-100 lg:outline-none divide-y lg:divide-y-0 lg:divide-x divide-slate-100"
+              className="flex flex-col lg:grid lg:grid-cols-[1.4fr_1fr_0.9fr_auto] rounded-[24px] lg:rounded-full bg-white lg:bg-transparent shadow-sm lg:shadow-none border border-slate-200 lg:border-none divide-y lg:divide-y-0 lg:divide-x divide-slate-100 lg:outline lg:outline-1 lg:outline-slate-200 lg:bg-white relative z-50"
             >
               <div ref={destinationPanelRef} className="relative w-full">
-                <label className="flex min-h-[72px] sm:min-h-[84px] flex-col justify-center px-5 sm:px-6 py-3 sm:py-4 transition hover:bg-slate-50 cursor-text w-full lg:rounded-l-[30px]">
-                  <span className="text-xs font-semibold text-slate-900">여행지</span>
+                <label className="flex min-h-[72px] sm:min-h-[84px] flex-col justify-center px-5 sm:px-6 py-3 sm:py-4 transition hover:bg-slate-50 cursor-text w-full lg:rounded-l-full">
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800 tracking-wide">여행지</span>
                   <input
                     type="text"
                     value={draft.destination}
@@ -514,14 +514,14 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                       setDraft((prev) => ({ ...prev, destination: event.target.value }));
                       setIsDestinationOpen(true);
                     }}
-                    placeholder="어디로 여행할까요?"
-                    className="mt-1 sm:mt-2 bg-transparent text-sm sm:text-base text-slate-700 outline-none placeholder:text-slate-400 w-full"
+                    placeholder="어디로 떠날까요?"
+                    className="mt-0.5 sm:mt-1 bg-transparent text-sm sm:text-base font-medium text-slate-700 outline-none placeholder:text-slate-400 placeholder:font-normal w-full"
                   />
                 </label>
 
                 {isDestinationOpen && filteredDestinationOptions.length > 0 && (
-                  <div className="absolute left-0 top-full mt-2 z-50 w-[90vw] sm:w-[400px] lg:w-full overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.16)]">
-                    <div className="border-b border-slate-100 px-5 py-3 text-[11px] font-bold tracking-wider text-slate-400">
+                  <div className="absolute left-0 top-full mt-3 z-[100] w-[90vw] sm:w-[400px] lg:w-full rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_100px_rgba(15,23,42,0.2)] lg:shadow-[0_24px_60px_rgba(15,23,42,0.16)] overflow-hidden">
+                    <div className="border-b border-slate-100/80 px-5 py-4 text-[11px] font-black tracking-widest text-slate-400 bg-slate-50/50">
                       추천 여행지
                     </div>
                     <div className="py-2">
@@ -535,14 +535,14 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                             setIsDestinationOpen(false);
                             setTimeout(() => setIsDatePickerOpen(true), 150);
                           }}
-                          className="flex w-full items-center gap-4 px-5 py-3 text-left transition hover:bg-slate-50"
+                          className="flex w-full items-center gap-4 px-5 py-3 text-left transition hover:bg-slate-50 group"
                         >
-                          <div className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                          <div className="flex w-12 h-12 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 group-hover:bg-white group-hover:shadow-sm group-hover:text-blue-600 transition-all border border-transparent group-hover:border-slate-200">
                             <MapPin className="h-5 w-5" />
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-slate-800">{destination.name}</span>
-                            <span className="text-[11px] font-medium text-slate-500">{destination.desc}</span>
+                            <span className="text-base font-bold text-slate-800">{destination.name}</span>
+                            <span className="text-xs font-medium text-slate-500 mt-0.5">{destination.desc}</span>
                           </div>
                         </button>
                       ))}
@@ -557,8 +557,8 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                   onClick={() => setIsDatePickerOpen((prev) => !prev)}
                   className="flex min-h-[72px] sm:min-h-[84px] w-full flex-col justify-center px-5 sm:px-6 py-3 sm:py-4 text-left transition hover:bg-slate-50"
                 >
-                  <span className="text-xs font-semibold text-slate-900">날짜</span>
-                  <span className={cn("mt-1 sm:mt-2 text-sm sm:text-base", draft.startDate && draft.endDate ? "text-slate-800 font-medium" : "text-slate-400")}>
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800 tracking-wide">날짜</span>
+                  <span className={cn("mt-0.5 sm:mt-1 text-sm sm:text-base", draft.startDate && draft.endDate ? "text-slate-800 font-bold" : "text-slate-400 font-medium")}>
                     {draft.startDate && draft.endDate
                       ? formatDateRange(draft.startDate, draft.endDate)
                       : "날짜 추가"}
@@ -566,7 +566,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                 </button>
 
                 {isDatePickerOpen && (
-                  <div className="absolute left-0 top-full mt-2 z-50 rounded-[24px] bg-white border border-slate-200 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.16)]">
+                  <div className="absolute left-0 top-full mt-3 z-[100] rounded-[32px] bg-white border border-slate-200 p-2 sm:p-4 shadow-[0_30px_100px_rgba(15,23,42,0.2)] lg:shadow-[0_24px_60px_rgba(15,23,42,0.16)] w-[90vw] sm:w-auto max-w-full overflow-hidden">
                     <Calendar
                       mode="range"
                       minDate={today}
@@ -583,7 +583,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                           setTimeout(() => setIsGuestPickerOpen(true), 150);
                         }
                       }}
-                      className="w-[300px] sm:w-[340px] border-none"
+                      className="w-full sm:w-[340px] border-none"
                     />
                   </div>
                 )}
@@ -595,23 +595,22 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                   onClick={() => setIsGuestPickerOpen((prev) => !prev)}
                   className="flex min-h-[72px] sm:min-h-[84px] w-full flex-col justify-center px-5 sm:px-6 py-3 sm:py-4 text-left transition hover:bg-slate-50"
                 >
-                  <span className="text-xs font-semibold text-slate-900">여행자</span>
-                  <span className={cn("mt-1 sm:mt-2 text-sm sm:text-base", draft.adults > 0 ? "text-slate-800 font-medium" : "text-slate-400")}>
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800 tracking-wide">여행자</span>
+                  <span className={cn("mt-0.5 sm:mt-1 text-sm sm:text-base", draft.adults > 0 ? "text-slate-800 font-bold" : "text-slate-400 font-medium")}>
                     {draft.adults > 0 || draft.children > 0 ? guestSummary : "게스트 추가"}
                   </span>
                 </button>
 
                 {isGuestPickerOpen && (
-                  <div className="absolute right-0 top-full mt-2 z-50 w-[90vw] sm:w-[320px] rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_24px_60px_rgba(15,23,42,0.16)] text-left">
-                    <h4 className="text-lg font-bold text-slate-900 mb-4 px-1">인원수를 입력하세요</h4>
-                    <div className="space-y-1">
+                  <div className="absolute right-0 top-full mt-3 z-[100] w-[90vw] sm:w-[360px] max-w-[calc(100vw-32px)] lg:w-[380px] rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_30px_100px_rgba(15,23,42,0.2)] lg:shadow-[0_24px_60px_rgba(15,23,42,0.16)] text-left">
+                    <div className="space-y-4">
                       <GuestStepper
                         label="성인"
                         count={draft.adults}
                         min={1}
                         onChange={(next) => setDraft((prev) => ({ ...prev, adults: next }))}
                       />
-                      <hr className="border-slate-100 my-1 mx-2" />
+                      <hr className="border-slate-100 my-2 mx-2" />
                       <GuestStepper
                         label="어린이"
                         count={draft.children}
