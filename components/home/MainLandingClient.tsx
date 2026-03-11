@@ -472,7 +472,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-950/72 to-blue-950/68" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.28),transparent_32%),radial-gradient(circle_at_80%_15%,rgba(59,130,246,0.2),transparent_28%),radial-gradient(circle_at_75%_85%,rgba(14,116,144,0.2),transparent_30%)]" />
 
-        <div className="relative z-30 mx-auto max-w-7xl px-4 pb-14 pt-6 sm:px-6 lg:px-8">
+        <div className="relative z-30 mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
           <header className="flex items-center justify-between gap-4 rounded-full border border-white/15 bg-white/8 px-5 py-3 backdrop-blur-md">
             <BrandLogo href="/" size="lg" tone="light" variant="signature" />
             <Link
@@ -685,7 +685,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
         </div>
       </section>
 
-      <section id="explore-results" className="relative z-10 mx-auto max-w-7xl px-4 pb-0 pt-6 sm:px-6 lg:px-8">
+      <section id="explore-results" className="relative z-10 mx-auto max-w-7xl px-4 pb-0 pt-0 sm:px-6 lg:px-8">
         {(() => {
           const params = new URLSearchParams();
           if (criteria?.startDate) params.set('startDate', criteria.startDate);
@@ -750,8 +750,8 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
               )}
 
               {/* Default Recommended Section (Shown whether searched or not, beneath results) */}
-              <div className="w-full bg-white pb-0 pt-10 border-t border-slate-200 mt-12">
-                <div className="space-y-10 mx-auto max-w-7xl">
+              <div className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] bg-white pb-0 pt-10">
+                <div className="space-y-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                   {/* Recommended Guides Section */}
               <section className="container mx-auto px-4 py-10 relative">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
