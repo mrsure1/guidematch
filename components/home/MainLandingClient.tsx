@@ -51,7 +51,7 @@ export type LandingTour = {
   reviewCount: number | null;
 };
 
-type TabType = "guide" | "tour";
+
 
 type SearchDraft = {
   destination: string;
@@ -81,25 +81,7 @@ type Props = {
 
 const numberFormatter = new Intl.NumberFormat("ko-KR");
 
-const tabCopy: Record<
-  TabType,
-  {
-    label: string;
-    title: string;
-    subtitle: string;
-  }
-> = {
-  tour: {
-    label: "여행상품 추천",
-    title: "바로 비교할 수 있는 여행상품",
-    subtitle: "일정형 상품을 먼저 훑고 싶을 때 빠르게 비교할 수 있습니다.",
-  },
-  guide: {
-    label: "가이드 추천",
-    title: "내 일정에 맞는 로컬 가이드",
-    subtitle: "상품보다 사람을 먼저 고르고 싶다면 이 탭에서 바로 비교할 수 있습니다.",
-  },
-};
+
 
 function formatPrice(value: number) {
   return `₩${numberFormatter.format(value)}`;
@@ -339,8 +321,6 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
   const destinationPanelRef = useRef<HTMLDivElement | null>(null);
   const datePanelRef = useRef<HTMLDivElement | null>(null);
   const guestPanelRef = useRef<HTMLDivElement | null>(null);
-
-  const [activeTab, setActiveTab] = useState<TabType>("tour");
   const [isDestinationOpen, setIsDestinationOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [isGuestPickerOpen, setIsGuestPickerOpen] = useState(false);
@@ -455,11 +435,9 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
     // Determine target section based on results
     let targetId = "explore-results";
 
-    // If active tab has no results, redirect scroll to recommended sections
-    if (activeTab === 'guide' && filteredGuides.length === 0) {
+    // If both tabs have no results, redirect scroll to recommended sections
+    if (filteredGuides.length === 0 && filteredTours.length === 0) {
       targetId = "recommended-guides";
-    } else if (activeTab === 'tour' && filteredTours.length === 0) {
-      targetId = "trending-tours";
     }
 
     // Give a slight delay to allow the DOM to render the message and unhide the target sections properly before scrolling
@@ -467,7 +445,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
       const section = document.getElementById(targetId);
       section?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
-  }, [criteria, activeTab, filteredGuides.length, filteredTours.length]);
+  }, [criteria, filteredGuides.length, filteredTours.length]);
 
   const guestSummary = `성인 ${draft.adults}명${draft.children > 0 ? ` · 어린이 ${draft.children}명` : ""
     }`;
@@ -497,34 +475,6 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
           </header>
 
           <div className="mt-8 rounded-3xl sm:rounded-[38px] border border-white/15 bg-white/96 p-2 sm:p-3 shadow-[0_30px_80px_rgba(2,6,23,0.26)] backdrop-blur-md">
-            <div className="flex flex-wrap items-center gap-2 px-3 sm:px-2 pb-3 pt-1">
-              {(
-                [
-                  { key: "tour", label: tabCopy.tour.label, icon: Map },
-                  { key: "guide", label: tabCopy.guide.label, icon: Compass },
-                ] as const
-              ).map((tab) => {
-                const Icon = tab.icon;
-
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setActiveTab(tab.key)}
-                    className={cn(
-                      "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
-                      activeTab === tab.key
-                        ? "bg-slate-950 text-white"
-                        : "bg-[#f6f2eb] text-slate-600 hover:text-slate-900",
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-
             <form
               onSubmit={(event) => {
                 event.preventDefault();
