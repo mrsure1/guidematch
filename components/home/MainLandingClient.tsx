@@ -563,7 +563,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                 </button>
 
                 {isDatePickerOpen && (
-                  <div className="absolute left-0 top-full mt-3 z-[100] rounded-[32px] bg-white border border-slate-200 p-2 sm:p-4 shadow-[0_30px_100px_rgba(15,23,42,0.2)] lg:shadow-[0_24px_60px_rgba(15,23,42,0.16)] w-[90vw] sm:w-auto max-w-full overflow-hidden">
+                  <div className="absolute left-0 lg:-left-12 xl:left-0 top-full mt-3 z-[100] rounded-[32px] bg-white border border-slate-200 p-2 sm:p-4 shadow-[0_30px_100px_rgba(15,23,42,0.2)] lg:shadow-[0_24px_60px_rgba(15,23,42,0.16)] w-[calc(100vw-40px)] sm:w-max min-w-[320px]">
                     <Calendar
                       mode="range"
                       minDate={today}
@@ -580,7 +580,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
                           setTimeout(() => setIsGuestPickerOpen(true), 150);
                         }
                       }}
-                      className="w-full sm:w-[340px] border-none"
+                      className="w-full sm:w-[340px] border-none mx-auto"
                     />
                   </div>
                 )}
