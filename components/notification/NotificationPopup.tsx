@@ -153,7 +153,7 @@ export function NotificationPopup({ customTrigger }: NotificationPopupProps) {
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 z-50 overflow-hidden animate-fade-in origin-top-right">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 z-[100] overflow-hidden animate-fade-in origin-top-right">
                     <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50">
                         <h3 className="font-bold text-slate-900">알림</h3>
                         {unreadCount > 0 && (
