@@ -24,6 +24,7 @@ import {
   Camera,
   Landmark,
   Zap,
+  User,
 } from "lucide-react";
 
 export type LandingGuide = {
