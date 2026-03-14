@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
 export async function signup(formData: FormData) {
@@ -22,11 +23,18 @@ export async function signup(formData: FormData) {
         return redirect('/signup?message=Passwords do not match')
     }
 
+    // 현재 요청의 오리진(Origin)을 가져와 리다이렉트 URL 생성
+    const headersList = await headers();
+    const origin = headersList.get('origin') || headersList.get('referer') || (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000');
+    // trailing slash 제거 및 절대 경로 형성
+    const redirectTo = `${origin.replace(/\/$/, "")}/auth/callback`;
+
     // 1. 회원가입
     const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+            emailRedirectTo: redirectTo,
             data: {
                 full_name: fullName,
                 role: role,
