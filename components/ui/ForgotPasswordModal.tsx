@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail, ArrowRight, X, Loader2 } from "lucide-react";
 import { Button } from "./Button";
 import { Input } from "./Input";
@@ -16,6 +16,17 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [lastEmailSent, setLastEmailSent] = useState("");
+
+  // 모달이 새로 열릴 때마다 상태 초기화
+  useEffect(() => {
+    if (isOpen) {
+      setStatus("idle");
+      setErrorMessage("");
+      // 이전에 입력했던 이메일을 유지하고 싶지 않다면 이메일도 초기화
+      setEmail(""); 
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
