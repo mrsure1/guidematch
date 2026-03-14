@@ -319,7 +319,7 @@ function TourCard({ tour, queryString, idx }: { tour: LandingTour, queryString?:
   );
 }
 
-export default function MainLandingClient({ guideHref, guides, tours, userName }: Props) {
+export default function MainLandingClient({ guideHref, guides, tours, userName, userRole }: Props) {
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
   const destinationPanelRef = useRef<HTMLDivElement | null>(null);
   const datePanelRef = useRef<HTMLDivElement | null>(null);
