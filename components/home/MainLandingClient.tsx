@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Calendar } from "@/components/ui/Calendar";
 import { cn } from "@/lib/utils";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { HeaderActions } from "@/components/layout/HeaderActions";
 import {
   Clock,
   Compass,
@@ -466,12 +467,16 @@ export default function MainLandingClient({ guideHref, guides, tours, userName }
         <div className="relative z-30 mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
           <header className="flex items-center justify-between gap-4 rounded-full border border-white/15 bg-white/8 px-5 py-3 backdrop-blur-md">
             <BrandLogo href="/" size="lg" tone="light" variant="signature" />
-            <Link
-              href={guideHref}
-              className="rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs font-medium text-white/72 transition hover:border-white/30 hover:bg-white/12 hover:text-white"
-            >
-              가이드 메뉴
-            </Link>
+            
+            <div className="flex items-center gap-4">
+              <HeaderActions variant="light" />
+              <Link
+                href={guideHref}
+                className="rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs font-medium text-white/72 transition hover:border-white/30 hover:bg-white/12 hover:text-white"
+              >
+                가이드 메뉴
+              </Link>
+            </div>
           </header>
 
           <div className="mt-8 rounded-3xl sm:rounded-[38px] border border-white/15 bg-white/96 p-2 sm:p-3 shadow-[0_30px_80px_rgba(2,6,23,0.26)] backdrop-blur-md">

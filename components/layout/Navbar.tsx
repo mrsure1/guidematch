@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NotificationPopup } from "@/components/notification/NotificationPopup";
+import { HeaderActions } from "@/components/layout/HeaderActions";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LayoutDashboard, Search, Map, Calendar, User, ShoppingBag, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -28,13 +28,13 @@ export function Navbar({ profile }: NavbarProps) {
     const isGuide = profile?.role === "guide" || profile?.role === "admin";
 
     const travelerLinks = [
-        { href: "/traveler/home", label: "가이드/투어 탐색", icon: Map },
+        { href: "/", label: "가이드/투어 탐색", icon: Map },
         { href: "/traveler/bookings", label: "내 예약", icon: Calendar },
         { href: "/traveler/profile", label: "마이페이지", icon: User },
     ];
 
     const guideLinks = [
-        { href: "/traveler/home", label: "가이드/투어 탐색", icon: Map },
+        { href: "/", label: "가이드/투어 탐색", icon: Map },
         { href: "/guide/tours", label: "내 상품 관리", icon: ShoppingBag },
         { href: "/guide/dashboard", label: "가이드 대시보드", icon: LayoutDashboard },
         { href: "/guide/profile", label: "마이페이지", icon: User },
@@ -81,11 +81,7 @@ export function Navbar({ profile }: NavbarProps) {
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-3">
-
-
-                    <div className="hidden sm:block">
-                        <NotificationPopup />
-                    </div>
+                    <HeaderActions variant="dark" />
 
                     <div className="h-6 w-px bg-slate-200 hidden sm:block mx-1"></div>
 
