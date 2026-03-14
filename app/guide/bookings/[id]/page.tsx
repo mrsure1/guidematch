@@ -76,9 +76,11 @@ export default async function BookingDetailsPage({ params }: { params: Promise<{
                         />
                         <h3 className="text-xl font-bold text-slate-900 mb-6">{booking.traveler.full_name || '여행자'}</h3>
 
-                        <Button variant="outline" className="w-full flex items-center gap-2 border-slate-200 text-slate-700 hover:bg-slate-50">
-                            <MessageSquare className="w-4 h-4" /> 메시지 보내기
-                        </Button>
+                        <Link href={`/messages?guide=${booking.traveler_id}`} className="w-full">
+                            <Button variant="outline" className="w-full flex items-center gap-2 border-slate-200 text-slate-700 hover:bg-slate-50">
+                                <MessageSquare className="w-4 h-4" /> 메시지 보내기
+                            </Button>
+                        </Link>
                     </CardContent>
                 </Card>
 
