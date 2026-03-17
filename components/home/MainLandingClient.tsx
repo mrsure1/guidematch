@@ -249,7 +249,7 @@ function TourCard({ tour, queryString, idx }: { tour: LandingTour, queryString?:
         {photos.length > 1 && (
           <>
             <button
-              onClick={(e) => { e.preventDefault(); scroll('left'); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); scroll('left'); }}
               className={cn(
                 "absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-white",
                 currentIdx === 0 && "hidden"
@@ -258,7 +258,7 @@ function TourCard({ tour, queryString, idx }: { tour: LandingTour, queryString?:
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
-              onClick={(e) => { e.preventDefault(); scroll('right'); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); scroll('right'); }}
               className={cn(
                 "absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-white",
                 currentIdx === photos.length - 1 && "hidden"
@@ -284,9 +284,12 @@ function TourCard({ tour, queryString, idx }: { tour: LandingTour, queryString?:
           </div>
         )}
 
-        <div className="absolute left-4 top-4 z-10 rounded-full bg-white/92 px-3 py-1 text-xs font-semibold text-slate-900 backdrop-blur">
+        <Link href={`/traveler/tours/${tour.id}${queryString || ''}`} className="absolute left-4 top-4 z-10 rounded-full bg-white/92 px-3 py-1 text-xs font-semibold text-slate-900 backdrop-blur">
           {tour.region}
-        </div>
+        </Link>
+        <Link href={`/traveler/tours/${tour.id}${queryString || ''}`} className="absolute inset-0 z-0">
+          <span className="sr-only">상세보기</span>
+        </Link>
       </div>
 
       <Link

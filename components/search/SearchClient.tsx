@@ -433,7 +433,7 @@ export default function SearchClient({
 
     return (
       <Card className="premium-card group flex h-full cursor-pointer flex-col gap-0 overflow-hidden border-slate-200/60 bg-white transition-all hover:border-blue-300 hover:shadow-xl hover:shadow-blue-900/10">
-        <div className="relative h-48 overflow-hidden bg-slate-100">
+        <Link href={`/traveler/tours/${tour.id}`} className="block relative h-48 overflow-hidden bg-slate-100">
           {/* Image Carousel */}
           <div className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth">
             {photos.map((photo, index) => (
@@ -459,7 +459,7 @@ export default function SearchClient({
           <div className="absolute left-3 top-3 z-10 rounded-lg bg-white/90 px-2 py-1 text-[10px] font-bold text-slate-900 shadow-sm backdrop-blur-md">
             {tour.region}
           </div>
-        </div>
+        </Link>
 
         <Link href={`/traveler/tours/${tour.id}`} className="flex flex-1 flex-col justify-between">
           <CardContent className="flex flex-1 flex-col justify-between p-5">

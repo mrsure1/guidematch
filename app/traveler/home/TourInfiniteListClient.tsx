@@ -123,27 +123,36 @@ function TourItem({ tour, idx }: { tour: Tour, idx: number }) {
         >
             <div className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#e9e4db] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(15,23,42,0.08)]">
                 <div className="relative aspect-[4/3] overflow-hidden bg-[#f5f1ea]">
-                    <div
-                        ref={scrollRef}
-                        onScroll={handleScroll}
-                        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth"
+                    <Link
+                        href={`/traveler/tours/${tour.id}`}
+                        className="block h-full w-full"
                     >
-                        {photos.map((photo, index) => (
-                            <div key={index} className="relative h-full w-full shrink-0 snap-start">
-                                <img
-                                    src={photo}
-                                    alt={`${tour.title} - ${index + 1}`}
-                                    className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
-                                />
-                            </div>
-                        ))}
-                    </div>
+                        <div
+                            ref={scrollRef}
+                            onScroll={handleScroll}
+                            className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scrollbar-none scroll-smooth"
+                        >
+                            {photos.map((photo, index) => (
+                                <div key={index} className="relative h-full w-full shrink-0 snap-start">
+                                    <img
+                                        src={photo}
+                                        alt={`${tour.title} - ${index + 1}`}
+                                        className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </Link>
 
                     {/* Arrows */}
                     {photos.length > 1 && (
                         <>
                             <button
-                                onClick={(e) => { e.preventDefault(); scroll('left'); }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    scroll('left');
+                                }}
                                 className={cn(
                                     "absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-white",
                                     currentIdx === 0 && "hidden"
@@ -152,7 +161,11 @@ function TourItem({ tour, idx }: { tour: Tour, idx: number }) {
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
                             <button
-                                onClick={(e) => { e.preventDefault(); scroll('right'); }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    scroll('right');
+                                }}
                                 className={cn(
                                     "absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-white",
                                     currentIdx === photos.length - 1 && "hidden"

@@ -3,10 +3,10 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const tourId = params.id;
+        const { id: tourId } = await params;
         const supabase = await createClient();
 
         // 현재 사용자 세션 확인
