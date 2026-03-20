@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Suspense } from "react";
 
 export default async function GuideDetail({ params }: { params: Promise<{ id: string }> }) {
+  try {
     const { id } = await params;
     const supabase = await createClient();
 
@@ -175,4 +176,16 @@ export default async function GuideDetail({ params }: { params: Promise<{ id: st
             </div>
         </div>
     );
+  } catch (err: any) {
+    return (
+      <div style={{padding: "40px", maxWidth: "800px", margin: "0 auto"}}>
+        <h1 style={{color: "red"}}>Guide Detail Error (Debug)</h1>
+        <pre style={{whiteSpace: "pre-wrap", background: "#f5f5f5", padding: "16px", borderRadius: "8px"}}>
+          {err?.message || "Unknown error"}
+          {"\n\n"}
+          {err?.stack || "No stack trace"}
+        </pre>
+      </div>
+    );
+  }
 }
