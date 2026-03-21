@@ -345,15 +345,20 @@ export default function TourCreateForm() {
         )}
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-bold text-slate-700">투어 이미지</label>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="text-xs font-bold text-accent hover:underline"
-            >
-              이미지 추가
-            </button>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-bold text-slate-700">투어 이미지</label>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs font-bold text-accent hover:underline"
+              >
+                이미지 추가
+              </button>
+            </div>
+            <p className="text-xs text-slate-500">
+              권장: 1200x800px 이상 | 파일당 최대 10MB | 최대 10장 (이미지는 자동으로 최적화됩니다)
+            </p>
           </div>
 
           <input
