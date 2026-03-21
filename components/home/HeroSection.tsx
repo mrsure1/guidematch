@@ -38,8 +38,8 @@ export function HeroSection({ userName, userRole, guideHref, withLocale, childre
 
       {/* Content Container */}
       <div className="relative z-[150] mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3 md:gap-4">
-          <header className="relative z-[100] flex flex-1 items-center justify-between gap-4 rounded-full border border-white/15 bg-white/8 px-5 py-3 backdrop-blur-md">
+        <div className="relative z-[600] flex items-center gap-3 md:gap-4">
+          <header className="relative flex flex-1 items-center justify-between gap-4 rounded-full border border-white/15 bg-white/8 px-5 py-3 backdrop-blur-md">
             <BrandLogo href={withLocale("/")} size="lg" tone="light" variant="signature" />
             
             <div className="flex items-center gap-2 sm:gap-4">
