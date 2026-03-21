@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Link from "next/link";
@@ -48,7 +48,7 @@ export default function CheckoutClient({
   initialTravelerEmail,
   autoStartPayment = false,
 }: CheckoutClientProps) {
-  const { messages } = useI18n();
+  const { messages, locale } = useI18n();
   const t = messages.checkout;
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -68,16 +68,20 @@ export default function CheckoutClient({
   const [paymentWidget, setPaymentWidget] = useState<any>(null);
   const [isWidgetLoading, setIsWidgetLoading] = useState(false);
   const paymentMethodsWidgetRef = useRef<any>(null);
+  const agreementWidgetRef = useRef<any>(null);
   const mountedErrorRef = useRef<string | null>(null);
   const autoStartRef = useRef(false);
 
-  const errorGuide: Record<string, string> = {
-    USER_CANCEL: t.alerts.paymentCancelDetail,
-    user_cancel: t.alerts.paymentCancelDetail,
-    INVALID_CARD_COMPANY: t.alerts.invalidCard,
-    PAY_PROCESS_CANCELED: t.alerts.processCancelled,
-    internal: t.alerts.internalError,
-  };
+  const errorGuide: Record<string, string> = useMemo(
+    () => ({
+      USER_CANCEL: t.alerts.paymentCancelDetail,
+      user_cancel: t.alerts.paymentCancelDetail,
+      INVALID_CARD_COMPANY: t.alerts.invalidCard,
+      PAY_PROCESS_CANCELED: t.alerts.processCancelled,
+      internal: t.alerts.internalError,
+    }),
+    [t],
+  );
 
   const guideDetail = Array.isArray(booking.guide?.guides_detail)
     ? booking.guide?.guides_detail[0]
@@ -172,13 +176,26 @@ export default function CheckoutClient({
   }, [booking.traveler_id]);
 
   useEffect(() => {
-    if (!paymentWidget || paymentMethodsWidgetRef.current) return;
+    if (!paymentWidget) return;
+
+    let cancelled = false;
 
     const renderWidget = async () => {
       try {
+        if (paymentMethodsWidgetRef.current) {
+          await paymentMethodsWidgetRef.current.destroy();
+          paymentMethodsWidgetRef.current = null;
+        }
+        if (agreementWidgetRef.current) {
+          await agreementWidgetRef.current.destroy();
+          agreementWidgetRef.current = null;
+        }
+
         const container = document.getElementById("payment-method");
         if (!container) {
-          window.setTimeout(renderWidget, 100);
+          window.setTimeout(() => {
+            if (!cancelled) void renderWidget();
+          }, 100);
           return;
         }
 
@@ -192,19 +209,28 @@ export default function CheckoutClient({
           variantKey: "DEFAULT",
         });
 
-        await paymentWidget.renderAgreement({
+        const agreementWidget = await paymentWidget.renderAgreement({
           selector: "#agreement",
           variantKey: "AGREEMENT",
         });
 
         paymentMethodsWidgetRef.current = methodsWidget;
+        agreementWidgetRef.current = agreementWidget;
       } catch (error) {
         console.error("Toss widget render error:", error);
       }
     };
 
-    renderWidget();
-  }, [booking.total_price, paymentWidget]);
+    void renderWidget();
+
+    return () => {
+      cancelled = true;
+      void paymentMethodsWidgetRef.current?.destroy?.();
+      void agreementWidgetRef.current?.destroy?.();
+      paymentMethodsWidgetRef.current = null;
+      agreementWidgetRef.current = null;
+    };
+  }, [booking.total_price, paymentWidget, locale]);
 
   const handlePaymentRequest = async () => {
     if (paymentMethod !== "toss" && paymentMethod !== "kakao") return;
@@ -234,7 +260,7 @@ export default function CheckoutClient({
     }
 
     const popupSuffix = popupMode ? "?popup=1" : "";
-    const localeSuffix = `&locale=${messages.locale || "ko"}`;
+    const localeSuffix = `&locale=${locale}`;
 
     try {
       await paymentWidget.requestPayment({
@@ -359,7 +385,7 @@ export default function CheckoutClient({
             <CardContent className="space-y-6 pt-6">
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wide text-slate-500">{t.reservationInfo.name}</label>
+                  <label className="text-xs font-bold tracking-wide text-slate-500">{t.reservationInfo.name}</label>
                   <input
                     type="text"
                     value={travelerName}
@@ -369,7 +395,7 @@ export default function CheckoutClient({
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wide text-slate-500">{t.reservationInfo.email}</label>
+                  <label className="text-xs font-bold tracking-wide text-slate-500">{t.reservationInfo.email}</label>
                   <input
                     type="email"
                     value={travelerEmail}
@@ -381,7 +407,7 @@ export default function CheckoutClient({
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">
+                <label className="flex items-center gap-1.5 text-xs font-bold tracking-wide text-slate-500">
                   <FileText className="h-4 w-4" />
                   {t.reservationInfo.messageToGuide}
                 </label>
@@ -476,6 +502,9 @@ export default function CheckoutClient({
                   </div>
                 ) : (
                   <div className="relative animate-fade-in">
+                    <p className="mx-5 mb-4 text-xs leading-relaxed text-slate-500 md:mx-0">
+                      {t.paymentMethod.providerUiNote}
+                    </p>
                     {isWidgetLoading ? (
                       <div className="absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-[2px]">
                         <div className="flex flex-col items-center gap-3">

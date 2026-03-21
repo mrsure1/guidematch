@@ -24,14 +24,14 @@ export function LanguageSwitcher({
 
   const nextLocale: Locale = locale === "ko" ? "en" : "ko";
 
-  const handleChangeLocale = () => {
+  const handleChangeLocale = async () => {
     document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
     try {
       window.localStorage.setItem(LOCALE_COOKIE_NAME, nextLocale);
     } catch {
       // localStorage can be unavailable in hardened browser modes.
     }
-    router.push(localizePath(nextLocale, pathname));
+    await router.push(localizePath(nextLocale, pathname));
     router.refresh();
   };
 

@@ -20,7 +20,8 @@
     "usdNotice": "Note: Converted amount is for reference only.",
     "loading": "Loading widget...",
     "preparing": "Preparing...",
-    "payButton": "Pay {amount} with {method}"
+    "payButton": "Pay {amount} with {method}",
+    "providerUiNote": "The payment and agreement section below is provided by the payment provider (Toss Payments) and may appear in Korean depending on merchant settings."
   },
   "summary": {
     "guideLabel": "Guide",
