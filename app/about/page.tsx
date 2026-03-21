@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Globe2, HeartHandshake, Map, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { InfoHeader } from "@/components/layout/InfoHeader";
-import { getRequestLocale } from "next-intl/server";
+import { getRequestLocale } from "@/lib/i18n/get-request-locale";
 import { localizePath } from "@/lib/utils";
 
 type LocaleCode = "ko" | "en";
@@ -41,7 +41,7 @@ const valueCards: {
       en: "Coexistence",
     },
     description: {
-      ko: "업계 최저 수준의 합리적인 수수료율을 통해 가이드의 전문성과 열정에 합당한 보상을 지원합니다.",
+      ko: "업계 최저 수준의 합리적인 수수료율을 통해 파트너 가이드의 전문성과 열정에 합당한 보상을 지원합니다.",
       en: "Fair commissions reward guides for their expertise and passion, fostering a sustainable ecosystem.",
     },
   },
@@ -170,7 +170,7 @@ const translations: Record<
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = (await getRequestLocale()) as LocaleCode;
+  const locale = await getRequestLocale();
 
   return {
     title: locale === "ko" ? "GuideMatch 소개 | GuideMatch" : "About GuideMatch | GuideMatch",
@@ -182,7 +182,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
-  const locale = (await getRequestLocale()) as LocaleCode;
+  const locale = await getRequestLocale();
   const content = translations[locale];
   const localePath = (href: string) => localizePath(locale, href);
 
