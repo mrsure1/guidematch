@@ -610,33 +610,3 @@ function getPopupFeatures() {
   const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - height) / 2));
   return `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
 }
--sm font-bold text-slate-900">珥?寃곗젣 湲덉븸</span>
-                    <span className="text-2xl font-extrabold text-accent">
-                      ??{booking.total_price?.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs leading-relaxed text-slate-500">
-                    <p className="mb-1 font-semibold text-slate-700">痍⑥냼 洹쒖젙</p>
-                    ?ъ뼱 ?쇱젙 3???꾧퉴吏: ?꾩븸 ?섎텋
-                    <br />
-                    ?ъ뼱 ?쇱젙 2?????뱀씪: ?섎텋 遺덇?
-                    <br />
-                    媛?대뱶 ?ъ젙?쇰줈 痍⑥냼 ?쒖뿉???덉쇅 ?놁씠 ?꾩븸 ?섎텋?⑸땲??
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-
-      <AlertModal
-        isOpen={alertConfig.isOpen}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onClose={hideAlert}
-      />
-    </div>
-  );
-}
-
