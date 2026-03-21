@@ -11,11 +11,12 @@ import { replaceName } from "@/lib/home/search-utils";
 interface HeroSectionProps {
   userName?: string | null;
   userRole?: string | null;
+  guideHref: string;
   withLocale: (href: string) => string;
   children?: React.ReactNode;
 }
 
-export function HeroSection({ userName, userRole, withLocale, children }: HeroSectionProps) {
+export function HeroSection({ userName, userRole, guideHref, withLocale, children }: HeroSectionProps) {
   const { messages } = useI18n();
   const nav = messages.common.navigation;
   const landing = messages.landing;
@@ -41,31 +42,26 @@ export function HeroSection({ userName, userRole, withLocale, children }: HeroSe
           <header className="relative z-[100] flex flex-1 items-center justify-between gap-4 rounded-full border border-white/15 bg-white/8 px-5 py-3 backdrop-blur-md">
             <BrandLogo href={withLocale("/")} size="lg" tone="light" variant="signature" />
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Link
+                href={withLocale(guideHref)}
+                className="flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-white transition hover:border-white/30 hover:bg-white/12"
+              >
+                <LayoutDashboard className="w-3 h-3" />
+                {nav.guideMenu}
+              </Link>
+
+              {userName && <HeaderActions variant="light" className="hidden sm:flex" />}
+              
               {userName ? (
-                <>
-                  <HeaderActions variant="light" />
-                  
-                  {(userRole === 'guide' || userRole === 'admin') && (
-                    <Link
-                      href={withLocale('/guide/dashboard')}
-                      className="hidden md:flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs font-bold text-white transition hover:border-white/30 hover:bg-white/12"
-                    >
-                      <LayoutDashboard className="w-3 h-3" />
-                      {nav.guideMenu}
-                    </Link>
-                  )}
-
-                  <Link
-                    href={withLocale(userRole === 'guide' || userRole === 'admin' ? '/guide/profile' : '/traveler/profile')}
-                    className="flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs font-bold text-white transition hover:border-white/30 hover:bg-white/12"
-                  >
-                    <User className="w-3 h-3" />
-                    {nav.myPage}
-                  </Link>
-                </>
+                <Link
+                  href={withLocale(userRole === 'guide' || userRole === 'admin' ? '/guide/profile' : '/traveler/profile')}
+                  className="flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs font-bold text-white transition hover:border-white/30 hover:bg-white/12"
+                >
+                  <User className="w-3 h-3" />
+                  {nav.myPage}
+                </Link>
               ) : (
-
                 <Link
                   href={withLocale("/login")}
                   className="rounded-full bg-white px-5 py-2 text-xs font-bold text-slate-950 transition hover:bg-slate-100"

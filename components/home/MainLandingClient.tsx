@@ -104,7 +104,7 @@ export default function MainLandingClient({ guideHref, guides, tours, userName, 
 
   return (
     <main className="min-h-screen bg-[#fbf8f3] text-slate-900 [overflow-wrap:normal] [word-break:keep-all] pb-12">
-      <HeroSection userName={userName} userRole={userRole} withLocale={withLocale}>
+      <HeroSection userName={userName} userRole={userRole} guideHref={guideHref} withLocale={withLocale}>
         <div className="mx-auto max-w-5xl">
           <SearchForm 
             draft={draft}
