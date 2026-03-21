@@ -81,20 +81,20 @@ export default async function AboutPage() {
 
   const galleryCards = [
     {
-      src: "/images/tours/seoul_alley.png", // 실제 가상의 경로, 이전 코드 기반
-      alt: "Seoul Alley Tour",
+      src: "/images/tours/gyeongbokgung.png",
+      alt: "Seoul Gyeongbokgung",
       title: about.gallery.card1.title,
       description: about.gallery.card1.description,
     },
     {
-      src: "/images/tours/market_food.png",
-      alt: "Local Market Food",
+      src: "/images/tours/jeju_1.png",
+      alt: "Jeju Island Tour",
       title: about.gallery.card2.title,
       description: about.gallery.card2.description,
     },
     {
-      src: "/images/tours/heritage.png",
-      alt: "Cultural Heritage",
+      src: "/images/tours/gyeongbokgung_3.png",
+      alt: "Korea Cultural Heritage",
       title: about.gallery.card3.title,
       description: about.gallery.card3.description,
     },
@@ -116,9 +116,8 @@ export default async function AboutPage() {
                 {about.hero.badge}
               </div>
 
-              <h1 className="max-w-3xl text-4xl font-black tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl hero-title">
+              <h1 className="max-w-xl text-3xl font-black tracking-[-0.05em] text-white sm:text-4xl lg:text-5xl hero-title">
                 {about.hero.titleLine1}
-                <br className="hidden sm:block" />
                 <span className="text-transparent bg-gradient-to-r from-cyan-300 via-sky-300 to-amber-200 bg-clip-text">
                   {about.hero.titleLine2}
                 </span>
@@ -189,7 +188,7 @@ export default async function AboutPage() {
                 </div>
               </div>
 
-              <div className="relative mx-auto -mt-14 grid max-w-xl gap-4 px-4 sm:grid-cols-[0.84fr_1.16fr] lg:-mt-24 lg:ml-8 lg:px-0">
+              <div className="relative mx-auto mt-8 grid max-w-xl gap-4 px-4 sm:grid-cols-[0.84fr_1.16fr] lg:mt-12 lg:ml-8 lg:px-0">
                 <div className="rounded-[1.75rem] border border-slate-200 bg-[#fcfaf7] p-3 shadow-xl shadow-slate-900/10">
                   <div className="relative aspect-[4/5] overflow-hidden rounded-[1.2rem]">
                     <Image
