@@ -1,0 +1,57 @@
+{
+  "title": "Secure Payment",
+  "description": "Confirm traveler information and payment method to finalize your booking.",
+  "backToBookings": "Back to Bookings",
+  "reservationInfo": {
+    "title": "Traveler Information",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "messageToGuide": "Message to Guide",
+    "messagePlaceholder": "Any special requests for the guide?"
+  },
+  "paymentMethod": {
+    "title": "Payment Method",
+    "toss": "Toss Pay",
+    "kakao": "Kakao Pay",
+    "paypal": "PayPal",
+    "amountUsd": "Payment Amount (USD)",
+    "usdNotice": "Note: Converted amount is for reference only.",
+    "loading": "Loading widget...",
+    "preparing": "Preparing...",
+    "payButton": "Pay {amount} with {method}"
+  },
+  "summary": {
+    "guideLabel": "Guide",
+    "durationUnit": "hours",
+    "bookingNumber": "Booking No",
+    "guests": "Guests",
+    "guestsUnit": "people",
+    "totalAmount": "Total Payment",
+    "cancellationPolicy": {
+      "title": "Cancellation Policy",
+      "threeDays": "Up to 3 days before: Full refund",
+      "twoDays": "2 days before to day of: No refund",
+      "guideCircumstance": "Full refund if cancelled due to guide circumstances."
+    }
+  },
+  "alerts": {
+    "paymentError": "Payment Error",
+    "paymentCancel": "Payment Cancelled",
+    "paymentCancelDetail": "The payment was cancelled. You can choose another method or go back.",
+    "invalidCard": "Invalid payment method information. Please try again.",
+    "processCancelled": "Payment process interrupted. Please check your information.",
+    "internalError": "An error occurred during payment processing. Please try again.",
+    "failGeneric": "Unable to complete payment. Please check your details and agreements.",
+    "paymentSuccess": "Payment Successful",
+    "paymentSuccessDetail": "Your payment has been successfully completed.",
+    "widgetNotReady": "Payment widget is not ready yet. Please try again.",
+    "dataLoadFailed": "Failed to load booking data"
+  },
+  "popup": {
+    "back": "Back",
+    "close": "Close",
+    "windowTitle": "GuideMatch Payment Window"
+  }
+}

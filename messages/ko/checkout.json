@@ -1,0 +1,57 @@
+{
+  "title": "안전한 결제",
+  "description": "여행자 정보와 결제 수단을 확인하고 예약을 확정하세요.",
+  "backToBookings": "예약 내역으로 돌아가기",
+  "reservationInfo": {
+    "title": "예약자 정보",
+    "name": "이름",
+    "namePlaceholder": "이름을 입력하세요",
+    "email": "이메일",
+    "emailPlaceholder": "이메일을 입력하세요",
+    "messageToGuide": "가이드에게 보낼 메시지",
+    "messagePlaceholder": "가이드에게 전달할 요청사항이 있으면 적어주세요"
+  },
+  "paymentMethod": {
+    "title": "결제 수단",
+    "toss": "토스페이",
+    "kakao": "카카오페이",
+    "paypal": "PayPal",
+    "amountUsd": "결제 금액 (USD)",
+    "usdNotice": "안내: 환산 금액은 참고용입니다.",
+    "loading": "위젯 로딩 중",
+    "preparing": "준비 중...",
+    "payButton": "{method}로 {amount} 결제하기"
+  },
+  "summary": {
+    "guideLabel": "가이드",
+    "durationUnit": "시간",
+    "bookingNumber": "예약번호",
+    "guests": "이용 인원",
+    "guestsUnit": "명",
+    "totalAmount": "총 결제 금액",
+    "cancellationPolicy": {
+      "title": "취소 규정",
+      "threeDays": "투어 일정 3일 전까지: 전액 환불",
+      "twoDays": "투어 일정 2일 전 ~ 당일: 환불 불가",
+      "guideCircumstance": "가이드 사정으로 취소 시에는 예외 없이 전액 환불됩니다."
+    }
+  },
+  "alerts": {
+    "paymentError": "결제 오류",
+    "paymentCancel": "결제가 취소되었습니다.",
+    "paymentCancelDetail": "결제가 취소되었습니다. 다른 결제 수단을 선택하거나 이전 단계로 돌아갈 수 있습니다.",
+    "invalidCard": "선택한 결제 수단 정보가 올바르지 않습니다. 다시 시도해주세요.",
+    "processCancelled": "결제 진행이 중단되었습니다. 입력한 정보를 확인한 후 다시 시도해주세요.",
+    "internalError": "결제 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+    "failGeneric": "결제를 완료하지 못했습니다. 입력 정보와 약관 동의를 다시 확인해주세요.",
+    "paymentSuccess": "결제 성공",
+    "paymentSuccessDetail": "결제가 성공적으로 완료되었습니다.",
+    "widgetNotReady": "결제 위젯이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.",
+    "dataLoadFailed": "예약 데이터 조회 실패"
+  },
+  "popup": {
+    "back": "뒤로가기",
+    "close": "닫기",
+    "windowTitle": "GuideMatch 결제창"
+  }
+}

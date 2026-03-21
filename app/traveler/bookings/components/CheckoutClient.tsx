@@ -5,6 +5,7 @@ import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Calendar,
   ChevronLeft,
@@ -20,6 +21,7 @@ import { AlertModal } from "@/components/ui/AlertModal";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { trackClientConversion } from "@/lib/analytics/client";
+
 const clientKey =
   process.env.NEXT_PUBLIC_TOSS_WIDGET_CLIENT_KEY || "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
 
@@ -38,22 +40,6 @@ type AlertConfig = {
   message: string;
 };
 
-const errorGuide: Record<string, string> = {
-  USER_CANCEL: "寃곗젣媛 痍⑥냼?섏뿀?듬땲?? ?ㅻⅨ 寃곗젣 ?섎떒???좏깮?섍굅???댁쟾 ?④퀎濡??뚯븘媛????덉뒿?덈떎.",
-  user_cancel: "寃곗젣媛 痍⑥냼?섏뿀?듬땲?? ?ㅻⅨ 寃곗젣 ?섎떒???좏깮?섍굅???댁쟾 ?④퀎濡??뚯븘媛????덉뒿?덈떎.",
-  INVALID_CARD_COMPANY: "?좏깮??寃곗젣 ?섎떒 ?뺣낫媛 ?щ컮瑜댁? ?딆뒿?덈떎. ?ㅼ떆 ?쒕룄?댁＜?몄슂.",
-  PAY_PROCESS_CANCELED: "寃곗젣 吏꾪뻾??以묐떒?섏뿀?듬땲?? ?낅젰???뺣낫瑜??뺤씤?????ㅼ떆 ?쒕룄?댁＜?몄슂.",
-  internal: "寃곗젣 泥섎━ 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎. ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂.",
-};
-
-function getPopupFeatures() {
-  const width = 560;
-  const height = 860;
-  const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - width) / 2));
-  const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - height) / 2));
-  return `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
-}
-
 export default function CheckoutClient({
   booking,
   popupMode = false,
@@ -62,6 +48,7 @@ export default function CheckoutClient({
   initialTravelerEmail,
   autoStartPayment = false,
 }: CheckoutClientProps) {
+  const t = useTranslations("checkout");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [paymentMethod, setPaymentMethod] = useState<"toss" | "paypal" | "kakao">(initialPaymentMethod);
@@ -82,6 +69,14 @@ export default function CheckoutClient({
   const paymentMethodsWidgetRef = useRef<any>(null);
   const mountedErrorRef = useRef<string | null>(null);
   const autoStartRef = useRef(false);
+
+  const errorGuide: Record<string, string> = {
+    USER_CANCEL: t("alerts.paymentCancelDetail"),
+    user_cancel: t("alerts.paymentCancelDetail"),
+    INVALID_CARD_COMPANY: t("alerts.invalidCard"),
+    PAY_PROCESS_CANCELED: t("alerts.processCancelled"),
+    internal: t("alerts.internalError"),
+  };
 
   const guideDetail = Array.isArray(booking.guide?.guides_detail)
     ? booking.guide?.guides_detail[0]
@@ -131,10 +126,10 @@ export default function CheckoutClient({
       errorGuide[errorCode] ||
       errorGuide[errorCode.toLowerCase()] ||
       errorMessage ||
-      "寃곗젣瑜??꾨즺?섏? 紐삵뻽?듬땲?? ?낅젰 ?뺣낫? ?쎄? ?숈쓽瑜??ㅼ떆 ?뺤씤?댁＜?몄슂.";
+      t("alerts.failGeneric");
 
-    showAlert("寃곗젣 吏꾪뻾 ?덈궡", detail);
-  }, [searchParams]);
+    showAlert(t("alerts.paymentError"), detail);
+  }, [searchParams, t, errorGuide]);
 
   useEffect(() => {
     if (!popupMode || !autoStartPayment || autoStartRef.current) return;
@@ -233,7 +228,7 @@ export default function CheckoutClient({
     }
 
     if (!paymentWidget) {
-      showAlert("寃곗젣 ?꾩젽 ?덈궡", "寃곗젣 ?꾩젽???꾩쭅 以鍮꾨릺吏 ?딆븯?듬땲?? ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂.");
+      showAlert(t("alerts.paymentError"), t("alerts.widgetNotReady"));
       return;
     }
 
@@ -246,11 +241,11 @@ export default function CheckoutClient({
         successUrl: `${window.location.origin}/api/payments/toss/success${popupSuffix}`,
         failUrl: `${window.location.origin}/api/payments/toss/fail${popupSuffix}`,
         customerEmail: travelerEmail || "customer@email.com",
-        customerName: travelerName || "怨좉컼",
+        customerName: travelerName || "customer",
         windowTarget: popupMode ? "self" : "iframe",
       });
     } catch (error: any) {
-      if (error?.message === "痍⑥냼?섏뿀?듬땲??" || error?.code === "USER_CANCEL") {
+      if (error?.message === "Cancelled" || error?.code === "USER_CANCEL") {
         return;
       }
 
@@ -258,9 +253,9 @@ export default function CheckoutClient({
         errorGuide[error?.code] ||
         errorGuide[error?.message] ||
         error?.message ||
-        "寃곗젣 ?섎떒 ?좏깮怨??꾩닔 ?쎄? ?숈쓽瑜??ㅼ떆 ?뺤씤?댁＜?몄슂.";
+        t("alerts.failGeneric");
 
-      showAlert("寃곗젣 ?뺣낫 ?뺤씤", detail);
+      showAlert(t("alerts.paymentError"), detail);
     }
   };
 
@@ -278,7 +273,7 @@ export default function CheckoutClient({
       const result = await res.json();
 
       if (!res.ok) {
-        showAlert("결제 실패", `결제 확인 실패: ${result.error}`);
+        showAlert(t("alerts.paymentError"), `Error: ${result.error}`);
         return;
       }
 
@@ -294,14 +289,14 @@ export default function CheckoutClient({
         return;
       }
 
-      showAlert("寃곗젣 ?깃났", "寃곗젣媛 ?깃났?곸쑝濡??꾨즺?섏뿀?듬땲??");
+      showAlert(t("alerts.paymentSuccess"), t("alerts.paymentSuccessDetail"));
       window.setTimeout(() => {
         router.push("/traveler/bookings");
         router.refresh();
       }, 1200);
     } catch (error) {
       console.error("PayPal capture error:", error);
-      showAlert("寃곗젣 ?ㅻ쪟", "PayPal 寃곗젣 ?뱀씤 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
+      showAlert(t("alerts.paymentError"), t("alerts.internalError"));
     }
   };
 
@@ -314,8 +309,9 @@ export default function CheckoutClient({
         onClick={handlePopupBack}
       >
         <ChevronLeft className="mr-2 h-4 w-4" />
-        ?ㅻ줈媛湲?      </Button>
-      <p className="text-sm font-semibold tracking-[-0.02em] text-slate-900">GuideMatch 결제창</p>
+        {t("popup.back")}
+      </Button>
+      <p className="text-sm font-semibold tracking-[-0.02em] text-slate-900">{t("popup.windowTitle")}</p>
       <Button
         type="button"
         variant="outline"
@@ -323,7 +319,7 @@ export default function CheckoutClient({
         onClick={closePopupOrReturn}
       >
         <X className="mr-2 h-4 w-4" />
-        ?リ린
+        {t("popup.close")}
       </Button>
     </div>
   ) : null;
@@ -339,13 +335,14 @@ export default function CheckoutClient({
             className="mb-4 inline-flex items-center text-sm font-medium text-slate-500 transition-colors hover:text-accent"
           >
             <ChevronLeft className="mr-1 h-4 w-4" />
-            ?덉빟 ?댁뿭?쇰줈 ?뚯븘媛湲?          </Link>
+            {t("backToBookings")}
+          </Link>
         )}
         <h1 className="flex items-center gap-3 text-3xl font-extrabold tracking-tight text-slate-900">
           <ShieldCheck className="h-8 w-8 text-emerald-500" />
-          ?덉쟾??寃곗젣
+          {t("title")}
         </h1>
-        <p className="mt-2 text-slate-500">?ы뻾???뺣낫? 寃곗젣 ?섎떒???뺤씤?섍퀬 ?덉빟???뺤젙?섏꽭??</p>
+        <p className="mt-2 text-slate-500">{t("description")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -354,29 +351,29 @@ export default function CheckoutClient({
             <CardHeader className="border-b border-slate-100/80 bg-slate-50/50 pb-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <User className="h-5 w-5 text-accent" />
-                ?덉빟???뺣낫
+                {t("reservationInfo.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wide text-slate-500">?대쫫</label>
+                  <label className="text-xs font-bold uppercase tracking-wide text-slate-500">{t("reservationInfo.name")}</label>
                   <input
                     type="text"
                     value={travelerName}
                     onChange={(event) => setTravelerName(event.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholder="이름을 입력하세요"
+                    placeholder={t("reservationInfo.namePlaceholder")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wide text-slate-500">이메일</label>
+                  <label className="text-xs font-bold uppercase tracking-wide text-slate-500">{t("reservationInfo.email")}</label>
                   <input
                     type="email"
                     value={travelerEmail}
                     onChange={(event) => setTravelerEmail(event.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholder="이메일을 입력하세요"
+                    placeholder={t("reservationInfo.emailPlaceholder")}
                   />
                 </div>
               </div>
@@ -384,13 +381,13 @@ export default function CheckoutClient({
               <div className="space-y-2">
                 <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">
                   <FileText className="h-4 w-4" />
-                  媛?대뱶?먭쾶 蹂대궪 硫붿떆吏
+                  {t("reservationInfo.messageToGuide")}
                 </label>
                 <textarea
                   value={travelerMessage}
                   onChange={(event) => setTravelerMessage(event.target.value)}
                   className="min-h-[100px] w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm transition-all placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-accent"
-                  placeholder="가이드에게 전달할 요청사항이 있으면 적어주세요"
+                  placeholder={t("reservationInfo.messagePlaceholder")}
                 />
               </div>
             </CardContent>
@@ -400,7 +397,7 @@ export default function CheckoutClient({
             <CardHeader className="border-b border-slate-100/80 bg-slate-50/50 pb-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <CreditCard className="h-5 w-5 text-accent" />
-                寃곗젣 ?섎떒
+                {t("paymentMethod.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 md:p-6">
@@ -414,7 +411,7 @@ export default function CheckoutClient({
                   onClick={() => setPaymentMethod("toss")}
                 >
                   <span className="text-lg font-bold text-blue-600">toss</span>
-                  <span className="ml-2 text-sm">?좎뒪?섏씠</span>
+                  <span className="ml-2 text-sm">{t("paymentMethod.toss")}</span>
                 </button>
                 <button
                   type="button"
@@ -427,7 +424,7 @@ export default function CheckoutClient({
                   <span className="rounded bg-[#ffeb00] px-1.5 py-0.5 text-[10px] font-black text-[#3c1e1e]">
                     TALK
                   </span>
-                  <span className="ml-2 text-sm">카카오페이</span>
+                  <span className="ml-2 text-sm">{t("paymentMethod.kakao")}</span>
                 </button>
                 <button
                   type="button"
@@ -445,9 +442,9 @@ export default function CheckoutClient({
                 {paymentMethod === "paypal" ? (
                   <div className="mx-5 animate-fade-in rounded-xl border border-slate-100 bg-slate-50 p-6 md:mx-0">
                     <div className="mb-6 text-center">
-                      <p className="mb-2 font-medium text-slate-600">寃곗젣 湲덉븸 (USD)</p>
+                      <p className="mb-2 font-medium text-slate-600">{t("paymentMethod.amountUsd")}</p>
                       <p className="text-3xl font-black text-[#003087]">${usdAmount}</p>
-                      <p className="mt-2 text-xs text-slate-400">?덈궡: ?섏궛 湲덉븸? ?곕え 湲곗??낅땲??</p>
+                      <p className="mt-2 text-xs text-slate-400">{t("paymentMethod.usdNotice")}</p>
                     </div>
                     <PayPalScriptProvider
                       options={{
@@ -481,7 +478,7 @@ export default function CheckoutClient({
                       <div className="absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-[2px]">
                         <div className="flex flex-col items-center gap-3">
                           <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
-                          <p className="text-xs font-bold uppercase tracking-widest text-slate-500">위젯 로딩 중</p>
+                          <p className="text-xs font-bold uppercase tracking-widest text-slate-500">{t("paymentMethod.loading")}</p>
                         </div>
                       </div>
                     ) : null}
@@ -500,8 +497,11 @@ export default function CheckoutClient({
                         onClick={handlePaymentRequest}
                       >
                         {isWidgetLoading
-                          ? "준비 중..."
-                          : `${paymentMethod === "kakao" ? "카카오페이" : "토스페이"}로 ${booking.total_price.toLocaleString()} 결제하기`}
+                          ? t("paymentMethod.preparing")
+                          : t("paymentMethod.payButton", {
+                              method: paymentMethod === "kakao" ? t("paymentMethod.kakao") : t("paymentMethod.toss"),
+                              amount: booking.total_price.toLocaleString()
+                            })}
                       </Button>
                     </div>
                   </div>
@@ -530,7 +530,7 @@ export default function CheckoutClient({
                     {tourTitle || `${booking.guide?.full_name} tour`}
                   </h3>
                   <p className="flex justify-between text-sm font-medium text-slate-200 drop-shadow-md">
-                    <span>{booking.guide?.full_name} 媛?대뱶</span>
+                    <span>{booking.guide?.full_name} {t("summary.guideLabel")}</span>
                   </p>
                 </div>
               </div>
@@ -545,7 +545,7 @@ export default function CheckoutClient({
                   <div className="flex items-center gap-3 text-sm">
                     <Clock className="h-4 w-4 text-slate-400" />
                     <span className="font-medium text-slate-900">
-                      {booking.tour?.duration ? `${booking.tour.duration}?쒓컙` : "-"}
+                      {booking.tour?.duration ? `${booking.tour.duration}${t("summary.durationUnit")}` : "-"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
@@ -557,23 +557,60 @@ export default function CheckoutClient({
                   <div className="flex items-center gap-3 text-sm">
                     <CreditCard className="h-4 w-4 text-slate-400" />
                     <span className="font-medium text-slate-900">
-                      ?덉빟踰덊샇: {booking.id.split("-")[0].toUpperCase()}
+                      {t("summary.bookingNumber")}: {booking.id.split("-")[0].toUpperCase()}
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-3 border-b border-slate-200 py-6">
                   <div className="flex justify-between text-sm">
-                    <span className="font-medium text-slate-500">?댁슜 ?몄썝</span>
+                    <span className="font-medium text-slate-500">{t("summary.guests")}</span>
                     <span className="font-bold text-slate-900">
-                      {booking.guests ? `${booking.guests}명` : "미정"}
+                      {booking.guests ? `${booking.guests}${t("summary.guestsUnit")}` : "-"}
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-4 pb-2 pt-6">
                   <div className="flex items-end justify-between">
-                    <span className="text-sm font-bold text-slate-900">珥?寃곗젣 湲덉븸</span>
+                    <span className="text-sm font-bold text-slate-900">{t("summary.totalAmount")}</span>
+                    <span className="text-2xl font-extrabold text-accent">
+                      ₩{booking.total_price?.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs leading-relaxed text-slate-500">
+                    <p className="mb-1 font-semibold text-slate-700">{t("summary.cancellationPolicy.title")}</p>
+                    {t("summary.cancellationPolicy.threeDays")}
+                    <br />
+                    {t("summary.cancellationPolicy.twoDays")}
+                    <br />
+                    {t("summary.cancellationPolicy.guideCircumstance")}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        onClose={hideAlert}
+      />
+    </div>
+  );
+}
+
+function getPopupFeatures() {
+  const width = 560;
+  const height = 860;
+  const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - width) / 2));
+  const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - height) / 2));
+  return `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
+}
+-sm font-bold text-slate-900">珥?寃곗젣 湲덉븸</span>
                     <span className="text-2xl font-extrabold text-accent">
                       ??{booking.total_price?.toLocaleString()}
                     </span>
