@@ -71,12 +71,11 @@ export function HeroSection({ userName, userRole, guideHref, withLocale, childre
                   {nav.login}
                 </Link>
               )}
+              <div className="hidden sm:block">
+                <LanguageSwitcher tone="light" />
+              </div>
             </div>
           </header>
-          
-          <div className="hidden sm:block shrink-0">
-            <LanguageSwitcher tone="light" />
-          </div>
         </div>
 
         {/* Search Bar Placeholder (Right below header) */}
