@@ -150,7 +150,7 @@ export function SearchForm({
   const canSearch = Boolean(draft.destination.trim());
 
   return (
-    <div className="mt-8 rounded-3xl sm:rounded-[38px] border border-white/15 bg-white/96 p-2 sm:p-3 shadow-[0_30px_80px_rgba(2,6,23,0.26)] backdrop-blur-md">
+    <div className="mt-6 rounded-3xl sm:rounded-[38px] border border-white/15 bg-white/96 p-2 sm:p-3 shadow-[0_30px_80px_rgba(2,6,23,0.26)] backdrop-blur-md">
       <form
         onSubmit={(event) => {
           event.preventDefault();

@@ -104,27 +104,28 @@ export default function MainLandingClient({ guideHref, guides, tours, userName, 
 
   return (
     <main className="min-h-screen bg-[#fbf8f3] text-slate-900 [overflow-wrap:normal] [word-break:keep-all] pb-24">
-      <HeroSection userName={userName} userRole={userRole} withLocale={withLocale} />
-
-      <div className="relative z-[160] -mt-10 mx-auto max-w-5xl px-4">
-        <SearchForm 
-          draft={draft}
-          setDraft={setDraft}
-          onSearch={setCriteria}
-          destinationOptions={destinationOptions}
-          destinationPanelRef={destinationPanelRef}
-          datePanelRef={datePanelRef}
-          guestPanelRef={guestPanelRef}
-          isDestinationOpen={isDestinationOpen}
-          setIsDestinationOpen={setIsDestinationOpen}
-          isDatePickerOpen={isDatePickerOpen}
-          setIsDatePickerOpen={setIsDatePickerOpen}
-          isGuestPickerOpen={isGuestPickerOpen}
-          setIsGuestPickerOpen={setIsGuestPickerOpen}
-        />
-      </div>
+      <HeroSection userName={userName} userRole={userRole} withLocale={withLocale}>
+        <div className="mx-auto max-w-5xl">
+          <SearchForm 
+            draft={draft}
+            setDraft={setDraft}
+            onSearch={setCriteria}
+            destinationOptions={destinationOptions}
+            destinationPanelRef={destinationPanelRef}
+            datePanelRef={datePanelRef}
+            guestPanelRef={guestPanelRef}
+            isDestinationOpen={isDestinationOpen}
+            setIsDestinationOpen={setIsDestinationOpen}
+            isDatePickerOpen={isDatePickerOpen}
+            setIsDatePickerOpen={setIsDatePickerOpen}
+            isGuestPickerOpen={isGuestPickerOpen}
+            setIsGuestPickerOpen={setIsGuestPickerOpen}
+          />
+        </div>
+      </HeroSection>
 
       <section id="explore-results" className="relative z-10 mx-auto max-w-7xl px-4 pt-16 sm:px-6 lg:px-8">
+
         {criteria && (
           <div className="space-y-16 animate-in slide-in-from-bottom-4 fade-in duration-500 mb-20">
             {filteredGuides.length > 0 && (

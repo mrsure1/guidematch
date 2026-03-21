@@ -12,9 +12,10 @@ interface HeroSectionProps {
   userName?: string | null;
   userRole?: string | null;
   withLocale: (href: string) => string;
+  children?: React.ReactNode;
 }
 
-export function HeroSection({ userName, userRole, withLocale }: HeroSectionProps) {
+export function HeroSection({ userName, userRole, withLocale, children }: HeroSectionProps) {
   const { messages } = useI18n();
   const nav = messages.common.navigation;
   const landing = messages.landing;
@@ -35,7 +36,7 @@ export function HeroSection({ userName, userRole, withLocale }: HeroSectionProps
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.28),transparent_32%),radial-gradient(circle_at_80%_15%,rgba(59,130,246,0.2),transparent_28%),radial-gradient(circle_at_75%_85%,rgba(14,116,144,0.2),transparent_30%)]" />
 
       {/* Content Container */}
-      <div className="relative z-[150] mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
+      <div className="relative z-[150] mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3 md:gap-4">
           <header className="relative z-[100] flex flex-1 items-center justify-between gap-4 rounded-full border border-white/15 bg-white/8 px-5 py-3 backdrop-blur-md">
             <BrandLogo href={withLocale("/")} size="lg" tone="light" variant="signature" />
@@ -67,8 +68,11 @@ export function HeroSection({ userName, userRole, withLocale }: HeroSectionProps
           </header>
         </div>
 
+        {/* Search Bar Placeholder (Right below header) */}
+        {children}
+
         {/* Hero Text */}
-        <div className="mt-16 text-center lg:mt-24">
+        <div className="mt-12 text-center lg:mt-16">
           <div className="inline-flex items-center gap-3 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-xs font-bold text-blue-300 backdrop-blur-sm">
             <div className="flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
             {userName ? replaceName(landing.hero.loggedInBadge, userName) : landing.hero.loggedOutBadge}
@@ -87,3 +91,4 @@ export function HeroSection({ userName, userRole, withLocale }: HeroSectionProps
     </section>
   );
 }
+
