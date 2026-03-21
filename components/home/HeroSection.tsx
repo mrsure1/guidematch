@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User } from "lucide-react";
+import { User, LayoutDashboard } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { HeaderActions } from "@/components/layout/HeaderActions";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
@@ -45,6 +45,17 @@ export function HeroSection({ userName, userRole, withLocale, children }: HeroSe
               {userName ? (
                 <>
                   <HeaderActions variant="light" />
+                  
+                  {(userRole === 'guide' || userRole === 'admin') && (
+                    <Link
+                      href={withLocale('/guide/dashboard')}
+                      className="hidden md:flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs font-bold text-white transition hover:border-white/30 hover:bg-white/12"
+                    >
+                      <LayoutDashboard className="w-3 h-3" />
+                      {nav.guideMenu}
+                    </Link>
+                  )}
+
                   <Link
                     href={withLocale(userRole === 'guide' || userRole === 'admin' ? '/guide/profile' : '/traveler/profile')}
                     className="flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs font-bold text-white transition hover:border-white/30 hover:bg-white/12"
@@ -54,6 +65,7 @@ export function HeroSection({ userName, userRole, withLocale, children }: HeroSe
                   </Link>
                 </>
               ) : (
+
                 <Link
                   href={withLocale("/login")}
                   className="rounded-full bg-white px-5 py-2 text-xs font-bold text-slate-950 transition hover:bg-slate-100"
