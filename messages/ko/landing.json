@@ -89,6 +89,35 @@
     "bookingFailed": "예약 요청에 실패했습니다.",
     "selectDateAlert": "예약 일정을 선택해주세요.",
     "incompleteProfileAlert": "가이드 프로필이 아직 완전히 준비되지 않아 예약을 진행할 수 없습니다."
+  },
+  "tourDetail": {
+    "loading": "불러오는 중...",
+    "bestSeller": "베스트 셀러",
+    "regionLabel": "지역",
+    "durationLabel": "소요 시간",
+    "durationHours": "{hours}시간",
+    "guestsLabel": "인원",
+    "guestsMax": "최대 {count}명",
+    "overviewTitle": "투어 개요",
+    "includedTitle": "포함 항목",
+    "noIncluded": "포함 항목이 없습니다.",
+    "perPerson": "1인당",
+    "guideLabel": "가이드",
+    "viewProfile": "프로필 보기",
+    "selectDate": "날짜 선택",
+    "selectDatePlaceholder": "날짜를 선택해주세요",
+    "guestTotal": "총 {count}명",
+    "subtotal": "소계",
+    "serviceFee": "서비스 수수료",
+    "total": "합계",
+    "bookNow": "지금 예약하기",
+    "bookProcessing": "처리 중...",
+    "bookDisclaimer": "예약 확정 전에는 결제가 진행되지 않습니다.",
+    "loginRequired": "좋아요 기능을 사용하려면 로그인이 필요합니다.",
+    "linkCopied": "링크가 클립보드에 복사되었습니다.",
+    "bookingSuccess": "예약 요청이 성공적으로 접수되었습니다.",
+    "bookingFailed": "예약 실패: {error}",
+    "errorOccurred": "예약 처리 중 오류가 발생했습니다."
   }
 }
 

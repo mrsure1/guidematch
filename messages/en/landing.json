@@ -89,6 +89,35 @@
     "bookingFailed": "Booking request failed.",
     "selectDateAlert": "Please select booking dates.",
     "incompleteProfileAlert": "Cannot proceed with booking as the guide profile is not ready."
+  },
+  "tourDetail": {
+    "loading": "Loading...",
+    "bestSeller": "Best Seller",
+    "regionLabel": "Region",
+    "durationLabel": "Duration",
+    "durationHours": "{hours} hours",
+    "guestsLabel": "Guests",
+    "guestsMax": "Up to {count} people",
+    "overviewTitle": "Tour Overview",
+    "includedTitle": "Included",
+    "noIncluded": "No included items listed.",
+    "perPerson": "Per person",
+    "guideLabel": "Guide",
+    "viewProfile": "View Profile",
+    "selectDate": "Select dates",
+    "selectDatePlaceholder": "Select a date",
+    "guestTotal": "Total {count}",
+    "subtotal": "Subtotal",
+    "serviceFee": "Service fee",
+    "total": "Total",
+    "bookNow": "Book now",
+    "bookProcessing": "Processing...",
+    "bookDisclaimer": "You will not be charged until the booking is confirmed.",
+    "loginRequired": "Please log in to use the like feature.",
+    "linkCopied": "The link has been copied to your clipboard.",
+    "bookingSuccess": "Your booking request has been submitted successfully.",
+    "bookingFailed": "Booking failed: {error}",
+    "errorOccurred": "An error occurred while processing the booking."
   }
 }
 

@@ -12,10 +12,16 @@ export async function translateTourForm(fields: TourTranslationInput): Promise<T
       body: JSON.stringify({ fields }),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data: any = {};
+    try {
+      if (text) data = JSON.parse(text);
+    } catch (e) {
+      console.warn("[translateTourForm] Failed to parse translation response as JSON:", text.substring(0, 100));
+    }
 
     if (!response.ok) {
-      console.warn("[translateTourForm] translation skipped:", data?.error || "unknown error");
+      console.warn("[translateTourForm] translation skipped:", data?.error || response.statusText || "unknown error");
       return {};
     }
 

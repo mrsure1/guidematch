@@ -19,6 +19,8 @@ export default function TourCreateForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPending, setIsPending] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translations, setTranslations] = useState<any>(null);
   const [includedInput, setIncludedInput] = useState("");
   const [selectedImages, setSelectedImages] = useState<ImageItem[]>([]);
   const [formData, setFormData] = useState({
@@ -102,6 +104,30 @@ export default function TourCreateForm() {
     }));
   };
 
+  const handleTranslatePreview = async () => {
+    if (!formData.title || !formData.description || !formData.region) {
+      alert("번역을 위해 제목, 소개, 지역을 먼저 입력해 주세요.");
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const result = await translateTourForm({
+        title: formData.title,
+        description: formData.description,
+        region: formData.region,
+        meetingPoint: formData.meetingPoint,
+        includedItems: formData.includedItems,
+      });
+      setTranslations(result);
+    } catch (error: any) {
+      console.error(error);
+      alert(`번역 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -119,14 +145,17 @@ export default function TourCreateForm() {
     setUploading(true);
 
     try {
-      // 1. 먼저 한국어 폼을 영어로 번역합니다.
-      const translations = await translateTourForm({
-        title: formData.title,
-        description: formData.description,
-        region: formData.region,
-        meetingPoint: formData.meetingPoint,
-        includedItems: formData.includedItems,
-      });
+      // 1. 이미 번역된 내용이 있으면 그것을 사용하고, 없으면 새로 번역합니다.
+      let finalTranslations = translations;
+      if (!finalTranslations) {
+        finalTranslations = await translateTourForm({
+          title: formData.title,
+          description: formData.description,
+          region: formData.region,
+          meetingPoint: formData.meetingPoint,
+          includedItems: formData.includedItems,
+        });
+      }
 
       // 2. 이미지를 Supabase Storage에 업로드합니다.
       const imageUrls: string[] = [];
@@ -151,7 +180,7 @@ export default function TourCreateForm() {
           img: imageUrls.join(","),
           includedItems: formData.includedItems,
         },
-        translations,
+        finalTranslations,
       );
 
       alert("새 투어가 등록되었습니다.");
@@ -355,20 +384,82 @@ export default function TourCreateForm() {
         </div>
       </div>
 
+      {/* 번역 미리보기 영역 */}
+      {(translations || isTranslating) && (
+        <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/50 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-blue-900">영문 번역 미리보기 (AI 자동 생성)</h3>
+            {isTranslating && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
+          </div>
+          
+          {translations ? (
+            <div className="space-y-4">
+              <div className="rounded-xl bg-white p-4 shadow-sm">
+                <div className="mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">English Title</div>
+                <div className="text-sm font-bold text-slate-900">{translations.title}</div>
+              </div>
+              <div className="rounded-xl bg-white p-4 shadow-sm">
+                <div className="mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">English Description</div>
+                <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-600">{translations.description}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-xl bg-white p-4 shadow-sm">
+                  <div className="mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Region</div>
+                  <div className="text-sm font-bold text-slate-900">{translations.region}</div>
+                </div>
+                {translations.meetingPoint && (
+                  <div className="rounded-xl bg-white p-4 shadow-sm">
+                    <div className="mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Meeting Point</div>
+                    <div className="text-sm font-bold text-slate-900">{translations.meetingPoint}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex h-32 items-center justify-center text-sm text-blue-400 italic">
+              번역을 생성하고 있습니다...
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex gap-4 border-t border-slate-100 pt-6">
         <Button
           type="button"
           variant="outline"
           className="h-14 flex-1 border-slate-200 bg-white font-bold text-slate-600"
           onClick={() => router.push("/guide/tours")}
-          disabled={isPending || uploading}
+          disabled={isPending || uploading || isTranslating}
         >
           취소
         </Button>
+        
+        {!translations && (
+          <Button
+            type="button"
+            onClick={handleTranslatePreview}
+            className="h-14 flex-1 bg-blue-600 font-bold text-white shadow-lg shadow-blue-200 hover:bg-blue-700"
+            disabled={isPending || uploading || isTranslating}
+          >
+            {isTranslating ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                번역 중...
+              </>
+            ) : (
+              "번역 미리보기"
+            )}
+          </Button>
+        )}
+
         <Button
           type="submit"
-          className="h-14 flex-1 bg-accent font-bold text-white shadow-lg shadow-accent/20 hover:bg-blue-600"
-          disabled={isPending || uploading}
+          className={`h-14 flex-1 font-bold text-white shadow-lg transition-all ${
+            translations 
+              ? "bg-accent hover:bg-blue-600 shadow-accent/20" 
+              : "bg-slate-400 cursor-not-allowed opacity-50"
+          }`}
+          disabled={isPending || uploading || isTranslating || (!translations)}
         >
           {uploading ? (
             <>
@@ -376,7 +467,7 @@ export default function TourCreateForm() {
               업로드 중...
             </>
           ) : (
-            "투어 등록하기"
+            "최종 등록하기"
           )}
         </Button>
       </div>

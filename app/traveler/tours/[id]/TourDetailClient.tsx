@@ -29,18 +29,23 @@ interface TourDetailClientProps {
 
 export default function TourDetailClient({ tour }: TourDetailClientProps) {
   const router = useRouter();
-  const { locale } = useI18n();
+  const { locale, messages } = useI18n();
+  const t = (messages as any).tourDetail || {};
   const searchParams = useSearchParams();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const title = tour.title_en || "Recommended tour";
-  const description = tour.description_en || "A concise itinerary with local highlights.";
-  const region = tour.region_en || "Seoul";
-  const includedItems = Array.isArray(tour.included_items_en)
-    ? tour.included_items_en
-    : Array.isArray(tour.included_items)
-      ? tour.included_items
-      : [];
+  // 로케일에 따른 콘텐츠 선택 (동적 전환 대응)
+  const title = (locale === 'ko' ? (tour.title_ko || tour.title) : (tour.title_en || tour.title_ko)) || "Recommended tour";
+  const description = (locale === 'ko' ? (tour.description_ko || tour.description) : (tour.description_en || tour.description_ko)) || "A concise itinerary with local highlights.";
+  const region = (locale === 'ko' ? (tour.region_ko || tour.region) : (tour.region_en || tour.region_ko)) || "Seoul";
+
+  const includedItemsField = locale === 'ko' 
+    ? (tour.included_items_ko || tour.included_items) 
+    : (tour.included_items_en || tour.included_items_ko || tour.included_items);
+
+  const includedItems = Array.isArray(includedItemsField)
+    ? includedItemsField
+    : [];
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -112,7 +117,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        alert("The link has been copied to your clipboard.");
+        alert(t.linkCopied || "The link has been copied to your clipboard.");
       }
     } catch (error) {
       console.error("Error sharing:", error);
@@ -142,15 +147,15 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
       });
 
       if (res.ok) {
-        alert("Your booking request has been submitted successfully.");
+        alert(t.bookingSuccess || "Your booking request has been submitted successfully.");
         router.push("/traveler/bookings");
       } else {
         const data = await res.json();
-        alert(`Booking failed: ${data.error || "An unknown error occurred."}`);
+        alert((t.bookingFailed || "Booking failed: {error}").replace("{error}", data.error || "An unknown error occurred."));
       }
     } catch (error) {
       console.error(error);
-      alert("An error occurred while processing the booking.");
+      alert(t.errorOccurred || "An error occurred while processing the booking.");
     } finally {
       setIsPending(false);
     }
@@ -258,7 +263,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
         <div className="flex flex-col gap-8 md:flex-row">
           <div className="flex-1 rounded-3xl border border-slate-100 bg-white p-6 shadow-xl shadow-slate-200/50 md:p-8">
             <div className="mb-4 flex items-center gap-2 text-sm font-bold text-blue-600">
-              <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1">Best Seller</span>
+              <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1">{t.bestSeller || "Best Seller"}</span>
               <span className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium text-slate-600">
                 <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" /> 4.9 (128)
               </span>
@@ -274,7 +279,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                   <MapPin className="h-6 w-6" />
                 </div>
                 <div>
-                  <div className="mb-0.5 text-xs font-medium text-slate-500">Region</div>
+                  <div className="mb-0.5 text-xs font-medium text-slate-500">{t.regionLabel || "Region"}</div>
                   <div className="text-sm font-bold text-slate-900">{region}</div>
                 </div>
               </div>
@@ -284,8 +289,8 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                   <Clock className="h-6 w-6" />
                 </div>
                 <div>
-                  <div className="mb-0.5 text-xs font-medium text-slate-500">Duration</div>
-                  <div className="text-sm font-bold text-slate-900">{tour.duration} hours</div>
+                  <div className="mb-0.5 text-xs font-medium text-slate-500">{t.durationLabel || "Duration"}</div>
+                  <div className="text-sm font-bold text-slate-900">{(t.durationHours || "{hours} hours").replace("{hours}", tour.duration?.toString())}</div>
                 </div>
               </div>
 
@@ -294,19 +299,19 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                   <Users className="h-6 w-6" />
                 </div>
                 <div>
-                  <div className="mb-0.5 text-xs font-medium text-slate-500">Guests</div>
-                  <div className="text-sm font-bold text-slate-900">Up to {tour.max_guests} people</div>
+                  <div className="mb-0.5 text-xs font-medium text-slate-500">{t.guestsLabel || "Guests"}</div>
+                  <div className="text-sm font-bold text-slate-900">{(t.guestsMax || "Up to {count} people").replace("{count}", tour.max_guests?.toString())}</div>
                 </div>
               </div>
             </div>
 
             <div className="mb-10">
-              <h2 className="mb-4 text-xl font-bold text-slate-900">Tour Overview</h2>
+              <h2 className="mb-4 text-xl font-bold text-slate-900">{t.overviewTitle || "Tour Overview"}</h2>
               <p className="whitespace-pre-wrap leading-relaxed text-slate-600">{description}</p>
             </div>
 
             <div className="mb-10">
-              <h2 className="mb-4 text-xl font-bold text-slate-900">Included</h2>
+              <h2 className="mb-4 text-xl font-bold text-slate-900">{t.includedTitle || "Included"}</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {includedItems.length > 0 ? (
                   includedItems.map((item: string, i: number) => (
@@ -316,7 +321,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-slate-400">No included items listed.</p>
+                  <p className="text-sm text-slate-400">{t.noIncluded || "No included items listed."}</p>
                 )}
               </div>
             </div>
@@ -327,7 +332,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
               <Card className="overflow-visible rounded-3xl border-0 bg-white shadow-2xl shadow-slate-200">
                 <CardContent className="p-6 md:p-8">
                   <div className="mb-6">
-                    <div className="mb-1 text-sm font-medium text-slate-500">Per person</div>
+                    <div className="mb-1 text-sm font-medium text-slate-500">{t.perPerson || "Per person"}</div>
                     <div className="text-3xl font-black tracking-tight text-slate-900">
                       ₩{tour.price?.toLocaleString()}
                     </div>
@@ -344,7 +349,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                          />
                       </div>
                       <div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Guide</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.guideLabel || "Guide"}</div>
                         <div className="text-sm font-bold text-slate-900">{tour.profiles?.full_name || "GuideMatch"}</div>
                       </div>
                     </div>
@@ -352,7 +357,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                       href={localizePath(locale, `/traveler/guides/${tour.guide_id}`)}
                       className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
                     >
-                      {locale === 'ko' ? '프로필 보기' : 'View Profile'}
+                      {t.viewProfile || "View Profile"}
                     </Link>
                   </div>
 
@@ -363,7 +368,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                         onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
                       >
                         <div className="mb-1 flex items-center gap-1 text-xs font-bold text-slate-500">
-                          <CalendarIcon className="h-3 w-3" /> Select dates
+                          <CalendarIcon className="h-3 w-3" /> {t.selectDate || "Select dates"}
                         </div>
                         <div className="text-sm font-semibold text-slate-900">
                           {dateRange.from ? (
@@ -372,7 +377,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                               {dateRange.to && dateRange.to !== dateRange.from && ` ~ ${dateRange.to}`}
                             </>
                           ) : (
-                            "Select a date"
+                            t.selectDatePlaceholder || "Select a date"
                           )}
                         </div>
                       </div>
@@ -384,7 +389,7 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                             selected={dateRange}
                             onSelect={(range) => {
                               if (range) {
-                                setDateRange(range);
+                                setDateRange(range as any);
                                 if (range.from && range.to) {
                                   setIsDatePickerOpen(false);
                                 }
@@ -399,8 +404,8 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
 
                     <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900">
                       <div>
-                        <div className="mb-1 text-xs font-bold text-slate-500">Guests</div>
-                        <div className="text-sm font-semibold">Total {guests}</div>
+                        <div className="mb-1 text-xs font-bold text-slate-500">{t.guestsLabel || "Guests"}</div>
+                        <div className="text-sm font-semibold">{(t.guestTotal || "Total {count}").replace("{count}", guests.toString())}</div>
                       </div>
                       <div className="flex items-center gap-3">
                         <button
@@ -426,11 +431,11 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                       <span>₩{subtotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm text-slate-600">
-                      <span>Service fee</span>
+                      <span>{t.serviceFee || "Service fee"}</span>
                       <span>₩{serviceFee.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between border-t border-slate-100 pt-3 text-lg font-black text-slate-900">
-                      <span>Total</span>
+                      <span>{t.total || "Total"}</span>
                       <span>₩{total.toLocaleString()}</span>
                     </div>
                   </div>
@@ -442,11 +447,11 @@ export default function TourDetailClient({ tour }: TourDetailClientProps) {
                     onClick={handleBooking}
                     disabled={isPending}
                   >
-                    {isPending ? "Processing..." : "Book now"}
+                    {isPending ? (t.bookProcessing || "Processing...") : (t.bookNow || "Book now")}
                   </Button>
 
                   <p className="mt-4 text-center text-xs text-slate-400">
-                    You will not be charged until the booking is confirmed.
+                    {t.bookDisclaimer || "You will not be charged until the booking is confirmed."}
                   </p>
                 </CardContent>
               </Card>

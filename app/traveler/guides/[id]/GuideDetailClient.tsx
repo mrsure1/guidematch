@@ -2,8 +2,8 @@
 
 import Image from "next/image"
 import { Card } from "@/components/ui/Card"
-// import { Zap } from "lucide-react" 삭제
 import { Suspense } from "react"
+import { useI18n } from "@/components/providers/LocaleProvider"
 import BookingWidgetClient from "./BookingWidgetClient"
 import BookingWidgetErrorBoundary from "./BookingWidgetErrorBoundary"
 
@@ -15,8 +15,11 @@ export default function GuideDetailClient({
     formattedLocation,
     languagesString,
     localizedBio,
-    locale
+    locale: propLocale
 }: any) {
+    const { messages, locale } = useI18n();
+    const t = (messages as any).guideDetail || {};
+
     return (
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             {/* Header Section */}
@@ -50,7 +53,7 @@ export default function GuideDetailClient({
                 <div className="flex-1 text-center md:text-left">
                     <div className="flex flex-wrap items-center justify-center gap-2 mb-2 md:justify-start">
                         <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 ring-1 ring-blue-500/10">
-                            {t.expertGuide?.replace("{location}", formattedLocation.split(" ")[0]) || `${formattedLocation} 전문 가이드`}
+                            {t.expertGuide?.replace("{location}", formattedLocation?.split(" ")[0]) || `${formattedLocation} Expert Guide`}
                         </span>
                     </div>
                     <h1 className="mb-2 text-4xl font-black tracking-tight text-slate-900 md:text-5xl">
@@ -65,7 +68,7 @@ export default function GuideDetailClient({
                         <span className="h-1 w-1 rounded-full bg-slate-300"></span>
                         <span className="text-sm font-medium">{t.locationFormat?.replace("{location}", formattedLocation) || `📍 ${formattedLocation}`}</span>
                         <span className="h-1 w-1 rounded-full bg-slate-300"></span>
-                        <span className="text-sm font-medium">{t.languagesFormat?.replace("{languages}", languagesString) || `언어: ${languagesString}`}</span>
+                        <span className="text-sm font-medium">{t.languagesFormat?.replace("{languages}", languagesString) || `Languages: ${languagesString}`}</span>
                     </div>
                 </div>
             </div>
@@ -75,13 +78,13 @@ export default function GuideDetailClient({
                     <section>
                         <h2 className="mb-6 flex items-center gap-2 text-2xl font-black text-slate-900">
                             <span className="h-8 w-1.5 rounded-full bg-accent"></span>
-                            {t.introductionTitle || "가이드 소개"}
+                            {t.introductionTitle || "Introduction"}
                         </h2>
                         <div className="prose prose-slate max-w-none rounded-3xl bg-white p-8 border border-slate-100 shadow-sm leading-relaxed text-slate-600">
                             {localizedBio ? (
                                 <p className="whitespace-pre-wrap text-lg">{localizedBio}</p>
                             ) : (
-                                <p className="italic text-slate-400">{t.noBio || "소개글이 아직 없습니다."}</p>
+                                <p className="italic text-slate-400">{t.noBio || "No introduction available yet."}</p>
                             )}
                         </div>
                     </section>
@@ -89,7 +92,7 @@ export default function GuideDetailClient({
                     <section>
                         <h2 className="mb-6 flex items-center gap-2 text-2xl font-black text-slate-900">
                             <span className="h-8 w-1.5 rounded-full bg-accent"></span>
-                            {t.reviewTitle || "여행자 후기"}
+                            {t.reviewTitle || "Traveler Reviews"}
                         </h2>
                         <div className="space-y-4">
                             {reviews && reviews.length > 0 ? (
@@ -102,8 +105,7 @@ export default function GuideDetailClient({
                                             <div className="flex-1">
                                                 <div className="mb-2 flex items-center justify-between">
                                                     <h4 className="font-bold text-slate-900">
-                                                        {/* profile이 없을 경우를 대비한 방어적 프로퍼티 접근 */}
-                                                        {review.profiles?.full_name || t.anonymousTraveler || "여행자"}
+                                                        {review.profiles?.full_name || t.anonymousTraveler || "Traveler"}
                                                     </h4>
                                                     <div className="flex gap-0.5">
                                                         {[...Array(5)].map((_, i) => (
@@ -118,7 +120,7 @@ export default function GuideDetailClient({
                                 ))
                             ) : (
                                 <div className="rounded-3xl border-2 border-dashed border-slate-200 py-16 text-center bg-slate-50/30">
-                                    <p className="text-slate-400 font-medium whitespace-pre-wrap">{t.noReview || "아직 등록된 후기가 없습니다.\n이 가이드와 첫 여행을 떠나보세요!"}</p>
+                                    <p className="text-slate-400 font-medium whitespace-pre-wrap">{t.noReview || "No reviews yet.\nBe the first to travel with this guide!"}</p>
                                 </div>
                             )}
                         </div>
@@ -128,7 +130,7 @@ export default function GuideDetailClient({
                 <div className="lg:col-span-1">
                     <div className="sticky top-24">
                         <BookingWidgetErrorBoundary>
-                            <Suspense fallback={<div className="p-8 text-center text-slate-500">{t.loadingBooking || "예약 정보 불러오는 중..."}</div>}>
+                            <Suspense fallback={<div className="p-8 text-center text-slate-500">{t.loadingBooking || "Loading booking information..."}</div>}>
                                 <BookingWidgetClient
                                     guideId={guide.id}
                                     isProfileComplete={true}

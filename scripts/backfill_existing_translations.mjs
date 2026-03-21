@@ -85,7 +85,7 @@ function toStringArray(value) {
 
 async function translateFields(fields) {
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-3.1-pro-preview",
     contents: buildPrompt(fields),
     config: {
       responseMimeType: "application/json",

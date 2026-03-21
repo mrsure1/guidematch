@@ -41,9 +41,10 @@ function buildPrompt(fields, strict = false) {
     "3. Keep arrays as arrays and translate each item individually.",
     "4. Keep proper nouns, brand names, and addresses accurate.",
     "5. Return only JSON that matches the requested schema.",
+    "6. **CRITICAL: Preserve all original newlines (\\n) and document structure exactly.** Do not merge paragraphs.",
     strict
-      ? "6. Do not copy Korean characters into the final JSON."
-      : "6. If the source text is Korean, the result must be English, not copied Korean.",
+      ? "7. Do not copy Korean characters into the final JSON."
+      : "7. If the source text is Korean, the result must be English, not copied Korean.",
     "",
     "Source JSON:",
     JSON.stringify(fields, null, 2),
@@ -100,7 +101,7 @@ async function translateWithSdk(apiKey, fields, responseSchema, strict = false) 
 
   const ai = new sdk.GoogleGenAI({ apiKey });
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-3.1-pro-preview",
     contents: buildPrompt(fields, strict),
     config: {
       responseMimeType: "application/json",
@@ -119,7 +120,7 @@ async function translateWithSdk(apiKey, fields, responseSchema, strict = false) 
 
 async function translateWithRest(apiKey, fields, responseSchema, strict = false) {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: {
