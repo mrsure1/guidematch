@@ -64,7 +64,31 @@
     "reviewTitle": "Traveler Reviews",
     "anonymousTraveler": "Anonymous Traveler",
     "noReview": "No reviews yet.\nBe the first to travel with this guide!",
-    "loadingBooking": "Loading booking information..."
+    "loadingBooking": "Loading booking information...",
+    "bookingTitle": "Select Date & Book",
+    "bookingDescription": "Select your preferred dates and number of guests to book.",
+    "selectDateLabel": "Select Travel Dates",
+    "startDateLabel": "Start Date",
+    "endDateLabel": "End Date",
+    "durationLabel": "Duration",
+    "durationUnit": "hours",
+    "durationDescription": "Adjust the expected time to meet the guide.",
+    "incompleteProfileTitle": "Guide profile is not fully ready yet.",
+    "incompleteProfileDescription": "Booking will be enabled once profile information is completed.",
+    "guestsLabel": "Number of Guests",
+    "guestUnit": "person(s)",
+    "baseRateLabel": "Base Rate",
+    "hourlyUnit": "per hour",
+    "dailyUnit": "per day",
+    "totalPriceLabel": "Estimated Total",
+    "statusProcessing": "Processing...",
+    "statusIncomplete": "Preparing Profile",
+    "requestBooking": "Request Booking",
+    "bookingOverlapConfirm": "Some dates are already booked. Do you want to continue?",
+    "bookingSuccess": "Booking request completed.",
+    "bookingFailed": "Booking request failed.",
+    "selectDateAlert": "Please select booking dates.",
+    "incompleteProfileAlert": "Cannot proceed with booking as the guide profile is not ready."
   }
 }
 

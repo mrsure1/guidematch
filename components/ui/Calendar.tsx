@@ -16,6 +16,7 @@ interface CalendarProps {
     className?: string;
     renderDay?: (fullDate: string, isCurrentMonth: boolean) => React.ReactNode;
     defaultMonth?: Date;
+    locale?: string;
 }
 
 export function Calendar({
@@ -27,7 +28,8 @@ export function Calendar({
     maxDate,
     className = "",
     renderDay,
-    defaultMonth
+    defaultMonth,
+    locale = "ko"
 }: CalendarProps) {
     const today = new Date();
     const [viewDate, setViewDate] = useState(defaultMonth || new Date());
@@ -131,8 +133,13 @@ export function Calendar({
                     <button
                         onClick={(e) => { e.preventDefault(); setViewDate(new Date()); }}
                         className="text-[10px] font-bold px-2 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 text-slate-500 mr-1"
-                    >오늘</button>
-                    <span className="font-bold text-slate-900">{year}년 {month + 1}월</span>
+                    >{locale === "en" ? "Today" : "오늘"}</button>
+                    <span className="font-bold text-slate-900">
+                        {locale === "en" ? 
+                            `${viewDate.toLocaleString('en-US', { month: 'long' })} ${year}` : 
+                            `${year}년 ${month + 1}월`
+                        }
+                    </span>
                 </div>
                 <div className="flex gap-1">
                     <button
@@ -151,7 +158,7 @@ export function Calendar({
             </div>
 
             <div className="grid grid-cols-7 mb-2">
-                {["일", "월", "화", "수", "목", "금", "토"].map((day, idx) => (
+                {(locale === "en" ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] : ["일", "월", "화", "수", "목", "금", "토"]).map((day, idx) => (
                     <div key={day} className={`text-[11px] font-bold text-center py-1 ${idx === 0 ? 'text-red-500' : idx === 6 ? 'text-blue-500' : 'text-slate-400'}`}>
                         {day}
                     </div>

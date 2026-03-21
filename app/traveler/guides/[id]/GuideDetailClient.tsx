@@ -12,10 +12,10 @@ export default function GuideDetailClient({
     gd,
     unavailabilities,
     reviews,
-    t,
     formattedLocation,
     languagesString,
-    localizedBio
+    localizedBio,
+    locale
 }: any) {
     return (
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -135,6 +135,8 @@ export default function GuideDetailClient({
                                     rateType={gd?.rate_type || "daily"}
                                     hourlyRate={Number(gd?.hourly_rate || 150000)}
                                     unavailableDates={unavailabilities || []}  
+                                    t={t}
+                                    locale={locale}
                                 />
                             </Suspense>
                         </BookingWidgetErrorBoundary>

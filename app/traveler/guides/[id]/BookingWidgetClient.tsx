@@ -18,12 +18,16 @@ export default function BookingWidgetClient({
     rateType,
     hourlyRate,
     unavailableDates = [],
+    t,
+    locale
 }: {
     guideId: string
     isProfileComplete: boolean
     rateType: string
     hourlyRate: number
     unavailableDates: AvailabilityDate[]
+    t: any
+    locale: string
 }) {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -66,12 +70,12 @@ export default function BookingWidgetClient({
 
     const handleBooking = async () => {
         if (!isProfileComplete) {
-            alert("가이드 프로필이 아직 완전히 준비되지 않아 예약을 진행할 수 없습니다.")
+            alert(t.incompleteProfileAlert || "가이드 프로필이 아직 완전히 준비되지 않아 예약을 진행할 수 없습니다.")
             return
         }
 
         if (!dateRange.from) {
-            alert("예약 일정을 선택해주세요.")
+            alert(t.selectDateAlert || "예약 일정을 선택해주세요.")
             return
         }
 
@@ -88,7 +92,7 @@ export default function BookingWidgetClient({
 
                 if (checkRes.ok) {
                     const checkData = await checkRes.json()
-                    if (checkData.isOverlap && !confirm(checkData.message)) {
+                    if (checkData.isOverlap && !confirm(t.bookingOverlapConfirm || checkData.message)) {
                         return
                     }
                 }
@@ -115,29 +119,29 @@ export default function BookingWidgetClient({
                     value: totalPrice,
                     currency: "KRW",
                 })
-                alert("예약 요청이 완료되었습니다.")
+                alert(t.bookingSuccess || "예약 요청이 완료되었습니다.")
                 router.push("/traveler/bookings")
                 return
             }
 
-            const data = await res.json().catch(() => ({ error: "알 수 없는 오류가 발생했습니다." }))
-            alert(`예약 요청에 실패했습니다: ${data.error}`)
+            const data = await res.json().catch(() => ({ error: t.bookingFailed || "알 수 없는 오류가 발생했습니다." }))
+            alert(`${t.bookingFailed || "예약 요청에 실패했습니다"}: ${data.error}`)
         })
     }
 
     return (
         <Card className="border-slate-200 shadow-xl shadow-slate-200/50">
             <CardHeader className="border-b border-slate-100 bg-slate-50/50 pb-4">
-                <CardTitle className="text-lg">일정 선택 및 예약</CardTitle>
+                <CardTitle className="text-lg">{t.bookingTitle || "일정 선택 및 예약"}</CardTitle>
                 <p className="mt-1 text-sm font-light text-slate-500">
-                    원하는 일정과 인원을 선택해 예약을 진행하세요.
+                    {t.bookingDescription || "원하는 일정과 인원을 선택해 예약을 진행하세요."}
                 </p>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
                 <div className={`space-y-4 ${!isProfileComplete ? "pointer-events-none opacity-50" : ""}`}>
                     <div className="space-y-4">
                         <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                            여행 일정 선택
+                            {t.selectDateLabel || "여행 일정 선택"}
                         </label>
                         <Calendar
                             mode="range"
@@ -146,6 +150,7 @@ export default function BookingWidgetClient({
                             defaultMonth={dateRange.from ? new Date(dateRange.from) : undefined}
                             minDate={new Date().toISOString().split("T")[0]}
                             disabledDates={safeUnavailableDates.map((date) => date.start_date.split("T")[0])}
+                            locale={locale}
                             renderDay={(fullDate, isCurrentMonth) => {
                                 const isBlocked = safeUnavailableDates.some((date) => {
                                     const blockedDate = date.start_date.split("T")[0]
@@ -165,8 +170,8 @@ export default function BookingWidgetClient({
                         />
                         {dateRange.from && (
                             <div className="flex gap-2 rounded-lg border border-slate-100 bg-slate-50 p-2 text-xs font-bold text-slate-600">
-                                <div className="flex-1">시작일: {dateRange.from}</div>
-                                {dateRange.to && <div className="flex-1">종료일: {dateRange.to}</div>}
+                                <div className="flex-1">{t.startDateLabel || "시작일"}: {dateRange.from}</div>
+                                {dateRange.to && <div className="flex-1">{t.endDateLabel || "종료일"}: {dateRange.to}</div>}
                             </div>
                         )}
                     </div>
@@ -174,8 +179,8 @@ export default function BookingWidgetClient({
                     {rateType === "hourly" && (
                         <div className="space-y-2 rounded-xl border border-blue-100 bg-blue-50/50 p-3">
                             <div className="flex items-center justify-between">
-                                <label className="text-sm font-bold text-slate-700">이용 시간</label>
-                                <span className="font-bold text-accent">{durationHours}시간</span>
+                                <label className="text-sm font-bold text-slate-700">{t.durationLabel || "이용 시간"}</label>
+                                <span className="font-bold text-accent">{durationHours}{t.durationUnit || "시간"}</span>
                             </div>
                             <input
                                 type="range"
@@ -186,7 +191,7 @@ export default function BookingWidgetClient({
                                 className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-accent"
                             />
                             <p className="text-[10px] text-slate-500">
-                                가이드와 만날 예상 시간을 조정해보세요.
+                                {t.durationDescription || "가이드와 만날 예상 시간을 조정해보세요."}
                             </p>
                         </div>
                     )}
@@ -195,10 +200,10 @@ export default function BookingWidgetClient({
                 {!isProfileComplete && (
                     <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 text-center">
                         <p className="text-xs font-bold text-amber-700">
-                            가이드 상세 프로필이 아직 완전히 준비되지 않았습니다.
+                            {t.incompleteProfileTitle || "가이드 상세 프로필이 아직 완전히 준비되지 않았습니다."}
                         </p>
                         <p className="mt-1 text-[10px] text-amber-600">
-                            프로필 정보가 보완되면 예약 기능이 활성화됩니다.
+                            {t.incompleteProfileDescription || "프로필 정보가 보완되면 예약 기능이 활성화됩니다."}
                         </p>
                     </div>
                 )}
@@ -206,7 +211,7 @@ export default function BookingWidgetClient({
                 <div
                     className={`space-y-2 border-b border-slate-100 pb-6 ${!isProfileComplete ? "pointer-events-none opacity-50" : ""}`}
                 >
-                    <label className="block text-sm font-bold text-slate-700">예약 인원</label>
+                    <label className="block text-sm font-bold text-slate-700">{t.guestsLabel || "예약 인원"}</label>
                     <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
                         <button
                             onClick={() => setGuests(Math.max(1, guests - 1))}
@@ -214,7 +219,7 @@ export default function BookingWidgetClient({
                         >
                             -
                         </button>
-                        <span className="text-sm font-bold text-slate-900">{guests}명</span>
+                        <span className="text-sm font-bold text-slate-900">{guests}{t.guestUnit || "명"}</span>
                         <button
                             onClick={() => setGuests(guests + 1)}
                             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 text-slate-600 transition-colors hover:bg-slate-50"
@@ -229,7 +234,7 @@ export default function BookingWidgetClient({
                 >
                     <div className="flex items-center justify-between opacity-80">
                         <span className="text-xs font-medium">
-                            기본 요금 ({rateType === "hourly" ? "시간당" : "일당"})
+                            {t.baseRateLabel || "기본 요금"} ({rateType === "hourly" ? (t.hourlyUnit || "시간당") : (t.dailyUnit || "일당")})
                         </span>
                         <span className="font-mono text-xs font-bold">₩{hourlyRate.toLocaleString()}</span>
                     </div>
@@ -238,7 +243,7 @@ export default function BookingWidgetClient({
                             <p className="text-[10px] font-bold uppercase tracking-tighter opacity-60">
                                 Estimated Total
                             </p>
-                            <p className="text-sm font-medium">예상 결제 금액</p>
+                            <p className="text-sm font-medium">{t.totalPriceLabel || "예상 결제 금액"}</p>
                         </div>
                         <p className="text-2xl font-black">
                             ₩{totalPrice > 0 ? totalPrice.toLocaleString() : 0}
@@ -252,7 +257,7 @@ export default function BookingWidgetClient({
                         onClick={handleBooking}
                         disabled={isPending || !dateRange.from || !isProfileComplete}
                     >
-                        {isPending ? "처리 중..." : !isProfileComplete ? "프로필 준비 중" : "예약 요청하기"}
+                        {isPending ? (t.statusProcessing || "처리 중...") : !isProfileComplete ? (t.statusIncomplete || "프로필 준비 중") : (t.requestBooking || "예약 요청하기")}
                     </Button>
                 </div>
             </CardContent>
