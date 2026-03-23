@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardContent } from "@/components/ui/Card";
 import { useState, useEffect, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { signup } from "./actions";
-import { User } from "lucide-react";
+import { signup, resendConfirmation } from "./actions";
+import { User, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
 import { useI18n } from "@/components/providers/LocaleProvider";
 import { localizePath } from "@/lib/i18n/routing";
 
@@ -28,6 +28,8 @@ function SignupForm() {
     const [isExistingUser, setIsExistingUser] = useState(false);
     const [existingProfile, setExistingProfile] = useState<ExistingProfile | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+    const [resendMessage, setResendMessage] = useState('');
     const { locale, messages } = useI18n();
     const t = messages.auth.signup;
 
@@ -44,6 +46,25 @@ function SignupForm() {
                     redirectTo: `${(process.env.NEXT_PUBLIC_SITE_URL || window.location.origin).replace(/\/$/, "")}/auth/callback`,
                 }
             });
+        }
+    };
+
+    const handleResend = async () => {
+        if (!registeredEmail || resendStatus === 'sending') return;
+        
+        setResendStatus('sending');
+        try {
+            const result = await resendConfirmation(registeredEmail);
+            if (result.success) {
+                setResendStatus('success');
+                setResendMessage(t.resendSuccess);
+            } else {
+                setResendStatus('error');
+                setResendMessage(result.message || t.resendError);
+            }
+        } catch (err) {
+            setResendStatus('error');
+            setResendMessage(t.resendError);
         }
     };
 
@@ -110,9 +131,32 @@ function SignupForm() {
                                 <ul className="list-disc ml-4 space-y-1">
                                     <li>{t.emailHelp1}</li>
                                     <li>{t.emailHelp2}</li>
-                                    <li>{t.emailHelp3}</li>
                                 </ul>
                             </div>
+
+                            {resendStatus === 'success' ? (
+                                <div className="p-4 bg-emerald-50 rounded-2xl flex items-center gap-3 text-emerald-700 text-sm border border-emerald-100 animate-in fade-in zoom-in duration-300">
+                                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                                    <p className="text-left font-medium">{resendMessage}</p>
+                                </div>
+                            ) : resendStatus === 'error' ? (
+                                <div className="p-4 bg-red-50 rounded-2xl flex items-center gap-3 text-red-700 text-sm border border-red-100 animate-in shake duration-500">
+                                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                    <p className="text-left font-medium">{resendMessage}</p>
+                                </div>
+                            ) : (
+                                <Button 
+                                    fullWidth 
+                                    variant="ghost" 
+                                    onClick={handleResend}
+                                    disabled={resendStatus === 'sending'}
+                                    className="h-12 rounded-xl text-blue-600 hover:bg-blue-50 font-bold gap-2"
+                                >
+                                    <RefreshCw className={`w-4 h-4 ${resendStatus === 'sending' ? 'animate-spin' : ''}`} />
+                                    {resendStatus === 'sending' ? t.resending : t.resendEmail}
+                                </Button>
+                            )}
+
                             <Link href={localizePath(locale, "/login")} className="block w-full">
                                 <Button fullWidth variant="outline" className="h-14 rounded-2xl mt-4 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold">
                                     {t.backToLogin}

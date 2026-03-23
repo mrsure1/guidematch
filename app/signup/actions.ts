@@ -24,23 +24,21 @@ export async function signup(formData: FormData) {
         return redirect('/signup?message=Passwords do not match')
     }
 
-    // 현재 요청의 오리진(Origin)을 가져와 리다이렉트 URL 생성
-    // referer는 전체 URL(경로+쿼리 포함)이 올 수 있으므로 반드시 origin만 추출해야 함
+    // 현재 요청의 호스트(Host)를 사용하여 리다이렉트 URL 생성 (더 신뢰할 수 있는 방식)
     const headersList = await headers();
-    const rawOrigin = headersList.get('origin')
-        || headersList.get('referer')
-        || process.env.NEXT_PUBLIC_SITE_URL
-        || 'http://localhost:3000';
-
-    // URL 파싱으로 scheme+host만 안전하게 추출 (Supabase가 전체 URL을 거부하는 문제 방지)
-    let siteOrigin: string;
+    const host = headersList.get('x-forwarded-host') || headersList.get('host');
+    const protocol = host?.includes('localhost') ? 'http' : 'https';
+    const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+    
+    // URL 파싱으로 scheme+host만 안전하게 추출
+    let cleanOrigin: string;
     try {
-        const parsed = new URL(rawOrigin);
-        siteOrigin = parsed.origin; // 예: "https://example.com"
+        const parsed = new URL(siteOrigin);
+        cleanOrigin = parsed.origin;
     } catch {
-        siteOrigin = rawOrigin.replace(/\/$/, "");
+        cleanOrigin = siteOrigin.replace(/\/$/, "");
     }
-    const redirectTo = `${siteOrigin}/auth/callback`;
+    const redirectTo = `${cleanOrigin}/auth/callback`;
 
     // 1. 회원가입
     const { data, error } = await supabase.auth.signUp({
@@ -77,7 +75,7 @@ export async function signup(formData: FormData) {
             {
                 clientIp: headersList.get('x-forwarded-for')?.split(',')[0]?.trim() || headersList.get('x-real-ip') || undefined,
                 userAgent: headersList.get('user-agent') || undefined,
-                eventSourceUrl: `${siteOrigin}/signup`,
+                eventSourceUrl: `${cleanOrigin}/signup`,
             },
         );
     }
@@ -85,13 +83,44 @@ export async function signup(formData: FormData) {
     revalidatePath('/', 'layout')
 
     // 이메일 인증이 꺼져있는 경우(Confirm Email = Off) 가입 즉시 세션이 생성됩니다.
-    // 이 경우 바로 해당 서비스 화면으로 이동시킵니다.
     if (data.session) {
         redirect(role === 'guide' ? '/guide/dashboard' : '/')
     }
 
     // 인증이 필요한 경우 로그인 페이지로 안내합니다.
-    redirect('/login?message=' + encodeURIComponent('회원가입이 완료되었습니다. 이메일 인증 후 로그인해주세요!'))
+    redirect(`/signup?success=true&email=${encodeURIComponent(email)}`)
+}
+
+export async function resendConfirmation(email: string) {
+    const supabase = await createClient();
+    const headersList = await headers();
+    const host = headersList.get('x-forwarded-host') || headersList.get('host');
+    const protocol = host?.includes('localhost') ? 'http' : 'https';
+    const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+    
+    let cleanOrigin: string;
+    try {
+        const parsed = new URL(siteOrigin);
+        cleanOrigin = parsed.origin;
+    } catch {
+        cleanOrigin = siteOrigin.replace(/\/$/, "");
+    }
+    const redirectTo = `${cleanOrigin}/auth/callback`;
+
+    const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+            emailRedirectTo: redirectTo,
+        }
+    });
+
+    if (error) {
+        console.error('Resend error:', error);
+        return { success: false, message: error.message };
+    }
+
+    return { success: true };
 }
 
 export async function switchRole(role: string) {
