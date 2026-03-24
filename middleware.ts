@@ -28,6 +28,16 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-guidematch-path", stripLocalePrefix(pathname));
 
   const sessionResponse = await updateSession(request, requestHeaders);
+
+  /** 로케일 리다이렉트 대상에서 제외: API·크론·fetch가 /api/... 로 직접 호출해야 함 */
+  if (pathname.startsWith("/api/")) {
+    const apiResponse = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+    copyCookies(sessionResponse, apiResponse);
+    return apiResponse;
+  }
+
   const redirectTarget = localizePath(resolvedLocale, `${request.nextUrl.pathname}${request.nextUrl.search}`);
 
   if (pathname === "/auth/callback") {

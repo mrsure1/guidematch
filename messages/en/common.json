@@ -53,6 +53,7 @@
     "send": "Send",
     "thinking": "Preparing an answer…",
     "error": "We could not fetch a reply. Please try again or contact support.",
-    "disclaimer": "Answers use FAQ and on-site copy. For legal effect, follow official terms and support."
+    "disclaimer": "Answers use FAQ and on-site copy. For legal effect, follow official terms and support.",
+    "greetingNamed": "Hi, {{name}}! I'm the GuideMatch assistant. Ask me about matching, bookings, payments, or guides — I answer from our FAQ and site content."
   }
 }

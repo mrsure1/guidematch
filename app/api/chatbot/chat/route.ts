@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { generateChatReply, generateFaqOnlyReply } from "@/lib/chatbot/generate-reply";
+import { persistChatbotTurn } from "@/lib/chatbot/persist-chat";
 import { notifyChatbotRateLimitApproaching } from "@/lib/chatbot/rate-limit-alert";
 import { checkChatbotRateLimit, getClientIp } from "@/lib/chatbot/rate-limit";
 import type { ChatMessage } from "@/lib/chatbot/types";
@@ -44,7 +45,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const body = (await request.json()) as { messages?: unknown; locale?: string };
+    const body = (await request.json()) as {
+      messages?: unknown;
+      locale?: string;
+      conversationId?: string | null;
+    };
     const raw = body.messages;
     if (!Array.isArray(raw) || raw.length === 0) {
       return NextResponse.json({ error: "messages 배열이 필요합니다." }, { status: 400 });
@@ -67,12 +72,21 @@ export async function POST(request: Request) {
     if (!rl.ok) {
       const result = await generateFaqOnlyReply(messages, locale);
       const retryAfterSec = Math.max(1, Math.ceil((rl.resetMs - Date.now()) / 1000));
+      const fullAnswer = result.answer;
+      const savedId = await persistChatbotTurn({
+        messages,
+        locale,
+        conversationId: body.conversationId,
+        assistantAnswer: fullAnswer,
+        usedModel: false,
+      });
       return NextResponse.json(
         {
-          answer: result.answer,
+          answer: fullAnswer,
           usedModel: false,
           rateLimited: true,
           retryAfterSec,
+          conversationId: savedId ?? body.conversationId ?? null,
         },
         {
           status: 429,
@@ -90,10 +104,18 @@ export async function POST(request: Request) {
     });
 
     const result = await generateChatReply(messages, locale);
+    const savedId = await persistChatbotTurn({
+      messages,
+      locale,
+      conversationId: body.conversationId,
+      assistantAnswer: result.answer,
+      usedModel: result.usedModel,
+    });
 
     return NextResponse.json({
       answer: result.answer,
       usedModel: result.usedModel,
+      conversationId: savedId ?? body.conversationId ?? null,
     });
   } catch (e) {
     console.error("[chatbot/chat]", e);

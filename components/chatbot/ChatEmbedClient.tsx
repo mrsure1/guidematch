@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Sparkles } from "lucide-react";
 import { useI18n } from "@/components/providers/LocaleProvider";
 import { localizePath } from "@/lib/i18n/routing";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/lib/chatbot/types";
 import type { Locale } from "@/lib/i18n/config";
@@ -13,25 +14,23 @@ type Props = {
   locale: Locale;
 };
 
+type ChatbotUiStrings = {
+  windowSubtitle: string;
+  greetingNamed?: string;
+};
+
 export function ChatEmbedClient({ locale: serverLocale }: Props) {
   const { messages, locale } = useI18n();
-  const c = messages.common.chatbot;
+  const c = messages.common.chatbot as typeof messages.common.chatbot & ChatbotUiStrings;
   const effectiveLocale = locale ?? serverLocale;
 
-  const [items, setItems] = useState<ChatMessage[]>(() => [
-    {
-      role: "assistant",
-      content:
-        effectiveLocale === "en"
-          ? "Hi! I’m the GuideMatch assistant. Ask me about matching, bookings, payments, or guides — I answer from our FAQ and site content."
-          : `${c.windowSubtitle} FAQ와 사이트 안내를 바탕으로 답해 드립니다.`,
-    },
-  ]);
+  const [items, setItems] = useState<ChatMessage[]>([]);
+  const [booting, setBooting] = useState(true);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  /** React 18/19: setState 업데이터는 비동기 핸들러에서 fetch 직전에 실행되지 않을 수 있어 payload가 []가 되는 경우가 있음 */
   const itemsRef = useRef<ChatMessage[]>(items);
+  const conversationIdRef = useRef<string | null>(null);
   const apiPath = localizePath(effectiveLocale, "/api/chatbot/chat");
 
   useEffect(() => {
@@ -40,7 +39,62 @@ export function ChatEmbedClient({ locale: serverLocale }: Props) {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [items, loading]);
+  }, [items, loading, booting]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const genericKo = `${c.windowSubtitle} FAQ와 사이트 안내를 바탕으로 답해 드립니다.`;
+      const genericEn =
+        "Hi! I’m the GuideMatch assistant. Ask me about matching, bookings, payments, or guides — I answer from our FAQ and site content.";
+
+      if (!user) {
+        if (!cancelled) {
+          setItems([
+            {
+              role: "assistant",
+              content: effectiveLocale === "en" ? genericEn : genericKo,
+            },
+          ]);
+          setBooting(false);
+        }
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const fromMeta =
+        typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name.trim() : "";
+      const fromProfile = profile?.full_name?.trim() ?? "";
+      const fromEmail = user.email?.split("@")[0]?.trim() ?? "";
+      const displayName = fromProfile || fromMeta || fromEmail;
+
+      let greeting: string;
+      if (displayName && c.greetingNamed) {
+        greeting = c.greetingNamed.replace(/\{\{name\}\}/g, displayName);
+      } else {
+        greeting = effectiveLocale === "en" ? genericEn : genericKo;
+      }
+
+      if (!cancelled) {
+        setItems([{ role: "assistant", content: greeting }]);
+        setBooting(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [c.greetingNamed, c.windowSubtitle, effectiveLocale]);
 
   const send = useCallback(async () => {
     const text = input.trim();
@@ -66,6 +120,7 @@ export function ChatEmbedClient({ locale: serverLocale }: Props) {
         body: JSON.stringify({
           messages: messagesForApi,
           locale: effectiveLocale,
+          conversationId: conversationIdRef.current,
         }),
       });
       const raw = await res.text();
@@ -74,6 +129,7 @@ export function ChatEmbedClient({ locale: serverLocale }: Props) {
         error?: string;
         rateLimited?: boolean;
         retryAfterSec?: number;
+        conversationId?: string | null;
       };
       try {
         data = raw ? (JSON.parse(raw) as typeof data) : {};
@@ -84,6 +140,10 @@ export function ChatEmbedClient({ locale: serverLocale }: Props) {
             ? "Invalid server response (not JSON). Check network or deployment."
             : "서버 응답 형식이 올바르지 않습니다. 배포·네트워크를 확인해 주세요.",
         );
+      }
+
+      if (typeof data.conversationId === "string" && data.conversationId) {
+        conversationIdRef.current = data.conversationId;
       }
 
       if (res.status === 429 && data.answer?.trim()) {
@@ -145,19 +205,26 @@ export function ChatEmbedClient({ locale: serverLocale }: Props) {
 
       <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
         <div className="mx-auto flex max-w-lg flex-col gap-3">
-          {items.map((m, i) => (
-            <div
-              key={`${i}-${m.role}`}
-              className={cn(
-                "max-w-[92%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
-                m.role === "user"
-                  ? "ml-auto bg-slate-900 text-white"
-                  : "mr-auto border border-slate-200/80 bg-white text-slate-800",
-              )}
-            >
-              {m.content}
+          {booting ? (
+            <div className="mr-auto flex items-center gap-2 rounded-2xl border border-slate-200/80 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-500 shadow-sm">
+              <span className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-t-[#ff385c]" />
+              {c.loading}
             </div>
-          ))}
+          ) : (
+            items.map((m, i) => (
+              <div
+                key={`${i}-${m.role}-${m.content.slice(0, 12)}`}
+                className={cn(
+                  "max-w-[92%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
+                  m.role === "user"
+                    ? "ml-auto bg-slate-900 text-white"
+                    : "mr-auto border border-slate-200/80 bg-white text-slate-800",
+                )}
+              >
+                {m.content}
+              </div>
+            ))
+          )}
           {loading ? (
             <div className="mr-auto flex items-center gap-2 rounded-2xl border border-slate-200/80 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-500 shadow-sm">
               <span className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-t-[#ff385c]" />
@@ -183,13 +250,13 @@ export function ChatEmbedClient({ locale: serverLocale }: Props) {
             }}
             placeholder={c.inputPlaceholder}
             className="min-w-0 flex-1 rounded-2xl border border-slate-200/90 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-inner shadow-slate-200/40 outline-none ring-0 transition placeholder:text-slate-400 focus:border-[#ff385c]/40 focus:shadow-[0_0_0_3px_rgba(255,56,92,0.12)]"
-            disabled={loading}
+            disabled={loading || booting}
             aria-label={c.inputPlaceholder}
           />
           <button
             type="button"
             onClick={() => void send()}
-            disabled={loading || !input.trim()}
+            disabled={loading || booting || !input.trim()}
             className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ff385c] to-rose-600 text-white shadow-lg shadow-rose-500/25 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label={c.send}
           >

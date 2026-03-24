@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Users, ShieldCheck, CreditCard, ChevronRight } from "lucide-react";
+import { Users, ShieldCheck, CreditCard, ChevronRight, MessageSquare } from "lucide-react";
 
 export default async function AdminDashboardPage() {
     const supabase = await createClient();
@@ -26,14 +26,20 @@ export default async function AdminDashboardPage() {
     const [
         { count: userCount },
         { count: pendingGuideCount },
-        { data: recentPayments }
+        { data: recentPayments },
+        { count: chatbotConvCount, error: chatbotCountError },
     ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('profiles').select('id, guides_detail!inner(is_verified)', { count: 'exact', head: true })
             .eq('role', 'guide')
             .eq('guides_detail.is_verified', false),
-        supabase.from('bookings').select('total_price').in('status', ['paid', 'completed'])
+        supabase.from('bookings').select('total_price').in('status', ['paid', 'completed']),
+        supabase.from('chatbot_conversations').select('*', { count: 'exact', head: true }),
     ]);
+
+    if (chatbotCountError) {
+        console.warn('[admin/dashboard] chatbot_conversations count:', chatbotCountError.message);
+    }
 
     const totalRevenue = recentPayments?.reduce((sum, p) => sum + (Number(p.total_price) || 0), 0) || 0;
 
@@ -61,7 +67,15 @@ export default async function AdminDashboardPage() {
             count: `₩ ${totalRevenue.toLocaleString()}`,
             link: "/admin/payments",
             color: "bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100",
-        }
+        },
+        {
+            title: "챗봇 로그",
+            description: "로그인 사용자 FAQ 챗봇 대화 조회 (30일 보관)",
+            icon: <MessageSquare className="w-6 h-6" />,
+            count: chatbotConvCount != null ? `${chatbotConvCount}건` : "—",
+            link: "/admin/chatbot-logs",
+            color: "bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100",
+        },
     ];
 
     return (
@@ -85,7 +99,7 @@ export default async function AdminDashboardPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
                     {stats.map((stat, idx) => (
                         <Link key={idx} href={stat.link} className="block transition-transform hover:-translate-y-1">
                             <div className={`h-full border border-transparent transition-all duration-300 group cursor-pointer ${stat.color} p-8 rounded-3xl`}>
