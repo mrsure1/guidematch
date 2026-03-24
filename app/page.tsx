@@ -274,7 +274,8 @@ export default async function Home() {
         full_name,
         guides_detail (
           rating,
-          review_count
+          review_count,
+          is_verified
         )
       )
     `,
@@ -285,7 +286,10 @@ export default async function Home() {
 
   const dbGuides: LandingGuide[] =
     (rawGuides as GuideRow[] | null)
-      ?.filter((guide) => firstOf(guide.guides_detail) != null)
+      ?.filter((guide) => {
+        const detail = firstOf(guide.guides_detail);
+        return detail != null && detail.is_verified === true;
+      })
       .map((guide) => {
       const detail = firstOf(guide.guides_detail);
       const languages = detail?.languages;
@@ -326,7 +330,13 @@ export default async function Home() {
   const guides = [...dbGuides, ...fallbackGuides].slice(0, 6);
 
   const dbTours: LandingTour[] =
-    (rawTours as TourRow[] | null)?.map((tour) => {
+    (rawTours as TourRow[] | null)
+      ?.filter((tour) => {
+        const profileRow = firstOf(tour.profiles);
+        const guideDetail = firstOf(profileRow?.guides_detail);
+        return guideDetail != null && (guideDetail as any).is_verified === true;
+      })
+      .map((tour) => {
       const profileRow = firstOf(tour.profiles);
       const guideDetail = firstOf(profileRow?.guides_detail);
 
