@@ -1,5 +1,6 @@
 import type { ChatMessage } from "@/lib/chatbot/types";
 import { formatContextBlock, fallbackAnswer, retrieveForQuery, type RetrievedContext } from "@/lib/chatbot/rag";
+import { GoogleGenAI } from "@google/genai/node";
 
 const MODEL = process.env.GEMINI_CHAT_MODEL?.trim() || "gemini-2.0-flash";
 
@@ -79,14 +80,6 @@ function buildSystemPrompt(locale: string): string {
   ].join("\n");
 }
 
-async function loadGenAi() {
-  try {
-    return await import("@google/genai");
-  } catch {
-    return null;
-  }
-}
-
 function lastUserText(messages: ChatMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i--) {
     if (messages[i].role === "user") return messages[i].content.trim();
@@ -131,12 +124,7 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
   }
 
   const system = buildSystemPrompt(locale);
-  const sdk = await loadGenAi();
-  if (!sdk?.GoogleGenAI) {
-    return { answer: fallbackAnswer(query, ctx, locale), usedModel: false, context: ctx };
-  }
-
-  const ai = new sdk.GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey });
 
   const contents: { role: string; parts: { text: string }[] }[] = [];
 
@@ -169,8 +157,16 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
       contents,
       config: { temperature: 0.38 },
     });
-    const text = sanitizeAssistantOutput(response.text?.trim() || "");
+    const rawText = response.text ?? "";
+    const text = sanitizeAssistantOutput(rawText.trim());
     if (!text) {
+      const c0 = (response as { candidates?: Array<{ finishReason?: string }> }).candidates?.[0];
+      const pf = (response as { promptFeedback?: { blockReason?: string } }).promptFeedback;
+      console.warn("[chatbot] Gemini empty text", {
+        model: MODEL,
+        finishReason: c0?.finishReason,
+        blockReason: pf?.blockReason,
+      });
       return { answer: fallbackAnswer(query, ctx, locale), usedModel: false, context: ctx };
     }
     return { answer: text, usedModel: true, context: ctx };
