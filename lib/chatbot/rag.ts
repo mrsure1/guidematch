@@ -16,7 +16,7 @@ const TOP_FAQ = 8;
 const TOP_SITE = 8;
 
 export function retrieveForQuery(query: string, locale: string): RetrievedContext {
-  const faqs = loadFaqRows();
+  const faqs = loadFaqRows(locale);
   const corpus = loadSiteCorpus();
 
   let faqScored = faqs
