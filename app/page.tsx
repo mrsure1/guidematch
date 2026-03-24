@@ -9,157 +9,7 @@ import MainLandingClient, {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function getFallbackGuides(locale: "en" | "ko"): LandingGuide[] {
-  if (locale === "ko") {
-    return [
-      {
-        id: "fallback-guide-seoul",
-        name: "민지 가이드",
-        location: "서울",
-        bio: "한옥 골목, 전통시장, 감성 카페를 자연스럽게 이어주는 서울 로컬 가이드입니다.",
-        languages: ["Korean", "English"],
-        hourlyRate: 45000,
-        rating: 4.9,
-        reviewCount: 128,
-        avatar: "/minji_guide.png",
-        isVerified: true,
-      },
-      {
-        id: "fallback-guide-busan",
-        name: "준호 가이드",
-        location: "부산",
-        bio: "바다 전망, 로컬 식사, 야경 동선을 한 번에 연결해주는 부산 가이드입니다.",
-        languages: ["Korean", "English"],
-        hourlyRate: 50000,
-        rating: 5,
-        reviewCount: 74,
-        avatar: "/junho_guide.png",
-        isVerified: true,
-      },
-    ];
-  }
 
-  return [
-    {
-      id: "fallback-guide-seoul",
-      name: "Minji Guide",
-      location: "Seoul",
-      bio: "A local Seoul guide who blends hanok neighborhoods, traditional markets, and cafe alleys into one easy day.",
-      languages: ["Korean", "English"],
-      hourlyRate: 45000,
-      rating: 4.9,
-      reviewCount: 128,
-      avatar: "/minji_guide.png",
-      isVerified: true,
-    },
-    {
-      id: "fallback-guide-busan",
-      name: "Junho Guide",
-      location: "Busan",
-      bio: "Ocean views, local dining, and night scenery linked into a smooth Busan route.",
-      languages: ["Korean", "English"],
-      hourlyRate: 50000,
-      rating: 5,
-      reviewCount: 74,
-      avatar: "/junho_guide.png",
-      isVerified: true,
-    },
-  ];
-}
-
-function getFallbackTours(locale: "en" | "ko"): LandingTour[] {
-  if (locale === "ko") {
-    return [
-      {
-        id: "fallback-tour-seoul",
-        title: "서울 감성 산책 + 로컬 브런치",
-        region: "서울",
-        description: "성수와 서울숲을 천천히 걷고, 일정에 맞는 브런치까지 이어지는 코스입니다.",
-        duration: 4,
-        price: 89000,
-        photo:
-          "https://images.unsplash.com/photo-1549692520-acc6669e2f0c?auto=format&fit=crop&w=1400&q=80",
-        guideName: "민지 가이드",
-        guideId: "fallback-guide-seoul",
-        rating: 4.9,
-        reviewCount: 61,
-      },
-      {
-        id: "fallback-tour-busan",
-        title: "부산 오션뷰 드라이브 데이",
-        region: "부산",
-        description: "광안리에서 해운대, 기장까지 이어지는 해안 루트와 로컬 맛집을 함께 즐깁니다.",
-        duration: 6,
-        price: 119000,
-        photo:
-          "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
-        guideName: "준호 가이드",
-        guideId: "fallback-guide-busan",
-        rating: 4.8,
-        reviewCount: 44,
-      },
-      {
-        id: "fallback-tour-jeju",
-        title: "제주 오름과 노을 루트",
-        region: "제주",
-        description: "조용한 오름 산책부터 해안 노을 포인트까지 이어지는 하루 코스입니다.",
-        duration: 7,
-        price: 149000,
-        photo:
-          "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1400&q=80",
-        guideName: "서연 가이드",
-        guideId: "fallback-guide-jeju",
-        rating: 5,
-        reviewCount: 39,
-      },
-    ];
-  }
-
-  return [
-    {
-      id: "fallback-tour-seoul",
-      title: "Seoul Mood Walk and Local Brunch",
-      region: "Seoul",
-      description: "A gentle route through Seongsu and Seoul Forest with a brunch stop matched to your pace.",
-      duration: 4,
-      price: 89000,
-      photo:
-        "https://images.unsplash.com/photo-1549692520-acc6669e2f0c?auto=format&fit=crop&w=1400&q=80",
-      guideName: "Minji Guide",
-      guideId: "fallback-guide-seoul",
-      rating: 4.9,
-      reviewCount: 61,
-    },
-    {
-      id: "fallback-tour-busan",
-      title: "Busan Ocean View Drive Day",
-      region: "Busan",
-      description: "A scenic coastal route from Gwangalli to Haeundae and Gijang with local food stops.",
-      duration: 6,
-      price: 119000,
-      photo:
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
-      guideName: "Junho Guide",
-      guideId: "fallback-guide-busan",
-      rating: 4.8,
-      reviewCount: 44,
-    },
-    {
-      id: "fallback-tour-jeju",
-      title: "Jeju Oreum and Sunset Route",
-      region: "Jeju",
-      description: "From a quiet oreum walk to a sunset coastal stop, this route keeps the whole day flowing.",
-      duration: 7,
-      price: 149000,
-      photo:
-        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1400&q=80",
-      guideName: "Seoyeon Guide",
-      guideId: "fallback-guide-jeju",
-      rating: 5,
-      reviewCount: 39,
-    },
-  ];
-}
 
 type GuideDetailRow = {
   location?: string | null;
@@ -218,8 +68,6 @@ function firstOf<T>(value: T | T[] | null | undefined): T | undefined {
 export default async function Home() {
   const locale = await getRequestLocale();
   const supabase = await createClient();
-  const fallbackGuides = getFallbackGuides(locale);
-  const fallbackTours = getFallbackTours(locale);
 
   const {
     data: { user },
@@ -330,7 +178,7 @@ export default async function Home() {
       };
     }) || [];
 
-  const guides = [...dbGuides, ...fallbackGuides].slice(0, 6);
+  const guides = dbGuides.slice(0, 6);
 
   const dbTours: LandingTour[] =
     (rawTours as TourRow[] | null)
@@ -370,7 +218,7 @@ export default async function Home() {
       };
     }) || [];
 
-  const tours = [...dbTours, ...fallbackTours].slice(0, 6);
+  const tours = dbTours.slice(0, 6);
 
   const isGuide = profile?.role === "guide" || profile?.role === "admin";
   const guideHref = user && isGuide ? "/guide/dashboard" : "/signup?role=guide";
@@ -380,8 +228,8 @@ export default async function Home() {
       userName={profile?.full_name ?? null}
       userRole={profile?.role ?? null}
       guideHref={guideHref}
-      guides={guides.length > 0 ? guides : fallbackGuides}
-      tours={tours.length > 0 ? tours : fallbackTours}
+      guides={guides}
+      tours={tours}
     />
   );
 }
