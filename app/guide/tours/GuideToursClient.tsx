@@ -117,7 +117,7 @@ export default function GuideToursClient() {
               <div className="cursor-pointer flex h-full flex-col" onClick={() => router.push(`/guide/tours/${tour.id}`)}>
                 <div className="relative h-48 w-full overflow-hidden bg-slate-200">
                   {tour.photo ? (
-                    <img src={tour.photo} alt={title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={tour.photo.split(',')[0]} alt={title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400">
                       <ImagePlus className="h-12 w-12" />
