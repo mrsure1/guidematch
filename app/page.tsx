@@ -18,8 +18,7 @@ function getFallbackGuides(locale: "en" | "ko"): LandingGuide[] {
         hourlyRate: 45000,
         rating: 4.9,
         reviewCount: 128,
-        avatar:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80",
+        avatar: "/minji_guide.png",
         isVerified: true,
       },
       {
@@ -31,8 +30,7 @@ function getFallbackGuides(locale: "en" | "ko"): LandingGuide[] {
         hourlyRate: 50000,
         rating: 5,
         reviewCount: 74,
-        avatar:
-          "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=80",
+        avatar: "/junho_guide.png",
         isVerified: true,
       },
     ];
@@ -48,8 +46,7 @@ function getFallbackGuides(locale: "en" | "ko"): LandingGuide[] {
       hourlyRate: 45000,
       rating: 4.9,
       reviewCount: 128,
-      avatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80",
+      avatar: "/minji_guide.png",
       isVerified: true,
     },
     {
@@ -61,8 +58,7 @@ function getFallbackGuides(locale: "en" | "ko"): LandingGuide[] {
       hourlyRate: 50000,
       rating: 5,
       reviewCount: 74,
-      avatar:
-        "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=80",
+      avatar: "/junho_guide.png",
       isVerified: true,
     },
   ];
