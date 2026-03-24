@@ -71,6 +71,10 @@ export function expandQueryForRetrieval(raw: string): string {
     s += " 어떻게진행 진행되나요";
   }
 
+  if (/(환불|환급)/.test(h)) {
+    s += " 환불 환급 취소 전액 부분 처리 기간 카드사 은행 승인 예약취소";
+  }
+
   return s;
 }
 
@@ -109,6 +113,30 @@ function guideDiscoveryBoost(query: string, question: string, answer: string): n
   if (/(매칭|추천|선택|입력|조건에 맞|순차|지역.*날짜|날짜.*인원)/.test(blob)) {
     return 1.45;
   }
+  return 1;
+}
+
+/**
+ * 질문에 뚜렷한 주제(환불 등)가 있는데, FAQ 본문에 그 주제가 없으면 '어떻게'만 겹친 오답을 줄임.
+ */
+function refundAndPaymentTopicGate(query: string, question: string, answer: string): number {
+  const qh = hangulOnly(query);
+  const blob = `${question}\n${answer}`;
+
+  if (/(환불|환급)/.test(qh) && !/(회원가입|회원 가입|로그인|비밀번호|탈퇴|이메일 변경|휴대폰)/.test(qh)) {
+    if (/(환불|환급)/.test(blob)) return 1.65;
+    if (/(취소).{0,12}(환불|결제|마이페이지|예약|요청)/.test(blob) || /(환불|전액).{0,8}취소/.test(blob)) {
+      return 0.9;
+    }
+    return 0.1;
+  }
+
+  if (/(^결제[^가]*어떻게|결제는 어떻게|결제 방법|결제수단)/.test(query) || /(결제수단|결제 방법)/.test(qh)) {
+    if (/(결제|환불|카드|계좌|페이팔|토스)/.test(blob) && !/(회원가입|소셜 계정으로 가입)/.test(blob)) {
+      return 1.35;
+    }
+  }
+
   return 1;
 }
 
@@ -162,6 +190,7 @@ export function scoreFaqRelevance(query: string, question: string, answer: strin
   let score = base + bonus;
   score *= guideDiscoveryMismatchPenalty(query, question, answer);
   score *= guideDiscoveryBoost(query, question, answer);
+  score *= refundAndPaymentTopicGate(query, question, answer);
 
   return score;
 }
