@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { useI18n } from "@/components/providers/LocaleProvider";
+import { OPEN_GUIDEMATCH_CHATBOT_EVENT } from "@/lib/chatbot/open-dock-event";
 import { localizePath } from "@/lib/i18n/routing";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +41,12 @@ export function GuideMatchChatDock() {
   useEffect(() => {
     if (!isOpen) setIsLoaded(false);
   }, [isOpen]);
+
+  useEffect(() => {
+    const onOpenDock = () => setIsOpen(true);
+    window.addEventListener(OPEN_GUIDEMATCH_CHATBOT_EVENT, onOpenDock);
+    return () => window.removeEventListener(OPEN_GUIDEMATCH_CHATBOT_EVENT, onOpenDock);
+  }, []);
 
   return (
     <>

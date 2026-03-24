@@ -29,6 +29,12 @@ export async function signup(formData: FormData) {
     const cleanOrigin = getSiteOriginFromHeaders(headersList);
     const redirectTo = `${cleanOrigin}/auth/callback`;
 
+    // 관리자 이메일 가입 차단
+    const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase());
+    if (adminEmails.includes(email.toLowerCase())) {
+        return redirect('/signup?message=' + encodeURIComponent('관리자 이메일로는 일반 회원가입을 할 수 없습니다. 제한된 이메일입니다.'));
+    }
+
     // 1. 회원가입
     const { data, error } = await supabase.auth.signUp({
         email,
@@ -43,7 +49,11 @@ export async function signup(formData: FormData) {
     })
 
     if (error) {
-        return redirect('/signup?message=' + encodeURIComponent(error.message))
+        let errorMessage = error.message;
+        if (errorMessage.toLowerCase().includes('already registered')) {
+            errorMessage = '이미 가입된 이메일입니다. 다른 이메일 주소를 사용해주세요.';
+        }
+        return redirect('/signup?message=' + encodeURIComponent(errorMessage))
     }
 
     // 2. 인증 전이라도 프로필 기본 정보 생성 (데이터 정합성 확보)

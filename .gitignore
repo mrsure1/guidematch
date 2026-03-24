@@ -39,6 +39,10 @@ yarn-error.log*
 # local chat widget logs (Streamlit / experiments)
 ChatBot/chat_logs/
 
+# one-off admin dumps (PII)
+admin_data.json
+admin_check.txt
+
 # vercel
 .vercel
 

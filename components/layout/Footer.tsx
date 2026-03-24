@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { useI18n } from "@/components/providers/LocaleProvider";
 import { MessageCircle, Instagram, Youtube, Navigation } from "lucide-react";
+import { OPEN_GUIDEMATCH_CHATBOT_EVENT } from "@/lib/chatbot/open-dock-event";
 import { localizePath } from "@/lib/i18n/routing";
 
 const paymentMethods = [
@@ -40,10 +41,6 @@ const paymentMethods = [
   },
 ] as const;
 
-type ChannelIOWindow = Window & {
-  ChannelIO?: (...args: unknown[]) => void;
-};
-
 export function Footer() {
   const { locale, messages } = useI18n();
   const t = messages.common.footer;
@@ -61,15 +58,12 @@ export function Footer() {
             <ul className="space-y-4">
               <li>
                 <button
+                  type="button"
                   onClick={() => {
-                    const channelWindow = typeof window !== "undefined" ? (window as ChannelIOWindow) : null;
-                    if (channelWindow?.ChannelIO) {
-                      channelWindow.ChannelIO("showMessenger");
-                    } else {
-                      alert(t.liveChatUnavailable);
-                    }
+                    if (typeof window === "undefined") return;
+                    window.dispatchEvent(new CustomEvent(OPEN_GUIDEMATCH_CHATBOT_EVENT));
                   }}
-                  className="group text-left outline-none"
+                  className="group w-full text-left outline-none"
                 >
                   <p className="text-sm font-bold text-slate-700 transition-colors group-hover:text-blue-600">
                     {t.liveChat}
