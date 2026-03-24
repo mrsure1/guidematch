@@ -59,8 +59,6 @@ export async function GET(request: Request) {
 
             if (isAdminEmail) {
                 userRole = 'admin';
-            } else if (adminAllowlistEnabled && userRole === 'admin') {
-                userRole = 'traveler';
             }
 
             const userFullName = metadata?.full_name || metadata?.name || session.user.email?.split('@')[0] || 'User';

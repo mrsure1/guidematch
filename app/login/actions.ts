@@ -48,8 +48,6 @@ export async function login(formData: FormData) {
 
     if (isAdminEmail) {
         targetRole = 'admin';
-    } else if (adminAllowlistEnabled && targetRole === 'admin') {
-        targetRole = 'traveler';
     }
 
     // 만약 선택된 역할이 기존 프로필과 다르거나 프로필이 없는 경우 업데이트 실행 (Role Switching 지원)

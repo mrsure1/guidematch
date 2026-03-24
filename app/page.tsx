@@ -284,7 +284,9 @@ export default async function Home() {
     .limit(6);
 
   const dbGuides: LandingGuide[] =
-    (rawGuides as GuideRow[] | null)?.map((guide) => {
+    (rawGuides as GuideRow[] | null)
+      ?.filter((guide) => firstOf(guide.guides_detail) != null)
+      .map((guide) => {
       const detail = firstOf(guide.guides_detail);
       const languages = detail?.languages;
       const localizedBio =
