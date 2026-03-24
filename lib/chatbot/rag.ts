@@ -1,6 +1,6 @@
 import { loadFaqRows } from "@/lib/chatbot/faq";
 import { loadSiteCorpus } from "@/lib/chatbot/corpus";
-import { scoreText } from "@/lib/chatbot/score";
+import { scoreText, scoreFaqRelevance } from "@/lib/chatbot/score";
 import type { FaqRow, SiteChunk } from "@/lib/chatbot/types";
 
 export type RetrievedContext = {
@@ -8,7 +8,7 @@ export type RetrievedContext = {
   siteHits: { chunk: SiteChunk; score: number }[];
 };
 
-const TOP_FAQ = 6;
+const TOP_FAQ = 8;
 const TOP_SITE = 8;
 
 export function retrieveForQuery(query: string, locale: string): RetrievedContext {
@@ -17,9 +17,7 @@ export function retrieveForQuery(query: string, locale: string): RetrievedContex
 
   let faqScored = faqs
     .map((row) => {
-      const sq = scoreText(query, row.question);
-      const sa = scoreText(query, row.answer);
-      const score = Math.max(sq * 1.1, sa * 0.9, scoreText(query, `${row.question} ${row.answer}`));
+      const score = scoreFaqRelevance(query, row.question, row.answer);
       return { row, score };
     })
     .filter((x) => x.score > 0)
@@ -66,7 +64,7 @@ export function formatContextBlock(ctx: RetrievedContext): string {
 export function fallbackAnswer(query: string, ctx: RetrievedContext, locale: string): string {
   const en = locale === "en";
   const bestFaq = ctx.faqHits[0];
-  if (bestFaq && bestFaq.score >= 2) {
+  if (bestFaq && bestFaq.score >= 8) {
     return bestFaq.row.answer;
   }
 

@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import AnalyticsScripts from "@/components/analytics/AnalyticsScripts";
 import { Footer } from "@/components/layout/Footer";
 import { ChannelTalk } from "@/components/support/ChannelTalk";
+import { GlobalChatbotDock } from "@/components/support/GlobalChatbotDock";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
 import { getDictionary } from "@/lib/i18n/dictionary";
 import { getRequestLocale } from "@/lib/i18n/get-request-locale";
@@ -36,6 +37,7 @@ export default async function RootLayout({
           {children}
           {!hideGlobalChrome ? <Footer /> : null}
           {!hideGlobalChrome ? <ChannelTalk /> : null}
+          {!hideGlobalChrome ? <GlobalChatbotDock /> : null}
         </LocaleProvider>
       </body>
     </html>

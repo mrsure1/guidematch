@@ -69,9 +69,14 @@ export function ChatEmbedClient({ locale: serverLocale }: Props) {
         }),
       });
       const raw = await res.text();
-      let data: { answer?: string; error?: string } = {};
+      let data = {} as {
+        answer?: string;
+        error?: string;
+        rateLimited?: boolean;
+        retryAfterSec?: number;
+      };
       try {
-        data = raw ? (JSON.parse(raw) as { answer?: string; error?: string }) : {};
+        data = raw ? (JSON.parse(raw) as typeof data) : {};
       } catch {
         console.error("[chatbot] JSON 파싱 실패, 응답 앞부분:", raw.slice(0, 200));
         throw new Error(
@@ -80,6 +85,19 @@ export function ChatEmbedClient({ locale: serverLocale }: Props) {
             : "서버 응답 형식이 올바르지 않습니다. 배포·네트워크를 확인해 주세요.",
         );
       }
+
+      if (res.status === 429 && data.answer?.trim()) {
+        const base = data.answer.trim();
+        const suffix =
+          effectiveLocale === "en"
+            ? "\n\n— Traffic is high right now; this reply is from our FAQ only (AI generation was skipped to save quota)."
+            : `\n\n— 현재 이용량이 많아 AI 생성 없이 FAQ·안내 문구만으로 답변했습니다. 잠시 후(${data.retryAfterSec ?? "?"}초 뒤) 다시 시도해 보실 수 있습니다.`;
+        const withAssistant = [...itemsRef.current, { role: "assistant" as const, content: base + suffix }];
+        itemsRef.current = withAssistant;
+        setItems(withAssistant);
+        return;
+      }
+
       if (!res.ok) {
         const detail = data.error?.trim();
         throw new Error(detail || (effectiveLocale === "en" ? `Request failed (${res.status})` : `요청 실패 (${res.status})`));

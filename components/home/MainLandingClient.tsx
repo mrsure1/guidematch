@@ -12,8 +12,6 @@ import { SearchForm, type SearchDraft } from "./SearchForm";
 import { ThemeNavigation } from "./ThemeNavigation";
 import { GuideCard, type LandingGuide } from "./GuideCard";
 import { TourCard, type LandingTour } from "./TourCard";
-import { GuideMatchChatDock } from "@/components/support/GuideMatchChatDock";
-
 export type { LandingGuide, LandingTour };
 
 type Props = {
@@ -223,7 +221,6 @@ export default function MainLandingClient({ guideHref, guides, tours, userName, 
         </div>
       </section>
 
-      <GuideMatchChatDock />
     </main>
   );
 }

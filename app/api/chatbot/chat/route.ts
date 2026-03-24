@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
-import { generateChatReply } from "@/lib/chatbot/generate-reply";
+import { generateChatReply, generateFaqOnlyReply } from "@/lib/chatbot/generate-reply";
+import { notifyChatbotRateLimitApproaching } from "@/lib/chatbot/rate-limit-alert";
+import { checkChatbotRateLimit, getClientIp } from "@/lib/chatbot/rate-limit";
 import type { ChatMessage } from "@/lib/chatbot/types";
 
 export const runtime = "nodejs";
+
+const MAX_BODY_BYTES = 96 * 1024;
+const MAX_TOTAL_MESSAGE_CHARS = 12_000;
+const MAX_SINGLE_MESSAGE_CHARS = 3_000;
 
 function isChatMessage(x: unknown): x is ChatMessage {
   if (!x || typeof x !== "object") return false;
@@ -10,8 +16,34 @@ function isChatMessage(x: unknown): x is ChatMessage {
   return (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.length > 0;
 }
 
+function validateMessagePayload(messages: ChatMessage[]): string | null {
+  let total = 0;
+  for (const m of messages) {
+    const len = m.content.length;
+    if (len > MAX_SINGLE_MESSAGE_CHARS) {
+      return `메시지 한 건은 ${MAX_SINGLE_MESSAGE_CHARS}자 이하로 보내 주세요.`;
+    }
+    total += len;
+  }
+  if (total > MAX_TOTAL_MESSAGE_CHARS) {
+    return `전체 대화 텍스트는 ${MAX_TOTAL_MESSAGE_CHARS}자 이하로 보내 주세요.`;
+  }
+  return null;
+}
+
 export async function POST(request: Request) {
   try {
+    const cl = request.headers.get("content-length");
+    if (cl) {
+      const n = parseInt(cl, 10);
+      if (Number.isFinite(n) && n > MAX_BODY_BYTES) {
+        return NextResponse.json(
+          { error: `요청 본문이 너무 큽니다. (${MAX_BODY_BYTES}바이트 이하)` },
+          { status: 413 },
+        );
+      }
+    }
+
     const body = (await request.json()) as { messages?: unknown; locale?: string };
     const raw = body.messages;
     if (!Array.isArray(raw) || raw.length === 0) {
@@ -23,7 +55,40 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "유효한 메시지가 없습니다." }, { status: 400 });
     }
 
+    const payloadErr = validateMessagePayload(messages);
+    if (payloadErr) {
+      return NextResponse.json({ error: payloadErr }, { status: 400 });
+    }
+
     const locale = body.locale === "en" ? "en" : "ko";
+    const ip = getClientIp(request);
+    const rl = await checkChatbotRateLimit(ip);
+
+    if (!rl.ok) {
+      const result = await generateFaqOnlyReply(messages, locale);
+      const retryAfterSec = Math.max(1, Math.ceil((rl.resetMs - Date.now()) / 1000));
+      return NextResponse.json(
+        {
+          answer: result.answer,
+          usedModel: false,
+          rateLimited: true,
+          retryAfterSec,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(retryAfterSec) },
+        },
+      );
+    }
+
+    void notifyChatbotRateLimitApproaching({
+      ip,
+      remaining: rl.remaining,
+      limit: rl.limit,
+      resetMs: rl.resetMs,
+      mode: rl.mode,
+    });
+
     const result = await generateChatReply(messages, locale);
 
     return NextResponse.json({

@@ -45,3 +45,52 @@ export function scoreText(query: string, text: string): number {
 
   return score;
 }
+
+function hangulOnly(s: string): string {
+  return s.replace(/[^가-힣]/g, "");
+}
+
+/** 질문↔FAQ 제목 간 2-gram 자카드 (0~1) */
+function hangulBigramJaccard(a: string, b: string): number {
+  const ah = hangulOnly(a);
+  const bh = hangulOnly(b);
+  if (ah.length < 2 || bh.length < 2) return 0;
+  const A = new Set<string>();
+  for (let i = 0; i < ah.length - 1; i++) A.add(ah.slice(i, i + 2));
+  const B = new Set<string>();
+  for (let i = 0; i < bh.length - 1; i++) B.add(bh.slice(i, i + 2));
+  let inter = 0;
+  for (const x of A) {
+    if (B.has(x)) inter += 1;
+  }
+  const union = A.size + B.size - inter;
+  return union === 0 ? 0 : inter / union;
+}
+
+/**
+ * FAQ 한 행에 대한 검색 점수 (질문 표현이 달라도 비슷한 의미로 잡히도록 강화).
+ */
+export function scoreFaqRelevance(query: string, question: string, answer: string): number {
+  const base = Math.max(
+    scoreText(query, question) * 1.2,
+    scoreText(query, answer) * 0.88,
+    scoreText(query, `${question} ${answer}`),
+  );
+
+  const qh = hangulOnly(query);
+  const qq = hangulOnly(question);
+  let bonus = 0;
+  if (qh.length >= 3 && qq.length >= 3) {
+    if (qq.includes(qh) || qh.includes(qq)) bonus += 28;
+    bonus += hangulBigramJaccard(query, question) * 34;
+    bonus += hangulBigramJaccard(query, answer) * 12;
+  }
+
+  const cq = query.toLowerCase().replace(/\s+/g, "");
+  const cqQ = question.toLowerCase().replace(/\s+/g, "");
+  if (cq.length >= 4 && cqQ.length >= 4 && (cqQ.includes(cq) || cq.includes(cqQ))) {
+    bonus += 14;
+  }
+
+  return base + bonus;
+}

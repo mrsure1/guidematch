@@ -12,6 +12,7 @@ function buildSystemPrompt(locale: string): string {
   return [
     "You are GuideMatch (Korea travel guide matching) customer assistant.",
     "Answer ONLY using the provided CONTEXT blocks. If CONTEXT is insufficient, say so briefly and suggest email support@guidematch.com or the site Support page.",
+    "When an FAQ entry in CONTEXT clearly matches the user's question, treat that FAQ answer as authoritative: stay consistent with it; prefer quoting or light paraphrase over inventing new policy details.",
     "Do not invent policies, prices, or legal facts not present in CONTEXT.",
     "Keep answers concise (roughly 3–8 sentences unless the user asks for detail).",
     "No markdown headings; plain paragraphs or short bullets are fine.",
@@ -40,6 +41,17 @@ export type GenerateResult = {
   context: RetrievedContext;
 };
 
+/** Gemini 없이 FAQ·사이트 RAG 폴백만 (레이트 리밋 등) */
+export async function generateFaqOnlyReply(messages: ChatMessage[], locale: string): Promise<GenerateResult> {
+  const query = lastUserText(messages);
+  const ctx = retrieveForQuery(query, locale);
+  return {
+    answer: fallbackAnswer(query, ctx, locale),
+    usedModel: false,
+    context: ctx,
+  };
+}
+
 export async function generateChatReply(messages: ChatMessage[], locale: string): Promise<GenerateResult> {
   const query = lastUserText(messages);
   const ctx = retrieveForQuery(query, locale);
@@ -52,6 +64,22 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
   if (!apiKey) {
     return {
       answer: fallbackAnswer(query, ctx, locale),
+      usedModel: false,
+      context: ctx,
+    };
+  }
+
+  const faqTop = ctx.faqHits[0];
+  const faqSecond = ctx.faqHits[1];
+  const directMin = Math.max(1, parseInt(process.env.CHATBOT_FAQ_DIRECT_MIN_SCORE || "24", 10) || 24);
+  const directGap = Math.max(0, parseInt(process.env.CHATBOT_FAQ_DIRECT_GAP || "5", 10) || 5);
+  if (
+    faqTop &&
+    faqTop.score >= directMin &&
+    (!faqSecond || faqTop.score >= faqSecond.score + directGap)
+  ) {
+    return {
+      answer: faqTop.row.answer,
       usedModel: false,
       context: ctx,
     };
@@ -93,7 +121,7 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
     const response = await ai.models.generateContent({
       model: MODEL,
       contents,
-      config: { temperature: 0.35 },
+      config: { temperature: 0.22 },
     });
     const text = response.text?.trim();
     if (!text) {
