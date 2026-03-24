@@ -7,6 +7,25 @@ function hasHangul(s: string): boolean {
   return /[가-힣]/.test(s);
 }
 
+/** 인사·짧은 감사 등 — FAQ 불릿 폴백을 쓰면 안 됨 */
+export function isSmallTalkOnly(query: string): boolean {
+  const t = query.trim().replace(/[`"'“”‘’]+/g, "");
+  if (!t) return true;
+  if (t.length > 48) return false;
+  const lower = t.toLowerCase();
+  return (
+    /^(hi|hello|hey|hiya|yo|sup|good\s+(morning|afternoon|evening)|howdy|thanks?|thank\s+you|thx|안녕(?:하세요)?|반가(?:워요|습니다)|고마워(?:요)?|감사(?:합니다)?)[\s!.?,~…]*$/i.test(
+      lower,
+    ) || /^hi[\s,]+there[\s!.?,]*$/i.test(lower)
+  );
+}
+
+export function smallTalkFallback(locale: string): string {
+  return locale === "en"
+    ? "Hi! I’m the GuideMatch assistant. Ask me about guide matching, bookings, payments, or cancellations — I’ll answer from our FAQ and site info."
+    : "안녕하세요! 가이드 매칭·예약·결제·취소 등 궁금한 점을 물어보시면 FAQ와 사이트 안내를 바탕으로 답해 드립니다.";
+}
+
 export type RetrievedContext = {
   faqHits: { row: FaqRow; score: number }[];
   siteHits: { chunk: SiteChunk; score: number }[];
@@ -89,6 +108,9 @@ export function formatContextBlock(ctx: RetrievedContext, locale: string): strin
 }
 
 export function fallbackAnswer(query: string, ctx: RetrievedContext, locale: string): string {
+  if (isSmallTalkOnly(query)) {
+    return smallTalkFallback(locale);
+  }
   const en = locale === "en";
   const bestFaq = ctx.faqHits[0];
   if (bestFaq && bestFaq.score >= 8 && !(en && hasHangul(bestFaq.row.answer))) {

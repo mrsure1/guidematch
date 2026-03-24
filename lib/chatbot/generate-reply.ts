@@ -1,5 +1,11 @@
 import type { ChatMessage } from "@/lib/chatbot/types";
-import { formatContextBlock, fallbackAnswer, retrieveForQuery, type RetrievedContext } from "@/lib/chatbot/rag";
+import {
+  formatContextBlock,
+  fallbackAnswer,
+  retrieveForQuery,
+  isSmallTalkOnly,
+  type RetrievedContext,
+} from "@/lib/chatbot/rag";
 import { GoogleGenAI } from "@google/genai/node";
 
 const MODEL = process.env.GEMINI_CHAT_MODEL?.trim() || "gemini-2.0-flash";
@@ -125,12 +131,16 @@ export async function generateFaqOnlyReply(messages: ChatMessage[], locale: stri
 export async function generateChatReply(messages: ChatMessage[], locale: string): Promise<GenerateResult> {
   const query = lastUserText(messages);
   const ctx = retrieveForQuery(query, locale);
-  const formatted = formatContextBlock(ctx, locale).trim();
-  const contextBlock =
-    formatted ||
-    (locale === "en"
-      ? "(No close FAQ or site excerpt matched this question. Do not guess; give a short reply and suggest support@guidematch.com or the Support page.)"
-      : "(이번 질문과 직접 일치하는 FAQ·사이트 발췌를 찾지 못했습니다. 추측하지 말고, 일반적인 안내와 고객센터 문의를 권장하세요.)");
+  const smallTalk = isSmallTalkOnly(query);
+  const formatted = smallTalk ? "" : formatContextBlock(ctx, locale).trim();
+  const contextBlock = smallTalk
+    ? locale === "en"
+      ? "(The user only greeted or sent a short thanks. Reply warmly in 2–4 sentences. Do NOT list FAQs or paste site copy.)"
+      : "(짧은 인사·감사입니다. 2~4문장으로 짧게 답하세요. FAQ·사이트 문구를 나열하지 마세요.)"
+    : formatted ||
+      (locale === "en"
+        ? "(No close FAQ or site excerpt matched this question. Do not guess; give a short reply and suggest support@guidematch.com or the Support page.)"
+        : "(이번 질문과 직접 일치하는 FAQ·사이트 발췌를 찾지 못했습니다. 추측하지 말고, 일반적인 안내와 고객센터 문의를 권장하세요.)");
 
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
@@ -141,7 +151,13 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
     };
   }
 
-  const system = buildSystemPrompt(locale);
+  const system =
+    buildSystemPrompt(locale) +
+    (smallTalk
+      ? locale === "en"
+        ? "\nFor this turn: the user did not ask a product question yet — do not enumerate FAQ entries."
+        : "\n이번 턴은 제품 질문이 아닙니다 — FAQ 항목을 나열하지 마세요."
+      : "");
   const ai = new GoogleGenAI({ apiKey });
 
   const contents: { role: string; parts: { text: string }[] }[] = [];
@@ -190,7 +206,6 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
       config: {
         temperature: 0.38,
         systemInstruction: system,
-        responseMimeType: "text/plain",
       },
     });
     const rawText = response.text ?? "";
@@ -207,7 +222,33 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
     }
     return { answer: text, usedModel: true, context: ctx };
   } catch (e) {
-    console.error("[chatbot] Gemini error:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[chatbot] Gemini error:", msg, e);
+    try {
+      const last = contents[contents.length - 1];
+      const retryContents =
+        last?.role === "user" && last.parts[0]?.text
+          ? [
+              ...contents.slice(0, -1),
+              {
+                role: "user" as const,
+                parts: [{ text: `${system}\n\n${last.parts[0].text}` }],
+              },
+            ]
+          : contents;
+      const response = await ai.models.generateContent({
+        model: MODEL,
+        contents: retryContents,
+        config: { temperature: 0.38 },
+      });
+      const rawText = response.text ?? "";
+      const text = stripRagLeakage(sanitizeAssistantOutput(rawText.trim()));
+      if (text) {
+        return { answer: text, usedModel: true, context: ctx };
+      }
+    } catch (e2) {
+      console.error("[chatbot] Gemini retry (inline system) failed:", e2);
+    }
     return { answer: fallbackAnswer(query, ctx, locale), usedModel: false, context: ctx };
   }
 }
