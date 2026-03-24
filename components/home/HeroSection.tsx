@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User, LayoutDashboard } from "lucide-react";
+import { User, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { HeaderActions } from "@/components/layout/HeaderActions";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
@@ -47,6 +47,16 @@ export function HeroSection({ userName, userRole, guideHref, withLocale, childre
               
               {userName ? (
                 <div className="flex items-center gap-2 sm:gap-4">
+                  {userRole === 'admin' && (
+                    <Link
+                      href={withLocale('/admin/dashboard')}
+                      className="flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-white transition hover:border-white/30 hover:bg-white/12"
+                    >
+                      <ShieldCheck className="w-3 h-3" />
+                      관리자 대시보드
+                    </Link>
+                  )}
+
                   <Link
                     href={withLocale(userRole === 'guide' || userRole === 'admin' ? '/guide/profile' : '/traveler/profile')}
                     className="flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs font-bold text-white transition hover:border-white/30 hover:bg-white/12"

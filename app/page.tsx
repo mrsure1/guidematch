@@ -226,7 +226,18 @@ export default async function Home() {
     ? await supabase.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle()
     : null;
 
-  const profile = profileResult?.data ?? null;
+  let profile = profileResult?.data ? { ...profileResult.data } : null;
+
+  const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase());
+  const isAdminEmail = !!user?.email && adminEmails.includes(user.email.toLowerCase());
+
+  if (isAdminEmail) {
+    if (!profile) {
+      profile = { full_name: user?.user_metadata?.full_name || "Admin", role: "admin" } as any;
+    } else {
+      profile.role = "admin";
+    }
+  }
 
   const { data: rawGuides } = await supabase
     .from("profiles")
