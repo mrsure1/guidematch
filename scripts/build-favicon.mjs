@@ -1,5 +1,5 @@
 /**
- * One-off / CI: build app/icon.png + public/favicon.png from source logo PNG.
+ * One-off / CI: build app/icon.png, public/favicon.png, public/logo.png from source logo PNG.
  * Usage: node scripts/build-favicon.mjs [path-to-source.png]
  */
 import sharp from "sharp";
@@ -14,7 +14,8 @@ const defaultSrc = path.join(root, "public", "brand", "guidematch-favicon-source
 
 const src = process.argv[2] || defaultSrc;
 const outApp = path.join(root, "app", "icon.png");
-const outPublic = path.join(root, "public", "favicon.png");
+const outFavicon = path.join(root, "public", "favicon.png");
+const outLogo = path.join(root, "public", "logo.png");
 
 if (!fs.existsSync(src)) {
   console.error("[build-favicon] Source not found:", src);
@@ -38,6 +39,8 @@ const buf = await sharp(Buffer.from(px), { raw: { width: w, height: h, channels:
   .toBuffer();
 
 await fs.promises.writeFile(outApp, buf);
-await fs.promises.writeFile(outPublic, buf);
+await fs.promises.writeFile(outFavicon, buf);
+await fs.promises.writeFile(outLogo, buf);
 console.log("[build-favicon] wrote", outApp);
-console.log("[build-favicon] wrote", outPublic);
+console.log("[build-favicon] wrote", outFavicon);
+console.log("[build-favicon] wrote", outLogo);
