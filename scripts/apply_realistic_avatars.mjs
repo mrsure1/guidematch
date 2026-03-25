@@ -21,6 +21,7 @@ const mapping = [
   { id: '582eee5f-c151-4f0e-9061-09a1d4944a70', avatar: '/images/guides/guide_yeoju_realistic.png' },
   { id: '11111111-1111-1111-1111-111111111111', avatar: '/images/guides/guide_james_realistic.png' },
   { id: '22222222-2222-2222-2222-222222222222', avatar: '/images/guides/guide_soyeon_realistic.png' },
+  { id: 'f1ad3503-797a-46fb-8f43-b0d3718a4436', avatar: '/images/guides/guide_alex_realistic.png' }, // Alex (Landing page)
   { id: '33333333-3333-3333-3333-333333333333', avatar: '/images/guides/guide_henry_realistic.png' },
   { id: '44444444-4444-4444-4444-444444444444', avatar: '/images/guides/guide_gina_realistic.png' },
   { id: '1d1742de-7c17-4ffa-9f73-41a29d6eadc2', avatar: '/images/guides/guide_alex_realistic.png' }, // Minsoo
