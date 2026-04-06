@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { generateChatReply, generateFaqOnlyReply } from "@/lib/chatbot/generate-reply";
+import { generateFaqOnlyReply } from "@/lib/chatbot/generate-reply";
+import { orchestrate } from "@/lib/chatbot/orchestrator";
 import { persistChatbotTurn } from "@/lib/chatbot/persist-chat";
 import { notifyChatbotRateLimitApproaching } from "@/lib/chatbot/rate-limit-alert";
 import { checkChatbotRateLimit, getClientIp } from "@/lib/chatbot/rate-limit";
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
       mode: rl.mode,
     });
 
-    const result = await generateChatReply(messages, locale);
+    const result = await orchestrate(messages, locale);
     const savedId = await persistChatbotTurn({
       messages,
       locale,
@@ -115,6 +116,9 @@ export async function POST(request: Request) {
     return NextResponse.json({
       answer: result.answer,
       usedModel: result.usedModel,
+      intent: result.intent,
+      sources: result.sources,
+      evalScore: result.evalScore,
       conversationId: savedId ?? body.conversationId ?? null,
     });
   } catch (e) {
