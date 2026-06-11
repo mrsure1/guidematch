@@ -87,7 +87,9 @@ export default function CheckoutClient({
     ? booking.guide?.guides_detail[0]
     : booking.guide?.guides_detail;
   const tourTitle = booking.tour?.title_en || "Recommended tour";
-  const usdAmount = (booking.total_price / 1400).toFixed(2);
+  // PayPal도 KRW로 청구한다(고정환율 폐기). KRW는 무소수점 통화이므로 정수 문자열로 보낸다.
+  // 구매자 통화로의 환전은 PayPal이 결제 시점 환율로 자동 처리한다.
+  const paypalKrwValue = String(Math.round(booking.total_price));
 
   const showAlert = (title: string, message: string) => {
     setAlertConfig({ isOpen: true, title, message });
@@ -471,13 +473,13 @@ export default function CheckoutClient({
                   <div className="mx-5 animate-fade-in rounded-xl border border-slate-100 bg-slate-50 p-6 md:mx-0">
                     <div className="mb-6 text-center">
                       <p className="mb-2 font-medium text-slate-600">{t.paymentMethod.amountUsd}</p>
-                      <p className="text-3xl font-black text-[#003087]">${usdAmount}</p>
+                      <p className="text-3xl font-black text-[#003087]">₩{booking.total_price.toLocaleString()}</p>
                       <p className="mt-2 text-xs text-slate-400">{t.paymentMethod.usdNotice}</p>
                     </div>
                     <PayPalScriptProvider
                       options={{
                         clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test",
-                        currency: "USD",
+                        currency: "KRW",
                       }}
                     >
                       <PayPalButtons
@@ -488,8 +490,8 @@ export default function CheckoutClient({
                             purchase_units: [
                               {
                                 amount: {
-                                  currency_code: "USD",
-                                  value: usdAmount,
+                                  currency_code: "KRW",
+                                  value: paypalKrwValue,
                                 },
                                 description: tourTitle || "Tour Booking",
                               },

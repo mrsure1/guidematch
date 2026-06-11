@@ -121,7 +121,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Booking is already linked to another payment' }, { status: 409 });
         }
 
-        const expectedUsdAmount = (Number(booking.total_price) / 1400).toFixed(2);
+        // 결제는 KRW로 청구하고, 구매자 통화로의 환전은 PayPal이 결제 시점 환율로 처리한다.
+        // (고정환율 ÷1400 폐기 — 환율 변동에 따른 과청구/손실 제거)
+        // KRW는 무소수점 통화이므로 정수 문자열로 비교한다.
+        const expectedKrwAmount = String(Math.round(Number(booking.total_price)));
 
         const accessToken = await getPayPalAccessToken();
         const order = await fetchPayPalOrder(orderID, accessToken);
@@ -136,7 +139,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Invalid PayPal order data' }, { status: 502 });
         }
 
-        if (orderCurrency !== 'USD' || orderValue !== expectedUsdAmount) {
+        if (orderCurrency !== 'KRW' || Number(orderValue) !== Number(expectedKrwAmount)) {
             return NextResponse.json({ error: 'PayPal amount mismatch' }, { status: 400 });
         }
 
@@ -157,7 +160,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'PayPal capture not completed' }, { status: 502 });
         }
 
-        if (captureCurrency !== 'USD' || captureAmount !== expectedUsdAmount) {
+        if (captureCurrency !== 'KRW' || Number(captureAmount) !== Number(expectedKrwAmount)) {
             return NextResponse.json({ error: 'PayPal capture amount mismatch' }, { status: 400 });
         }
 
