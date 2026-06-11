@@ -1,3 +1,5 @@
+import { resolveChatModel } from "@/lib/gemini-model";
+
 export async function translateBioToEnglish(koreanBio: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey || !koreanBio) {
@@ -6,7 +8,7 @@ export async function translateBioToEnglish(koreanBio: string): Promise<string> 
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${resolveChatModel()}:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {

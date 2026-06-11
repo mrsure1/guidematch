@@ -10,7 +10,10 @@
     "lint": "eslint",
     "refresh-data": "node scripts/refresh-policy-data.js",
     "backfill:translations": "node scripts/backfill_existing_translations.mjs",
-    "chatbot:corpus": "node scripts/build-chatbot-corpus.mjs"
+    "chatbot:corpus": "node scripts/build-chatbot-corpus.mjs",
+    "chatbot:embeddings": "node scripts/build-chatbot-embeddings.mjs",
+    "chatbot:build": "node scripts/build-chatbot-corpus.mjs && node scripts/build-chatbot-embeddings.mjs",
+    "chatbot:eval": "tsx scripts/eval-chatbot.ts"
   },
   "dependencies": {
     "@google/genai": "^1.46.0",
@@ -43,6 +46,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }

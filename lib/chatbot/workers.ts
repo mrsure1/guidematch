@@ -10,13 +10,15 @@
 
 import type { ChatMessage, FaqRow, SiteChunk } from "@/lib/chatbot/types";
 import {
-  retrieveForQuery,
+  retrieveWithEmbedding,
   formatContextBlock,
   fallbackAnswer,
   isSmallTalkOnly,
   smallTalkFallback,
   type RetrievedContext,
 } from "@/lib/chatbot/rag";
+import { rewriteQueryForRetrieval } from "@/lib/chatbot/query-rewrite";
+import { resolveChatModel } from "@/lib/gemini-model";
 import { GoogleGenAI } from "@google/genai/node";
 
 /* ────────────────── 공통 타입 ────────────────── */
@@ -114,13 +116,30 @@ export function runQueryUnderstanding(state: PipelineState): PipelineState {
   return state;
 }
 
+/* ─────────── Worker 1.5: 멀티턴 질의 재작성(Query Rewrite) ─────────── */
+
+/**
+ * 후속(맥락 의존) 질문이면 직전 대화로 독립형 검색 질의를 만든다.
+ * 단발성 질문은 LLM 호출 없이 그대로 둔다.
+ */
+export async function runQueryRewrite(state: PipelineState): Promise<PipelineState> {
+  if (state.isSmallTalk) return state;
+  try {
+    const rewritten = await rewriteQueryForRetrieval(state.messages, state.locale);
+    if (rewritten && rewritten.trim()) state.searchQuery = rewritten.trim();
+  } catch (err) {
+    state.errors.push(`[Rewrite] ${String(err)}`);
+  }
+  return state;
+}
+
 /* ─────────── Worker 2: 검색(Retrieval) ─────────── */
 
-export function runRetrieval(state: PipelineState): PipelineState {
+export async function runRetrieval(state: PipelineState): Promise<PipelineState> {
   if (state.isSmallTalk) return state;
 
   try {
-    state.context = retrieveForQuery(state.searchQuery, state.locale);
+    state.context = await retrieveWithEmbedding(state.searchQuery, state.locale);
   } catch (err) {
     state.errors.push(`[Retrieval] ${String(err)}`);
     state.context = { faqHits: [], siteHits: [] };
@@ -273,7 +292,7 @@ export async function runAnswer(state: PipelineState): Promise<PipelineState> {
   // LLM 호출
   const system = buildSystemPrompt(state.locale);
   const ai = new GoogleGenAI({ apiKey });
-  const MODEL = process.env.GEMINI_CHAT_MODEL?.trim() || "gemini-2.0-flash";
+  const MODEL = resolveChatModel();
 
   // 대화 내역 구성 (최근 10턴)
   let history = state.messages.slice(-10);
@@ -316,7 +335,12 @@ export async function runAnswer(state: PipelineState): Promise<PipelineState> {
     const response = await ai.models.generateContent({
       model: MODEL,
       contents,
-      config: { temperature: 0.38, systemInstruction: system },
+      config: {
+        temperature: 0.38,
+        systemInstruction: system,
+        // 응답 속도를 위해 thinking 비활성화 (RAG 근거 답변엔 불필요)
+        thinkingConfig: { thinkingBudget: 0 },
+      },
     });
     const raw = response.text ?? "";
     const cleaned = stripLeakage(sanitize(raw));

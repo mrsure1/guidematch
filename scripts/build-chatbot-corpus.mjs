@@ -149,17 +149,35 @@ function parseFaqCsv(raw) {
 function writeFaqBundles() {
   const libChatbot = path.join(root, "lib", "chatbot");
   fs.mkdirSync(libChatbot, { recursive: true });
+  // 같은 질문이 여러 CSV에 있으면 뒤에 오는 파일(더 최신·정확한 데이터)이 우선한다.
   const bundles = [
-    ["faq-bundled-ko.json", "ChatBot/faq_data.csv"],
-    ["faq-bundled-en.json", "ChatBot/faq_data_english.csv"],
+    [
+      "faq-bundled-ko.json",
+      [
+        "ChatBot/faq_data.csv",
+        "ChatBot/faq_data_traveler.csv",
+        "ChatBot/faq_data_guide.csv",
+      ],
+    ],
+    ["faq-bundled-en.json", ["ChatBot/faq_data_english.csv"]],
   ];
-  for (const [name, relCsv] of bundles) {
-    const fp = path.join(root, relCsv);
-    if (!fs.existsSync(fp)) {
-      console.warn(`[chatbot-faq] skip ${name}: missing ${relCsv}`);
+  for (const [name, relCsvs] of bundles) {
+    const byQuestion = new Map();
+    for (const relCsv of relCsvs) {
+      const fp = path.join(root, relCsv);
+      if (!fs.existsSync(fp)) {
+        console.warn(`[chatbot-faq] skip for ${name}: missing ${relCsv}`);
+        continue;
+      }
+      for (const row of parseFaqCsv(fs.readFileSync(fp, "utf8"))) {
+        byQuestion.set(row.question, row);
+      }
+    }
+    if (byQuestion.size === 0) {
+      console.warn(`[chatbot-faq] skip ${name}: no rows parsed`);
       continue;
     }
-    const parsed = parseFaqCsv(fs.readFileSync(fp, "utf8"));
+    const parsed = [...byQuestion.values()];
     const outFile = path.join(libChatbot, name);
     fs.writeFileSync(outFile, JSON.stringify(parsed));
     console.info(`[chatbot-faq] wrote ${parsed.length} rows -> ${path.relative(root, outFile)}`);

@@ -6,7 +6,39 @@ import {
   scoreFaqLexicalOnly,
   expandQueryForRetrieval,
 } from "@/lib/chatbot/score";
+import {
+  cosine,
+  embedQuery,
+  faqEmbedText,
+  getDocEmbedding,
+  normalizeForKey,
+} from "@/lib/chatbot/embeddings";
 import type { FaqRow, SiteChunk } from "@/lib/chatbot/types";
+
+/**
+ * 시맨틱(임베딩) 점수를 어휘 점수에 더하는 가중치. 어휘 점수와 같은 스케일(0~수십)에
+ * 맞춰, 어휘 겹침이 없어도 의미가 맞으면 상위로 올라오도록 한다. 임베딩이 없으면 0.
+ */
+// 골든셋(scripts/eval-chatbot.ts)으로 튜닝한 값. 임베딩이 어휘보다 정확도가 높아
+// 시맨틱에 큰 가중치를 주되, 고유명사·정확매칭 변별을 위해 어휘도 의미 있게 남긴다.
+const SEM_BOOST_FAQ = Number(process.env.CHATBOT_SEM_BOOST_FAQ) || 120;
+const SEM_BOOST_SITE = Number(process.env.CHATBOT_SEM_BOOST_SITE) || 50;
+/** 코사인 베이스라인 제거: FLOOR 이하는 0, [FLOOR,1]을 [0,1]로 재척도. */
+const SEM_FLOOR = Number(process.env.CHATBOT_SEM_FLOOR) || 0.6;
+
+/** 질의 임베딩 vs 문서 텍스트의 시맨틱 점수(0~weight). 임베딩 없으면 0. */
+function semBoost(
+  queryEmbedding: Float32Array | null | undefined,
+  docText: string,
+  weight: number,
+): number {
+  if (!queryEmbedding) return 0;
+  const doc = getDocEmbedding(docText);
+  if (!doc) return 0;
+  const c = cosine(queryEmbedding, doc);
+  const s = (c - SEM_FLOOR) / (1 - SEM_FLOOR);
+  return s > 0 ? s * weight : 0;
+}
 
 function hasHangul(s: string): boolean {
   return /[가-힣]/.test(s);
@@ -62,7 +94,23 @@ function rankFaqByLexical(query: string, faqs: FaqRow[]) {
     .sort((a, b) => b.score - a.score);
 }
 
-export function retrieveForQuery(query: string, locale: string): RetrievedContext {
+/**
+ * 질의를 임베딩한 뒤 하이브리드(어휘+시맨틱) 검색을 수행한다.
+ * 키·임베딩이 없으면 queryEmbedding이 null이 되어 어휘 검색만으로 동작한다.
+ */
+export async function retrieveWithEmbedding(
+  query: string,
+  locale: string,
+): Promise<RetrievedContext> {
+  const queryEmbedding = await embedQuery(query);
+  return retrieveForQuery(query, locale, queryEmbedding);
+}
+
+export function retrieveForQuery(
+  query: string,
+  locale: string,
+  queryEmbedding?: Float32Array | null,
+): RetrievedContext {
   const q = query.normalize("NFC").trim();
   const faqs = selectFaqCorpusForQuery(q, locale);
   const corpus = loadSiteCorpus();
@@ -70,8 +118,9 @@ export function retrieveForQuery(query: string, locale: string): RetrievedContex
   const combined = faqs.map((row) => {
     const gated = scoreFaqRelevance(q, row.question, row.answer);
     const lexical = scoreFaqLexicalOnly(q, row.question, row.answer);
-    const score = Math.max(gated, lexical * 0.94);
-    return { row, score };
+    const lex = Math.max(gated, lexical * 0.94);
+    const sem = semBoost(queryEmbedding, faqEmbedText(row.question, row.answer), SEM_BOOST_FAQ);
+    return { row, score: lex + sem };
   });
 
   combined.sort((a, b) => b.score - a.score);
@@ -114,6 +163,7 @@ export function retrieveForQuery(query: string, locale: string): RetrievedContex
       if (chunk.locale && (chunk.locale === locale || chunk.locale === siteLocaleForBoost)) {
         score *= 1.06;
       }
+      score += semBoost(queryEmbedding, normalizeForKey(chunk.text), SEM_BOOST_SITE);
       return { chunk, score };
     })
     .filter((x) => x.score > 0)

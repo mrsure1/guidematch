@@ -1,0 +1,827 @@
+[
+  {
+    "id": "t-001",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "이 사이트는 정확히 뭘 해주는 곳이에요?",
+    "expect": "가이드매치는 어떤 서비스인가요?"
+  },
+  {
+    "id": "t-002",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "한국말 말고 다른 나라 말도 화면에 나와요?",
+    "expect": "사이트에서 영어도 지원하나요?"
+  },
+  {
+    "id": "t-003",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "시스템이 알아서 가이드를 짝지어 주는 건가요?",
+    "expect": "가이드가 자동으로 배정되나요?"
+  },
+  {
+    "id": "t-004",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "플랫폼 안 거치고 가이드랑 따로 돈 주고받아도 되나요?",
+    "expect": "가이드와 직접 거래하면 안 되나요?"
+  },
+  {
+    "id": "t-005",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "로그인 안 하고 그냥 예약 잡을 수 있나요?",
+    "expect": "회원가입 없이도 예약할 수 있나요?"
+  },
+  {
+    "id": "t-006",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "가이드를 찾으려면 무엇부터 입력해야 하나요?",
+    "expect": "가이드는 어떻게 검색하나요?"
+  },
+  {
+    "id": "t-007",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "결과 목록은 무슨 기준으로 위아래가 정해지나요?",
+    "expect": "검색 결과는 어떤 순서로 정렬되나요?"
+  },
+  {
+    "id": "t-008",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "꼬마들도 같이 가는데 그 수도 넣을 수 있어요?",
+    "expect": "어린이 인원도 검색에 포함할 수 있나요?"
+  },
+  {
+    "id": "t-009",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "내가 원하는 사람을 골라잡을 수 있는 건가요?",
+    "expect": "가이드를 직접 고를 수 있나요?"
+  },
+  {
+    "id": "t-010",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "해운대 쪽 안내해줄 분은 어떻게 찾죠?",
+    "expect": "부산 가이드를 찾으려면 어떻게 하나요?"
+  },
+  {
+    "id": "t-011",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "아무도 안 나올 땐 뭘 해야 하나요?",
+    "expect": "검색 결과가 없으면 어떻게 하나요?"
+  },
+  {
+    "id": "t-012",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "체크 마크 같은 표시는 뭘 의미하는 거예요?",
+    "expect": "인증 배지는 무엇인가요?"
+  },
+  {
+    "id": "t-013",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "후기들이 조작된 가짜는 아니겠죠?",
+    "expect": "가이드 리뷰는 진짜인가요?"
+  },
+  {
+    "id": "t-014",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "하루 비용이 얼마인지 어디 보면 나와요?",
+    "expect": "가이드 요금은 어디서 보나요?"
+  },
+  {
+    "id": "t-015",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "행동이 수상한 사람을 알리고 싶은데요",
+    "expect": "이상한 가이드를 신고하고 싶어요"
+  },
+  {
+    "id": "t-016",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "이 분을 신뢰해도 되는지 무엇으로 가늠하나요?",
+    "expect": "가이드를 믿어도 될지 어떻게 판단하나요?"
+  },
+  {
+    "id": "t-017",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "한 팀에 최대 몇 사람까지 들어갈 수 있어요?",
+    "expect": "투어 최대 인원은 몇 명인가요?"
+  },
+  {
+    "id": "t-018",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "끌리는 상품을 따로 보관해두는 방법이 있나요?",
+    "expect": "마음에 드는 투어를 저장해 두고 싶어요"
+  },
+  {
+    "id": "t-019",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "밥값이 값에 들어가 있는지 어떻게 알죠?",
+    "expect": "식사가 포함된 투어인지 어떻게 아나요?"
+  },
+  {
+    "id": "t-020",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "예약 넣고 나서 그다음엔 뭐가 진행돼요?",
+    "expect": "예약 요청 후에는 어떻게 되나요?"
+  },
+  {
+    "id": "t-021",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "거절당하면 다른 분한테 다시 넣어도 돼요?",
+    "expect": "예약이 거절되면 다른 가이드를 예약할 수 있나요?"
+  },
+  {
+    "id": "t-022",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "내가 잡은 일정들을 한눈에 보려면 어디로 가요?",
+    "expect": "예약 내역은 어디서 확인하나요?"
+  },
+  {
+    "id": "t-023",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "내일 가는 건데 지금 잡아도 괜찮을까요?",
+    "expect": "내일 투어인데 지금 예약해도 되나요?"
+  },
+  {
+    "id": "t-024",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "넣어 둔 날짜를 다른 날로 미루고 싶어요",
+    "expect": "예약 날짜를 변경하고 싶어요"
+  },
+  {
+    "id": "t-025",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "확정 떴는데 이제 뭘 하면 되나요?",
+    "expect": "예약이 확정된 후 해야 할 일은 무엇인가요?"
+  },
+  {
+    "id": "t-026",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "돈은 어떤 방법들로 낼 수 있어요?",
+    "expect": "어떤 결제 수단을 사용할 수 있나요?"
+  },
+  {
+    "id": "t-027",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "계좌로 직접 쏴도 되는 건가요?",
+    "expect": "무통장 입금이 가능한가요?"
+  },
+  {
+    "id": "t-028",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "외국 사람인데 어떻게 돈을 지불하죠?",
+    "expect": "외국인인데 결제는 어떻게 하나요?"
+  },
+  {
+    "id": "t-029",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "절반만 먼저 내고 나머지 나중에 내는 게 되나요?",
+    "expect": "분할 결제가 가능한가요?"
+  },
+  {
+    "id": "t-030",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "낸 돈 증빙은 어디서 뽑아요?",
+    "expect": "영수증은 어디서 받을 수 있나요?"
+  },
+  {
+    "id": "t-031",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "되돌려받는 규칙이 어떻게 되나요?",
+    "expect": "환불 규정을 알려주세요"
+  },
+  {
+    "id": "t-032",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "안 나타나버리면 한 푼도 못 돌려받나요?",
+    "expect": "노쇼하면 환불받을 수 있나요?"
+  },
+  {
+    "id": "t-033",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "그날 비 쏟아지면 무를 수 있어요?",
+    "expect": "비가 오면 취소할 수 있나요?"
+  },
+  {
+    "id": "t-034",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "사흘 앞두고 무르면 다 돌려받아요?",
+    "expect": "3일 전에 취소하면 전액 환불인가요?"
+  },
+  {
+    "id": "t-035",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "다녀온 뒤 후기는 어떤 식으로 남겨요?",
+    "expect": "리뷰는 어떻게 작성하나요?"
+  },
+  {
+    "id": "t-036",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "별은 최대 몇 개까지 칠할 수 있어요?",
+    "expect": "별점은 몇 점까지 줄 수 있나요?"
+  },
+  {
+    "id": "t-037",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "안내해줄 분이랑은 무슨 방법으로 얘기해요?",
+    "expect": "가이드와 어떻게 연락하나요?"
+  },
+  {
+    "id": "t-038",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "그냥 카톡으로 연락 주고받아도 되나요?",
+    "expect": "가이드와 카톡으로 연락해도 되나요?"
+  },
+  {
+    "id": "t-039",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "네이버나 구글 같은 걸로 바로 들어갈 수 있어요?",
+    "expect": "소셜 로그인이 가능한가요?"
+  },
+  {
+    "id": "t-040",
+    "persona": "traveler",
+    "type": "paraphrase",
+    "query": "계정을 아예 없애려면 어떻게 해요?",
+    "expect": "회원 탈퇴는 어떻게 하나요?"
+  },
+  {
+    "id": "t-041",
+    "persona": "traveler",
+    "type": "direct",
+    "query": "예약은 어떻게 하나요?",
+    "expect": "예약은 어떻게 하나요?"
+  },
+  {
+    "id": "t-042",
+    "persona": "traveler",
+    "type": "direct",
+    "query": "결제는 어떻게 하나요?",
+    "expect": "결제는 어떻게 하나요?"
+  },
+  {
+    "id": "t-043",
+    "persona": "traveler",
+    "type": "direct",
+    "query": "예약 취소는 어떻게 하나요?",
+    "expect": "예약 취소는 어떻게 하나요?"
+  },
+  {
+    "id": "t-044",
+    "persona": "traveler",
+    "type": "direct",
+    "query": "찜하기는 어떻게 하나요?",
+    "expect": "찜하기는 어떻게 하나요?"
+  },
+  {
+    "id": "t-045",
+    "persona": "traveler",
+    "type": "direct",
+    "query": "로그인이 안 돼요",
+    "expect": "로그인이 안 돼요"
+  },
+  {
+    "id": "t-046",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그거 어디에 보여요?",
+    "expect": "가이드의 구사 언어는 어디서 확인하나요?",
+    "messages": [
+      { "role": "user", "content": "영어 되는 가이드랑 다니고 싶어요" },
+      { "role": "assistant", "content": "가이드는 여러 언어를 구사할 수 있으며 프로필에서 구사 가능한 언어를 확인하실 수 있습니다." },
+      { "role": "user", "content": "그거 어디에 보여요?" }
+    ]
+  },
+  {
+    "id": "t-047",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그건 며칠이나 걸려요?",
+    "expect": "환불 처리 기간은 얼마나 걸리나요?",
+    "messages": [
+      { "role": "user", "content": "환불 규정 알려주세요" },
+      { "role": "assistant", "content": "투어 시작 72시간 전까지 취소하시면 100% 환불됩니다." },
+      { "role": "user", "content": "그건 며칠이나 걸려요?" }
+    ]
+  },
+  {
+    "id": "t-048",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그러면 그 사람을 어떻게 골라요?",
+    "expect": "마음에 드는 가이드를 어떻게 선택하나요?",
+    "messages": [
+      { "role": "user", "content": "가이드는 자동으로 정해지나요?" },
+      { "role": "assistant", "content": "자동 배정이 아니라 여행자가 직접 비교하고 선택하는 방식입니다." },
+      { "role": "user", "content": "그러면 그 사람을 어떻게 골라요?" }
+    ]
+  },
+  {
+    "id": "t-049",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그 사람이 받아주면 그다음은요?",
+    "expect": "가이드가 수락하면 바로 결제해야 하나요?",
+    "messages": [
+      { "role": "user", "content": "예약을 넣으면 어떻게 진행돼요?" },
+      { "role": "assistant", "content": "예약 요청을 보내면 수락 대기 상태가 되고, 가이드가 수락하면 확정 상태가 됩니다." },
+      { "role": "user", "content": "그 사람이 받아주면 그다음은요?" }
+    ]
+  },
+  {
+    "id": "t-050",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그 안에 못 내면 어떻게 돼요?",
+    "expect": "결제를 안 하면 예약은 어떻게 되나요?",
+    "messages": [
+      { "role": "user", "content": "수락받고 결제는 언제까지 해야 해요?" },
+      { "role": "assistant", "content": "가이드 수락 후 24시간 안에 결제하셔야 합니다." },
+      { "role": "user", "content": "그 안에 못 내면 어떻게 돼요?" }
+    ]
+  },
+  {
+    "id": "t-051",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그럼 이틀 전이면요?",
+    "expect": "투어 이틀 전에 취소하면 환불이 되나요?",
+    "messages": [
+      { "role": "user", "content": "72시간 전에 취소하면 전액이라고 하셨죠?" },
+      { "role": "assistant", "content": "네, 투어 시작 72시간 전까지 취소하시면 100% 환불됩니다." },
+      { "role": "user", "content": "그럼 이틀 전이면요?" }
+    ]
+  },
+  {
+    "id": "t-052",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그 사람 사정으로 깨지면요?",
+    "expect": "가이드가 취소하면 환불은요?",
+    "messages": [
+      { "role": "user", "content": "환불 규정이 어떻게 되나요?" },
+      { "role": "assistant", "content": "취소 시점에 따라 100%, 50%, 환불 불가로 나뉩니다." },
+      { "role": "user", "content": "그 사람 사정으로 깨지면요?" }
+    ]
+  },
+  {
+    "id": "t-053",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그거 한 번 쓰고 나면 또 쓸 수 있어요?",
+    "expect": "한 예약에 리뷰를 여러 개 쓸 수 있나요?",
+    "messages": [
+      { "role": "user", "content": "투어 끝나고 후기는 어떻게 남겨요?" },
+      { "role": "assistant", "content": "완료된 예약에 대해 별점과 텍스트로 리뷰를 남기실 수 있습니다." },
+      { "role": "user", "content": "그거 한 번 쓰고 나면 또 쓸 수 있어요?" }
+    ]
+  },
+  {
+    "id": "t-054",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그건 어디다 떠요?",
+    "expect": "리뷰는 어디에 표시되나요?",
+    "messages": [
+      { "role": "user", "content": "후기는 별점이랑 글로 쓰는 거죠?" },
+      { "role": "assistant", "content": "네, 별점 1~5점과 텍스트로 작성하실 수 있습니다." },
+      { "role": "user", "content": "그건 어디다 떠요?" }
+    ]
+  },
+  {
+    "id": "t-055",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "혹시 잘못 썼으면 지울 수도 있어요?",
+    "expect": "리뷰를 삭제할 수 있나요?",
+    "messages": [
+      { "role": "user", "content": "후기는 어떻게 작성해요?" },
+      { "role": "assistant", "content": "완료된 투어에 대해 별점과 텍스트로 작성하시면 됩니다." },
+      { "role": "user", "content": "혹시 잘못 썼으면 지울 수도 있어요?" }
+    ]
+  },
+  {
+    "id": "t-056",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그건 어디서 보내요?",
+    "expect": "메시지는 어디서 보내나요?",
+    "messages": [
+      { "role": "user", "content": "가이드랑 연락하고 싶어요" },
+      { "role": "assistant", "content": "사이트 내 1:1 메시지 기능으로 대화하실 수 있습니다." },
+      { "role": "user", "content": "그건 어디서 보내요?" }
+    ]
+  },
+  {
+    "id": "t-057",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "안 와요. 어떻게 해요?",
+    "expect": "인증 메일이 안 와요",
+    "messages": [
+      { "role": "user", "content": "가입하면 메일로 인증해야 하나요?" },
+      { "role": "assistant", "content": "네, 가입 시 이메일 인증 메일이 발송되며 인증 후 이용하실 수 있습니다." },
+      { "role": "user", "content": "안 와요. 어떻게 해요?" }
+    ]
+  },
+  {
+    "id": "t-058",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그러면 예전 기록도 다 없어지나요?",
+    "expect": "탈퇴하면 예약 내역도 사라지나요?",
+    "messages": [
+      { "role": "user", "content": "회원 탈퇴는 어떻게 하나요?" },
+      { "role": "assistant", "content": "프로필 페이지에서 탈퇴하실 수 있으며 모든 데이터가 삭제됩니다." },
+      { "role": "user", "content": "그러면 예전 기록도 다 없어지나요?" }
+    ]
+  },
+  {
+    "id": "t-059",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "거기에 파일도 같이 올릴 수 있어요?",
+    "expect": "문의할 때 파일을 첨부할 수 있나요?",
+    "messages": [
+      { "role": "user", "content": "1대1 문의는 어떻게 해요?" },
+      { "role": "assistant", "content": "고객센터의 1:1 문의 폼에서 내용을 작성해 접수하시면 됩니다." },
+      { "role": "user", "content": "거기에 파일도 같이 올릴 수 있어요?" }
+    ]
+  },
+  {
+    "id": "t-060",
+    "persona": "traveler",
+    "type": "followup",
+    "query": "그건 무슨 통화로 빠져나가요?",
+    "expect": "PayPal 결제는 어떤 통화로 되나요?",
+    "messages": [
+      { "role": "user", "content": "해외 카드로 결제할 수 있나요?" },
+      { "role": "assistant", "content": "해외 결제는 PayPal을 통해 가능합니다." },
+      { "role": "user", "content": "그건 무슨 통화로 빠져나가요?" }
+    ]
+  },
+  {
+    "id": "g-001",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "안내일을 해보려면 무엇부터 하면 되나요?",
+    "expect": "가이드로 활동하려면 어떻게 시작하나요?"
+  },
+  {
+    "id": "g-002",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "들어올 때 돈을 내야 하는 게 있나요?",
+    "expect": "가이드 가입비가 있나요?"
+  },
+  {
+    "id": "g-003",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "여행자로 이미 들어와 있는데 안내자로 바꿀 수 있나요?",
+    "expect": "이미 여행자로 가입했는데 가이드로 전환할 수 있나요?"
+  },
+  {
+    "id": "g-004",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "신분증 사본을 안 내면 안 되나요?",
+    "expect": "신분증을 꼭 제출해야 하나요?"
+  },
+  {
+    "id": "g-005",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "심사받고 통과해야 들어올 수 있는 건가요?",
+    "expect": "가입 승인 심사가 따로 있나요?"
+  },
+  {
+    "id": "g-006",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "내 소개나 요금을 어디 가서 바꿔요?",
+    "expect": "프로필은 어디서 수정하나요?"
+  },
+  {
+    "id": "g-007",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "한국말로 소개 적으면 외국 손님도 읽을 수 있어요?",
+    "expect": "자기소개를 한국어로 쓰면 외국인도 볼 수 있나요?"
+  },
+  {
+    "id": "g-008",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "점수를 제가 손대서 올릴 수 있나요?",
+    "expect": "평점을 직접 수정할 수 있나요?"
+  },
+  {
+    "id": "g-009",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "자격 증명서는 어디다 올리면 돼요?",
+    "expect": "자격증은 어디에 업로드하나요?"
+  },
+  {
+    "id": "g-010",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "새 상품을 만들려면 어떻게 해요?",
+    "expect": "투어는 어떻게 등록하나요?"
+  },
+  {
+    "id": "g-011",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "상품 만들 때 채워 넣어야 하는 칸이 뭐예요?",
+    "expect": "투어 등록 시 입력 항목은 무엇인가요?"
+  },
+  {
+    "id": "g-012",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "올린 상품을 잠깐 안 보이게 해도 돼요?",
+    "expect": "투어를 비공개로 바꿀 수 있나요?"
+  },
+  {
+    "id": "g-013",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "상품을 아예 없애버리고 싶은데요",
+    "expect": "투어를 삭제하고 싶어요"
+  },
+  {
+    "id": "g-014",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "내 상품이 검색에서 잘 뜨게 하려면 뭘 해야 해요?",
+    "expect": "내 투어가 검색에 잘 노출되게 하려면 어떻게 하나요?"
+  },
+  {
+    "id": "g-015",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "영어를 잘 못해도 일할 수 있을까요?",
+    "expect": "영어를 못해도 가이드 활동이 가능한가요?"
+  },
+  {
+    "id": "g-016",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "새로 들어온 예약 신청은 어디서 봐요?",
+    "expect": "새 예약 요청은 어디서 확인하나요?"
+  },
+  {
+    "id": "g-017",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "들어온 신청을 받아들이려면 어떻게 하죠?",
+    "expect": "예약을 수락하려면 어떻게 하나요?"
+  },
+  {
+    "id": "g-018",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "받기 전에 뭘 살펴봐야 하나요?",
+    "expect": "예약 수락 전에 무엇을 확인해야 하나요?"
+  },
+  {
+    "id": "g-019",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "같은 시간에 두 건 잡히는 걸 막으려면요?",
+    "expect": "더블부킹을 막으려면 어떻게 해야 하나요?"
+  },
+  {
+    "id": "g-020",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "손님 전화번호를 받을 수 있나요?",
+    "expect": "여행자 연락처를 알 수 있나요?"
+  },
+  {
+    "id": "g-021",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "쉬는 날을 어떻게 막아둬요?",
+    "expect": "휴무일은 어떻게 설정하나요?"
+  },
+  {
+    "id": "g-022",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "오래 여행을 떠날 건데 어떻게 처리해요?",
+    "expect": "장기 휴가를 가려고 하는데 어떻게 하나요?"
+  },
+  {
+    "id": "g-023",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "플랫폼이 내 수익에서 얼마나 가져가요?",
+    "expect": "가이드 수수료는 얼마인가요?"
+  },
+  {
+    "id": "g-024",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "등급은 무슨 기준으로 갈리는 거예요?",
+    "expect": "가이드 등급은 어떻게 나뉘나요?"
+  },
+  {
+    "id": "g-025",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "떼가는 비율을 줄이려면 뭘 하면 돼요?",
+    "expect": "수수료를 낮추려면 어떻게 해야 하나요?"
+  },
+  {
+    "id": "g-026",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "내 몫에서 빠지는 게 뭐가 더 있어요?",
+    "expect": "수수료 외에 다른 비용이 있나요?"
+  },
+  {
+    "id": "g-027",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "돈은 며칠마다 들어와요?",
+    "expect": "정산 주기는 어떻게 되나요?"
+  },
+  {
+    "id": "g-028",
+    "persona": "guide",
+    "type": "paraphrase",
+    "query": "받는 계좌를 다른 걸로 바꾸고 싶어요",
+    "expect": "정산 계좌를 바꾸고 싶어요"
+  },
+  {
+    "id": "g-029",
+    "persona": "guide",
+    "type": "direct",
+    "query": "정산은 언제 받나요?",
+    "expect": "정산은 언제 받나요?"
+  },
+  {
+    "id": "g-030",
+    "persona": "guide",
+    "type": "direct",
+    "query": "커미션 비율 알려주세요",
+    "expect": "커미션 비율 알려주세요"
+  },
+  {
+    "id": "g-031",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그러면 그건 어떻게 따요?",
+    "expect": "인증 배지는 어떻게 받나요?",
+    "messages": [
+      { "role": "user", "content": "검증 마크가 붙은 가이드가 더 신뢰받나요?" },
+      { "role": "assistant", "content": "네, 인증 배지는 운영팀 검증을 거친 가이드에게 부여됩니다." },
+      { "role": "user", "content": "그러면 그건 어떻게 따요?" }
+    ]
+  },
+  {
+    "id": "g-032",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그건 며칠 간격으로 들어와요?",
+    "expect": "정산 주기는 어떻게 되나요?",
+    "messages": [
+      { "role": "user", "content": "투어 끝나면 돈은 어떻게 받아요?" },
+      { "role": "assistant", "content": "여행자 결제 대금에서 수수료를 공제한 금액이 정산됩니다." },
+      { "role": "user", "content": "그건 며칠 간격으로 들어와요?" }
+    ]
+  },
+  {
+    "id": "g-033",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그럼 그걸 더 줄일 방법은요?",
+    "expect": "수수료를 낮추려면 어떻게 해야 하나요?",
+    "messages": [
+      { "role": "user", "content": "수수료가 등급마다 다르다고 들었어요" },
+      { "role": "assistant", "content": "네, 월 확정 예약 건수에 따라 15%, 12%, 10%로 나뉩니다." },
+      { "role": "user", "content": "그럼 그걸 더 줄일 방법은요?" }
+    ]
+  },
+  {
+    "id": "g-034",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그거 받기 전에 뭘 봐야 해요?",
+    "expect": "예약 수락 전에 무엇을 확인해야 하나요?",
+    "messages": [
+      { "role": "user", "content": "예약 신청이 들어오면 어떻게 받아요?" },
+      { "role": "assistant", "content": "대시보드의 예약 요청에서 수락을 선택하시면 됩니다." },
+      { "role": "user", "content": "그거 받기 전에 뭘 봐야 해요?" }
+    ]
+  },
+  {
+    "id": "g-035",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그 안에 결제 안 하면 어떻게 돼요?",
+    "expect": "수락 후 여행자가 결제를 안 하면 어떻게 되나요?",
+    "messages": [
+      { "role": "user", "content": "제가 수락하면 바로 확정인가요?" },
+      { "role": "assistant", "content": "수락 시 확정 상태가 되고 여행자가 결제하면 결제 완료로 바뀝니다." },
+      { "role": "user", "content": "그 안에 결제 안 하면 어떻게 돼요?" }
+    ]
+  },
+  {
+    "id": "g-036",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그럼 내 몫은 얼마나 들어와요?",
+    "expect": "당일 취소되면 어떻게 되나요?",
+    "messages": [
+      { "role": "user", "content": "손님이 당일에 취소하면 환불되나요?" },
+      { "role": "assistant", "content": "투어 시작 24시간 이내 취소는 환불이 불가합니다." },
+      { "role": "user", "content": "그럼 내 몫은 얼마나 들어와요?" }
+    ]
+  },
+  {
+    "id": "g-037",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그러면 손님 돈은 어떻게 처리돼요?",
+    "expect": "가이드가 취소하면 여행자 환불은 어떻게 되나요?",
+    "messages": [
+      { "role": "user", "content": "제가 확정된 걸 취소하면 제재가 있나요?" },
+      { "role": "assistant", "content": "취소가 반복되면 제재 대상이 됩니다." },
+      { "role": "user", "content": "그러면 손님 돈은 어떻게 처리돼요?" }
+    ]
+  },
+  {
+    "id": "g-038",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그거 두 번 쌓이면 어떻게 돼요?",
+    "expect": "가이드 노쇼 제재는 어떻게 되나요?",
+    "messages": [
+      { "role": "user", "content": "제가 약속 장소에 안 나가면 불이익이 있나요?" },
+      { "role": "assistant", "content": "확정 예약을 이행하지 않는 무단 노쇼는 제재 대상입니다." },
+      { "role": "user", "content": "그거 두 번 쌓이면 어떻게 돼요?" }
+    ]
+  },
+  {
+    "id": "g-039",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그건 어디다 올려요?",
+    "expect": "자격증은 어디에 업로드하나요?",
+    "messages": [
+      { "role": "user", "content": "인증 배지를 받으려면 서류가 필요한가요?" },
+      { "role": "assistant", "content": "네, 자격 증명 서류 검증을 거쳐 인증 배지가 부여됩니다." },
+      { "role": "user", "content": "그건 어디다 올려요?" }
+    ]
+  },
+  {
+    "id": "g-040",
+    "persona": "guide",
+    "type": "followup",
+    "query": "그건 어떻게 안 보이게 해요?",
+    "expect": "투어를 비공개로 바꿀 수 있나요?",
+    "messages": [
+      { "role": "user", "content": "한동안 쉬려면 상품을 어떻게 해야 해요?" },
+      { "role": "assistant", "content": "투어 노출을 멈추거나 일정 관리에서 휴무를 설정할 수 있습니다." },
+      { "role": "user", "content": "그건 어떻게 안 보이게 해요?" }
+    ]
+  }
+]

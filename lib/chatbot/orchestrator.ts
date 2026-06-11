@@ -12,6 +12,7 @@ import type { ChatMessage } from "@/lib/chatbot/types";
 import {
   createInitialState,
   runQueryUnderstanding,
+  runQueryRewrite,
   runRetrieval,
   runRerank,
   runAnswer,
@@ -50,8 +51,11 @@ export async function orchestrate(
     // Step 1: 질문 이해
     state = runQueryUnderstanding(state);
 
-    // Step 2: 문서 검색
-    state = runRetrieval(state);
+    // Step 1.5: 멀티턴 질의 재작성 (후속 질문일 때만 LLM 호출)
+    state = await runQueryRewrite(state);
+
+    // Step 2: 문서 검색 (어휘 + 임베딩 하이브리드)
+    state = await runRetrieval(state);
 
     // Step 3: 재정렬
     state = runRerank(state);

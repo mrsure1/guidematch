@@ -3,12 +3,15 @@ import {
   formatContextBlock,
   fallbackAnswer,
   retrieveForQuery,
+  retrieveWithEmbedding,
   isSmallTalkOnly,
   type RetrievedContext,
 } from "@/lib/chatbot/rag";
+import { rewriteQueryForRetrieval } from "@/lib/chatbot/query-rewrite";
+import { resolveChatModel } from "@/lib/gemini-model";
 import { GoogleGenAI } from "@google/genai/node";
 
-const MODEL = process.env.GEMINI_CHAT_MODEL?.trim() || "gemini-2.0-flash";
+const MODEL = resolveChatModel();
 
 /** 모델이 JSON/펜스/내부 마크업을 그대로보내는 경우 완화 */
 function sanitizeAssistantOutput(raw: string): string {
@@ -169,8 +172,11 @@ export async function generateFaqOnlyReply(messages: ChatMessage[], locale: stri
 
 export async function generateChatReply(messages: ChatMessage[], locale: string): Promise<GenerateResult> {
   const query = normalizedLastQuery(messages);
-  const ctx = retrieveForQuery(query, locale);
   const smallTalk = isSmallTalkOnly(query);
+  const searchQuery = smallTalk ? query : await rewriteQueryForRetrieval(messages, locale);
+  const ctx = smallTalk
+    ? retrieveForQuery(query, locale)
+    : await retrieveWithEmbedding(searchQuery, locale);
   const formatted = smallTalk ? "" : formatContextBlock(ctx, locale).trim();
   const faqAnchor = smallTalk ? "" : primaryFaqAnchor(ctx, query, locale);
   const contextBlock = smallTalk
@@ -246,6 +252,7 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
       config: {
         temperature: 0.38,
         systemInstruction: system,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
     const rawText = response.text ?? "";
@@ -279,7 +286,7 @@ export async function generateChatReply(messages: ChatMessage[], locale: string)
       const response = await ai.models.generateContent({
         model: MODEL,
         contents: retryContents,
-        config: { temperature: 0.38 },
+        config: { temperature: 0.38, thinkingConfig: { thinkingBudget: 0 } },
       });
       const rawText = response.text ?? "";
       const text = stripRagLeakage(sanitizeAssistantOutput(rawText.trim()));
