@@ -34,13 +34,10 @@
     "privacy": "개인정보 처리방침",
     "social": "소셜 미디어",
     "companyName": "가이드매치 (GuideMatch)",
-    "businessInfo1": "상호명: (주)가이드매치 | 대표자: 이진영 | 사업자등록번호: 000-00-00000",
-    "businessInfo2": "통신판매업 신고번호: 제 2026-서울강남-0000호",
-    "businessInfo3": "주소: 경기도 고양시 덕양구",
+    "businessInfo1": "상호명: 미스터슈어 | 대표자: 이진영 | 사업자등록번호: 587-74-00492",
     "businessInfo4": "이메일: support@guidematch.com",
-    "copyright": "GuideMatch Inc. All rights reserved.",
-    "ssl": "SSL 보안 서버",
-    "security": "정보보호 인증 마크"
+    "copyright": "MrSure. All rights reserved.",
+    "ssl": "SSL 보안 서버"
   },
   "chatbot": {
     "windowTitle": "가이드매치 도우미",

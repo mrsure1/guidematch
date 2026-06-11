@@ -34,13 +34,10 @@
     "privacy": "Privacy policy",
     "social": "Social media",
     "companyName": "GuideMatch Inc.",
-    "businessInfo1": "Company: GuideMatch Inc. | CEO: Jinyoung Lee | Business registration: 000-00-00000",
-    "businessInfo2": "E-commerce registration: 2026-Seoul-Gangnam-0000",
-    "businessInfo3": "Address: Deogyang-gu, Goyang-si, Gyeonggi-do",
+    "businessInfo1": "Business name: MrSure | CEO: Jinyoung Lee | Business reg. no.: 587-74-00492",
     "businessInfo4": "Email: support@guidematch.com",
-    "copyright": "GuideMatch Inc. All rights reserved.",
-    "ssl": "SSL secure server",
-    "security": "Security certification mark"
+    "copyright": "MrSure. All rights reserved.",
+    "ssl": "SSL secure server"
   },
   "chatbot": {
     "windowTitle": "GuideMatch Assistant",

@@ -160,8 +160,6 @@ export function Footer() {
           <div className="text-xs leading-5 text-slate-500">
             <p className="mb-2 font-bold text-slate-700">{t.companyName}</p>
             <p>{t.businessInfo1}</p>
-            <p>{t.businessInfo2}</p>
-            <p>{t.businessInfo3}</p>
             <p>{t.businessInfo4}</p>
             <p className="mt-4">
               &copy; {new Date().getFullYear()} {t.copyright}
@@ -192,10 +190,6 @@ export function Footer() {
               <span className="flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-green-500"></span>
                 {t.ssl}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                {t.security}
               </span>
             </div>
           </div>
