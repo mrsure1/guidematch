@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
-const resend = new Resend(resendApiKey);
 
 // 문의 수신자 이메일입니다.
 // 환경변수에 여러 개가 들어오면 콤마 기준으로 분리해서 모두 발송합니다.
@@ -56,6 +55,11 @@ export async function POST(request: NextRequest) {
     const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
 
     console.log("[Inquiry] Recipient emails:", recipientEmails.join(", "));
+
+    // Resend 클라이언트는 핸들러 안에서 지연 생성한다.
+    // 모듈 로드 시점에 만들면 RESEND_API_KEY 없는 빌드 환경에서 생성자가 throw해
+    // `next build`의 page-data 수집 단계가 깨진다(배포 실패).
+    const resend = new Resend(resendApiKey);
 
     const { data, error } = await resend.emails.send({
       from: "GuideMatch 문의 <onboarding@resend.dev>",
