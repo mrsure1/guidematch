@@ -11,8 +11,12 @@ const nextConfig: NextConfig = {
     "/api/chatbot/chat": [
       "./ChatBot/faq_data.csv",
       "./ChatBot/faq_data_english.csv",
+      "./ChatBot/faq_data_traveler.csv",
+      "./ChatBot/faq_data_guide.csv",
       "./lib/chatbot/site-corpus.json",
+      "./lib/chatbot/embeddings.json",
     ],
+    "/api/chatbot/prune": [],
   },
   images: {
     remotePatterns: [

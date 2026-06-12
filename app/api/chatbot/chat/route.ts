@@ -7,6 +7,7 @@ import { checkChatbotRateLimit, getClientIp } from "@/lib/chatbot/rate-limit";
 import type { ChatMessage } from "@/lib/chatbot/types";
 
 export const runtime = "nodejs";
+export const maxDuration = 30;
 
 const MAX_BODY_BYTES = 96 * 1024;
 const MAX_TOTAL_MESSAGE_CHARS = 12_000;
